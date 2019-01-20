@@ -42,8 +42,9 @@ addHook('fmod_edit', edit)
 def myLinkHandler(reviewer, url):
     if url.startswith("ankisave#"):
         fld, val = url.replace("ankisave#", "").split("#", 1)
-        reviewer.card.note()[fld] = val
-        reviewer.card.note().flush()
+        note = reviewer.card.note()
+        note[fld] = val
+        note.flush()
         reviewer.card.q(reload=True)
     elif url.startswith("ankisave!speedfocus#"):
         mw.reviewer.bottom.web.eval("""
