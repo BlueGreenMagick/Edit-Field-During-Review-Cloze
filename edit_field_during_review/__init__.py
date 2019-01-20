@@ -10,7 +10,9 @@ Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
 
 from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
-from aqt import mw
+from aqt.webview import AnkiWebView
+from aqt.clayout import CardLayout
+from aqt import mw, dialogs
 
 def edit(txt, extra, context, field, fullname):
     config = mw.addonManager.getConfig(__name__)
@@ -57,3 +59,29 @@ def myLinkHandler(reviewer, url):
 
 origLinkHandler = Reviewer._linkHandler
 Reviewer._linkHandler = myLinkHandler
+
+def onOpenCardLayout(self, *args, **kwargs):
+    mw.cardLayout = self
+
+def onCloseCardLayout(self):
+    mw.cardLayout = None
+
+CardLayout.__init__ = wrap(CardLayout.__init__, onOpenCardLayout, "after")
+CardLayout.reject = wrap(CardLayout.reject, onCloseCardLayout, "after")
+
+def myBridgeCmd(self, cmd, _old):
+    if cmd.startswith("ankisave#"):
+        browser = dialogs._dialogs['Browser'][1]
+        cardLayout = getattr(mw, "cardLayout", None)
+        if cardLayout is None and browser is not None:
+            fld, val = cmd.replace("ankisave#", "").split("#", 1)
+            note = browser.card.note()
+            note[fld] = val
+            note.flush()
+            browser.editor.setNote(note)
+            if mw.state == "review" and mw.reviewer.card.id == browser.card.id:
+                mw.requireReset()
+    else:
+        _old(self, cmd)
+
+AnkiWebView.defaultOnBridgeCmd = wrap(AnkiWebView.defaultOnBridgeCmd, myBridgeCmd, "around")
