@@ -13,7 +13,7 @@ import io
 import requests
 import time
 
-from aqt import mw, editcurrent, addcards
+from aqt import mw, editcurrent, addcards, editor
 from aqt.utils import getFile, tooltip
 from anki.lang import _, ngettext
 from anki.models import defaultModel
@@ -199,6 +199,22 @@ def myAddNote(self, note, _old):
     return note
 
 addcards.AddCards.addNote = wrap(addcards.AddCards.addNote, myAddNote, "around")
+
+def setupWeb(self):
+    self.web.eval("""
+        var style = $('<style>.airtable-id tr:nth-child(-n+2) { display: none; }</style>');
+        $('html > head').append(style);
+    """)
+
+def loadNote(self, focusTo=None):
+    model = self.note.model()['name']
+    if model in config['models']:
+        self.web.eval("$('#fields').addClass('airtable-id');")
+    else:
+        self.web.eval("$('#fields').removeClass('airtable-id').filter('[class=""]').removeAttr('class');")
+
+editor.Editor.setupWeb = wrap(editor.Editor.setupWeb, setupWeb, "after")
+editor.Editor.loadNote = wrap(editor.Editor.loadNote, loadNote, "before")
 
 def onImport():
     AirtableImporter()
