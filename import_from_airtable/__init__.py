@@ -17,7 +17,7 @@ import time
 from aqt import mw, editcurrent, addcards, editor
 from aqt.utils import getFile, tooltip
 from anki.lang import _, ngettext
-from anki.hooks import wrap
+from anki.hooks import wrap, addHook
 from anki import models
 from aqt.qt import *
 
@@ -244,6 +244,91 @@ def removeModel(self, m):
         mw.addonManager.writeConfig(__name__, config)
 
 models.ModelManager.rem = wrap(models.ModelManager.rem, removeModel, "after")
+
+class AirtableUpdater:
+
+    def __init__(self, did):
+        self.did = did
+        self.added = 0
+        self.updated = 0
+        self.init()
+
+    def init(self):
+        deck = mw.col.decks.get(self.did)['name']
+        mw.checkpoint("Import from Airtable")
+        mw.progress.start(immediate=True)
+        done = False
+        def onRecv(total):
+            if done:
+                return
+            mw.progress.update(label=ngettext("%d note imported.", "%d notes imported.", total) % total)
+        for model in config['models']:
+            conf = config['models'][model]
+            if conf["table_name"] == deck:
+                thread = Downloader(config['api_key'], conf["base_key"], conf["table_name"], conf["view_name"])
+                thread.recv.connect(onRecv)
+                thread.start()
+                while not thread.isFinished():
+                    mw.app.processEvents()
+                    thread.wait(100)
+                self.importRecords(model, thread.data)
+        done = True
+        msg = ngettext("%d note updated.", "%d notes updated.", self.updated) % self.updated
+        msg += "<br>"
+        msg += ngettext("%d note added.", "%d notes added.", self.added) % self.added
+        tooltip(msg, period=1500)
+        mw.progress.finish()
+        mw.reset()
+
+    def importRecords(self, model, records):
+        m = mw.col.models.byName(model)
+        if not m:
+            return
+        mw.col.models.setCurrent(m)
+        rids = {}
+        nids = mw.col.models.nids(m)
+        for nid in nids:
+            note = mw.col.getNote(nid)
+            rids[note['id']] = nid
+
+        fieldnames = mw.col.models.fieldNames(m)
+        for r in records:
+            fields = r["fields"]
+            if r['id'] in rids:
+                nid = rids[r['id']]
+                note = mw.col.getNote(nid)
+                flag = False
+                for f in fieldnames:
+                    if f == 'id':
+                        continue
+                    if f in fields:
+                        val = fields[f]
+                    else:
+                        val = ""
+                    if note[f] != val:
+                        note[f] = val
+                        flag = True
+                if flag:
+                    note.flush()
+                    self.updated += 1
+            else:
+                note = mw.col.newNote(forDeck=False)
+                note['id'] = r['id']
+                for f in fields:
+                    if f in note:
+                        note[f] = fields[f]
+                note.model()['did'] = self.did
+                mw.col.addNote(note)
+                self.added += 1
+
+def updateDeck(did):
+    AirtableUpdater(did)
+
+def onShowDeckOptions(m, did):
+    a = m.addAction("Import from Airtable")
+    a.triggered.connect(lambda b, did=did: updateDeck(did))
+
+addHook("showDeckOptions", onShowDeckOptions)
 
 def onImport():
     AirtableImporter()
