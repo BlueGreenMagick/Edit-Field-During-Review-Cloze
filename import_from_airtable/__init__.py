@@ -17,8 +17,8 @@ import time
 from aqt import mw, editcurrent, addcards, editor
 from aqt.utils import getFile, tooltip
 from anki.lang import _, ngettext
-from anki.models import defaultModel
 from anki.hooks import wrap
+from anki import models
 from aqt.qt import *
 
 from .importing import Ui_Dialog
@@ -119,7 +119,7 @@ class AirtableImporter:
 
     def addNewNoteType(self, fields):
         model = mw.col.models.new(self.tableName)
-        model['css'] = defaultModel['css']
+        model['css'] = models.defaultModel['css']
         mw.col.models.addField(model, mw.col.models.newField("id"))
         for fld in fields:
             mw.col.models.addField(model, mw.col.models.newField(fld))
@@ -236,6 +236,14 @@ def loadNote(self, focusTo=None):
 
 editor.Editor.setupWeb = wrap(editor.Editor.setupWeb, setupWeb, "after")
 editor.Editor.loadNote = wrap(editor.Editor.loadNote, loadNote, "before")
+
+def removeModel(self, m):
+    model = m['name']
+    if model in config['models']:
+        del config['models'][model]
+        mw.addonManager.writeConfig(__name__, config)
+
+models.ModelManager.rem = wrap(models.ModelManager.rem, removeModel, "after")
 
 def onImport():
     AirtableImporter()
