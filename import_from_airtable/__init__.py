@@ -179,8 +179,9 @@ def prepareData(note):
     data["typecast"] = True
     return data
 
-def updateRecord(self):
-    note = self.mw.reviewer.card.note()
+def updateRecord(note):
+    if not note:
+        return
     model = note.model()['name']
     if model not in config['models']:
         return
@@ -191,11 +192,17 @@ def updateRecord(self):
     r.raise_for_status()
 
 def mySaveAndClose(self, _old):
-    updateRecord(self)
+    note = self.mw.reviewer.card.note()
+    updateRecord(note)
     ret = _old(self)
     return ret
 
 editcurrent.EditCurrent._saveAndClose = wrap(editcurrent.EditCurrent._saveAndClose, mySaveAndClose, "around")
+
+def saveNow(self, callback, keepFocus=False):
+    updateRecord(self.note)
+
+editor.Editor.saveNow = wrap(editor.Editor.saveNow, saveNow, "after")
 
 def addRecord(self, note):
     data = prepareData(note)
