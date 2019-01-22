@@ -82,27 +82,34 @@ class AirtableImporter:
         did = mw.col.decks.id(self.tableName)
         thread = Downloader(self.apiKey, self.baseKey, self.tableName, self.viewName)
 
-        def onRecv(records):
-            for r in records:
-                fields = r["fields"]
-                note = mw.col.newNote(forDeck=False)
-                note['id'] = r['id']
-                for f in fields:
-                    if f in note:
-                        note[f] = fields[f]
-                note.model()['did'] = did
-                mw.col.addNote(note)
-                self.total += 1
-                mw.progress.update(label=ngettext("%d note imported.", "%d notes imported.", self.total) % self.total)
+        def onRecv(total):
+            if done:
+                return
+            mw.progress.update(label=ngettext("%d note imported.", "%d notes imported.", total) % total)
 
+        done = False
         thread.recv.connect(onRecv)
         thread.start()
         while not thread.isFinished():
             mw.app.processEvents()
             thread.wait(100)
 
+        done = True
+        records = thread.data
+        for r in records:
+            fields = r["fields"]
+            note = mw.col.newNote(forDeck=False)
+            note['id'] = r['id']
+            for f in fields:
+                if f in note:
+                    note[f] = fields[f]
+            note.model()['did'] = did
+            mw.col.addNote(note)
+            self.total += 1
+
         mw.progress.finish()
         mw.reset()
+
         tooltip(ngettext("%d note imported.", "%d notes imported.", self.total) % self.total, period=1000)
 
     def getFieldNames(self, csvPath):
@@ -134,6 +141,8 @@ class Downloader(QThread):
         self.tableName = tableName
         self.viewName = viewName
         self.headers = { "Authorization": "Bearer {}".format(self.apiKey) }
+        self.data = []
+        self.total = 0
 
     def run(self):
         offset = self.getRecords(self.headers)
@@ -155,7 +164,9 @@ class Downloader(QThread):
                 offset = data["offset"]
             else:
                 offset = None
-            self.recv.emit(records)
+            self.data += data["records"]
+            self.total += len(records)
+            self.recv.emit(self.total)
             return offset
 
 def prepareData(note):
