@@ -10,6 +10,7 @@ Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
 
 import csv
 import io
+import os
 import requests
 import time
 
@@ -46,15 +47,22 @@ class AirtableImporter:
         if config['api_key']:
             frm.apiKey.setText(config['api_key'])
 
+        def updateTableAndView(text):
+            table, view = os.path.splitext(os.path.basename(text))[0].rsplit("-", 1)
+            frm.tableName.setText(table)
+            frm.viewName.setText(view)
+
+        frm.csvPath.textChanged.connect(updateTableAndView)
+
         if not d.exec_():
             return
 
         self.total = 0
         self.apiKey = frm.apiKey.text().strip()
         self.baseKey = frm.baseKey.text().strip()
-        self.tableName = frm.tableName.text().strip()
         self.csvPath = frm.csvPath.text().strip()
-        self.view = self.csvPath.rstrip(".csv").rsplit("-", 1)[1]
+        self.tableName = frm.tableName.text().strip()
+        self.viewName = frm.viewName.text().strip()
         
         mw.checkpoint("Import from Airtable")
         mw.progress.start(immediate=True)
@@ -68,10 +76,11 @@ class AirtableImporter:
         config['models'][self.modelName] = {}
         config['models'][self.modelName]["base_key"] = self.baseKey
         config['models'][self.modelName]["table_name"] = self.tableName
+        config['models'][self.modelName]["view_name"] = self.viewName
         mw.addonManager.writeConfig(__name__, config)
 
         did = mw.col.decks.id(self.tableName)
-        thread = Downloader(self.apiKey, self.baseKey, self.tableName, self.view)
+        thread = Downloader(self.apiKey, self.baseKey, self.tableName, self.viewName)
 
         def onRecv(records):
             for r in records:
@@ -79,7 +88,8 @@ class AirtableImporter:
                 note = mw.col.newNote(forDeck=False)
                 note['id'] = r['id']
                 for f in fields:
-                    note[f] = fields[f]
+                    if f in note:
+                        note[f] = fields[f]
                 note.model()['did'] = did
                 mw.col.addNote(note)
                 self.total += 1
@@ -117,12 +127,12 @@ class Downloader(QThread):
     
     recv = pyqtSignal('PyQt_PyObject')
 
-    def __init__(self, apiKey, baseKey, tableName, view):
+    def __init__(self, apiKey, baseKey, tableName, viewName):
         QThread.__init__(self)
         self.apiKey = apiKey
         self.baseKey = baseKey
         self.tableName = tableName
-        self.view = view
+        self.viewName = viewName
         self.headers = { "Authorization": "Bearer {}".format(self.apiKey) }
 
     def run(self):
@@ -133,7 +143,7 @@ class Downloader(QThread):
 
     def getRecords(self, headers, offset=None):
         payload = {}
-        payload['view'] = self.view
+        payload['view'] = self.viewName
         if offset is not None:
             payload['offset'] = offset
         r = requests.get( "https://api.airtable.com/v0/{}/{}".format(self.baseKey, self.tableName), headers=headers, params=payload )
@@ -166,7 +176,7 @@ def updateRecord(self):
     data = prepareData(note)
     headers = { "Authorization": "Bearer {}".format(config['api_key']) }
     conf = config['models'][model]
-    r = requests.put("https://api.airtable.com/v0/{}/{}/{}".format(conf["base_key"], conf["table_name"], note["id"]), headers=headers, json=data )
+    r = requests.patch("https://api.airtable.com/v0/{}/{}/{}".format(conf["base_key"], conf["table_name"], note["id"]), headers=headers, json=data )
     r.raise_for_status()
 
 def mySaveAndClose(self, _old):
