@@ -9,10 +9,13 @@ Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
 """
 
 from anki.hooks import addHook, wrap
+from anki.utils import htmlToTextLine
 from aqt.reviewer import Reviewer
 from aqt.webview import AnkiWebView
 from aqt.clayout import CardLayout
 from aqt import mw, dialogs
+
+import unicodedata
 
 def edit(txt, extra, context, field, fullname):
     config = mw.addonManager.getConfig(__name__)
@@ -41,12 +44,19 @@ def edit(txt, extra, context, field, fullname):
 
 addHook('fmod_edit', edit)
 
+def saveField(note, fld, val):
+    if fld == "Tags":
+        tagsTxt = unicodedata.normalize("NFC", htmlToTextLine(val))
+        note.tags = mw.col.tags.canonify(mw.col.tags.split(tagsTxt))
+    else:
+        note[fld] = val
+    note.flush()
+
 def myLinkHandler(reviewer, url):
     if url.startswith("ankisave#"):
         fld, val = url.replace("ankisave#", "").split("#", 1)
         note = reviewer.card.note()
-        note[fld] = val
-        note.flush()
+        saveField(note, fld, val)
         reviewer.card.q(reload=True)
     elif url.startswith("ankisave!speedfocus#"):
         mw.reviewer.bottom.web.eval("""
@@ -76,8 +86,7 @@ def myBridgeCmd(self, cmd, _old):
         if cardLayout is None and browser is not None:
             fld, val = cmd.replace("ankisave#", "").split("#", 1)
             note = browser.card.note()
-            note[fld] = val
-            note.flush()
+            saveField(note, fld, val)
             browser.editor.setNote(note)
             if mw.state == "review" and mw.reviewer.card.id == browser.card.id:
                 mw.requireReset()
