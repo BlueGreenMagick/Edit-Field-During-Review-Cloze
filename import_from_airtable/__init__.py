@@ -13,9 +13,10 @@ import io
 import os
 import requests
 import time
+import traceback
 
 from aqt import mw, editcurrent, addcards, editor
-from aqt.utils import getFile, tooltip
+from aqt.utils import getFile, tooltip, showText
 from anki.lang import _, ngettext
 from anki.hooks import wrap, addHook
 from anki import models
@@ -155,19 +156,22 @@ class Downloader(QThread):
         payload['view'] = self.viewName
         if offset is not None:
             payload['offset'] = offset
-        r = requests.get( "https://api.airtable.com/v0/{}/{}".format(self.baseKey, self.tableName), headers=headers, params=payload )
-        r.raise_for_status()
-        if r.status_code == 200:
-            data = r.json()
-            records = data["records"]
-            if "offset" in data:
-                offset = data["offset"]
-            else:
-                offset = None
-            self.data += data["records"]
-            self.total += len(records)
-            self.recv.emit(self.total)
-            return offset
+        try:
+            r = requests.get( "https://api.airtable.com/v0/{}/{}".format(self.baseKey, self.tableName), headers=headers, params=payload )
+            r.raise_for_status()
+            if r.status_code == 200:
+                data = r.json()
+                records = data["records"]
+                if "offset" in data:
+                    offset = data["offset"]
+                else:
+                    offset = None
+                self.data += data["records"]
+                self.total += len(records)
+                self.recv.emit(self.total)
+                return offset
+        except requests.exceptions.HTTPError as e:
+            showText(traceback.format_exc())
 
 def prepareData(note):
     data = {}
@@ -184,8 +188,11 @@ def updateRecord(note):
     headers = { "Authorization": "Bearer {}".format(config['api_key']) }
     model = note.model()['name']
     conf = config['models'][model]
-    r = requests.patch("https://api.airtable.com/v0/{}/{}/{}".format(conf["base_key"], conf["table_name"], note["id"]), headers=headers, json=data )
-    r.raise_for_status()
+    try:
+        r = requests.patch("https://api.airtable.com/v0/{}/{}/{}".format(conf["base_key"], conf["table_name"], note["id"]), headers=headers, json=data )
+        r.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        showText(traceback.format_exc())
 
 def updateNote(note):
     if not note:
@@ -222,11 +229,14 @@ def addRecord(self, note):
     model = note.model()['name']
     headers = { "Authorization": "Bearer {}".format(config['api_key']) }
     conf = config['models'][model]
-    r = requests.post("https://api.airtable.com/v0/{}/{}".format(conf["base_key"], conf["table_name"]), headers=headers, json=data )
-    r.raise_for_status()
-    data = r.json()
-    note["id"] = data["id"]
-    note.flush()
+    try:
+        r = requests.post("https://api.airtable.com/v0/{}/{}".format(conf["base_key"], conf["table_name"]), headers=headers, json=data )
+        r.raise_for_status()
+        data = r.json()
+        note["id"] = data["id"]
+        note.flush()
+    except requests.exceptions.HTTPError as e:
+        showText(traceback.format_exc())
 
 def myAddNote(self, note, _old):
     model = note.model()['name']
