@@ -180,29 +180,42 @@ def prepareData(note):
     return data
 
 def updateRecord(note):
+    data = prepareData(note)
+    headers = { "Authorization": "Bearer {}".format(config['api_key']) }
+    model = note.model()['name']
+    conf = config['models'][model]
+    r = requests.patch("https://api.airtable.com/v0/{}/{}/{}".format(conf["base_key"], conf["table_name"], note["id"]), headers=headers, json=data )
+    r.raise_for_status()
+
+def updateNote(note):
     if not note:
         return
     model = note.model()['name']
     if model not in config['models']:
         return
-    data = prepareData(note)
-    headers = { "Authorization": "Bearer {}".format(config['api_key']) }
-    conf = config['models'][model]
-    r = requests.patch("https://api.airtable.com/v0/{}/{}/{}".format(conf["base_key"], conf["table_name"], note["id"]), headers=headers, json=data )
-    r.raise_for_status()
+    return True
 
 def mySaveAndClose(self, _old):
     note = self.mw.reviewer.card.note()
-    updateRecord(note)
+    if updateNote(note):
+        updateRecord(note)
     ret = _old(self)
     return ret
 
 editcurrent.EditCurrent._saveAndClose = wrap(editcurrent.EditCurrent._saveAndClose, mySaveAndClose, "around")
 
 def saveNow(self, callback, keepFocus=False):
-    updateRecord(self.note)
+    note = self.note
+    if updateNote(note) and self.edited:
+        updateRecord(note)
 
 editor.Editor.saveNow = wrap(editor.Editor.saveNow, saveNow, "after")
+
+def onBridgeCmd(self, cmd):
+    if cmd.startswith("blur") or cmd.startswith("key"):
+        self.edited = True
+
+editor.Editor.onBridgeCmd = wrap(editor.Editor.onBridgeCmd, onBridgeCmd, "before")
 
 def addRecord(self, note):
     data = prepareData(note)
@@ -238,6 +251,7 @@ def loadNote(self, focusTo=None):
     model = self.note.model()['name']
     if model in config['models']:
         self.web.eval("$('#fields').addClass('airtable-id');")
+        self.edited = False
     else:
         self.web.eval("$('#fields').removeClass('airtable-id').filter('[class=""]').removeAttr('class');")
 
