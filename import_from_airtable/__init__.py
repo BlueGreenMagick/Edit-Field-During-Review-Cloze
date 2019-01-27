@@ -11,7 +11,9 @@ Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
 import csv
 import io
 import os
+import re
 import requests
+import shutil
 import time
 import traceback
 
@@ -19,6 +21,7 @@ from aqt import mw, editcurrent, addcards, editor
 from aqt.utils import getFile, tooltip, showText
 from anki.lang import _, ngettext
 from anki.hooks import wrap, addHook
+from anki.utils import reMedia
 from anki import models
 from aqt.qt import *
 
@@ -103,11 +106,12 @@ class AirtableImporter:
             note['id'] = r['id']
             for f in fields:
                 if f in note:
-                    note[f] = fields[f]
+                    note[f] = getFieldData(fields[f])
             note.model()['did'] = did
             mw.col.addNote(note)
             self.total += 1
 
+        mw.addonManager.writeConfig(__name__, config)
         mw.progress.finish()
         mw.reset()
 
@@ -173,13 +177,48 @@ class Downloader(QThread):
         except requests.exceptions.HTTPError as e:
             showText(traceback.format_exc())
 
+def guessExtension(contentType):
+    extMap = {
+        "image/jpeg": ".jpg",
+        "image/png": ".png",
+        "image/gif": ".gif"
+    }
+    return extMap[contentType]
+
+def downloadImage(url, filename):
+    r = requests.get(url)
+    fname = mw.col.media.writeData(filename, r.content)
+    return fname
+
+def getFieldData(data):
+    if isinstance(data, list):
+        arr = []
+        for img in reversed(data):
+            if img['id'] not in config['media']:
+                filename = img['filename'] + guessExtension(img['type'])
+                fname = downloadImage(img['url'], filename)
+                config['media'][img['id']] = fname
+                config['attachments'][fname] = img
+            else:
+                fname = config['media'][img['id']]
+            arr.append('<img src="{}" />'.format(fname))
+        return " ".join(arr)
+    else:
+        return data
+
 def prepareData(note):
     data = {}
     data["fields"] = {}
     fields = note.keys()
     for fld in fields:
         if fld != "id":
-            data["fields"][fld] = note[fld]
+            images = re.findall(reMedia, note[fld])
+            if images:
+                data["fields"][fld] = []
+                for img in images:
+                    data["fields"][fld].append(config['attachments'][img])
+            else:
+                data["fields"][fld] = note[fld]
     data["typecast"] = True
     return data
 
@@ -308,6 +347,7 @@ class AirtableUpdater:
         msg += "<br>"
         msg += ngettext("%d note added.", "%d notes added.", self.added) % self.added
         tooltip(msg, period=1500)
+        mw.addonManager.writeConfig(__name__, config)
         mw.progress.finish()
         mw.reset()
 
@@ -316,6 +356,7 @@ class AirtableUpdater:
         if not m:
             return
         mw.col.models.setCurrent(m)
+
         rids = {}
         nids = mw.col.models.nids(m)
         for nid in nids:
@@ -333,7 +374,7 @@ class AirtableUpdater:
                     if f == 'id':
                         continue
                     if f in fields:
-                        val = fields[f]
+                        val = getFieldData(fields[f])
                     else:
                         val = ""
                     if note[f] != val:
@@ -347,7 +388,7 @@ class AirtableUpdater:
                 note['id'] = r['id']
                 for f in fields:
                     if f in note:
-                        note[f] = fields[f]
+                        note[f] = getFieldData(fields[f])
                 note.model()['did'] = self.did
                 mw.col.addNote(note)
                 self.added += 1
