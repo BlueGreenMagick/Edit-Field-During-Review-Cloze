@@ -190,6 +190,18 @@ def downloadImage(url, filename):
     fname = mw.col.media.writeData(filename, r.content)
     return fname
 
+def uploadImage(filename):
+    clientId = config.get("imgur_client_id") or "a48285b049de810"
+    headers = { "Authorization": "Client-ID {}".format(clientId) }
+    files = {'image': open(filename , 'rb')}
+    try:
+        r = requests.post( "https://api.imgur.com/3/image", headers=headers, files=files )
+        r.raise_for_status()
+        data = r.json()
+        return data["data"]["link"]
+    except requests.exceptions.HTTPError as e:
+        showText(traceback.format_exc())
+
 def getFieldData(data):
     if isinstance(data, list):
         arr = []
@@ -205,7 +217,7 @@ def getFieldData(data):
         return " ".join(arr)
     else:
         return data
-
+    
 def prepareData(note):
     data = {}
     data["fields"] = {}
@@ -216,7 +228,11 @@ def prepareData(note):
             if images:
                 data["fields"][fld] = []
                 for img in images:
-                    data["fields"][fld].append(config['attachments'][img])
+                    if img not in config['attachments']:
+                        url = uploadImage(img)
+                        data["fields"][fld].append({"url"   : url})
+                    else:
+                        data["fields"][fld].append(config['attachments'][img])
             else:
                 data["fields"][fld] = note[fld]
     data["typecast"] = True
