@@ -208,7 +208,11 @@ def getFieldData(data):
         for img in reversed(data):
             if img['id'] not in config['media']:
                 filename = img['filename'] + guessExtension(img['type'])
-                fname = downloadImage(img['url'], filename)
+                if config['img_size'] == "large":
+                    url = img['thumbnails']['large']['url']
+                else:
+                    url = img['url']
+                fname = downloadImage(url, filename)
                 config['media'][img['id']] = fname
                 config['attachments'][fname] = img
             else:

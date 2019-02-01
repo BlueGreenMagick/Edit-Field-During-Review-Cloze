@@ -1,6 +1,7 @@
 {
     "api_key": "",
     "imgur_client_id": "",
+    "img_size": "large",
     "models": {},
     "media": {},
     "attachments": {}
