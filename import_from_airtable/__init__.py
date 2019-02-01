@@ -42,6 +42,9 @@ class AirtableImporter:
         frm = Ui_Dialog()
         frm.setupUi(d)
 
+        global config
+        config = mw.addonManager.getConfig(__name__)
+
         def selectFile():
             file = getFile(mw, _("Select File"), None, (_("Airtable CSV Export (*.csv)")), key="import")
             if not file:
