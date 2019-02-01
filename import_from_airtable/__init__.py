@@ -255,6 +255,8 @@ def updateNote(note):
     model = note.model()['name']
     if model not in config['models']:
         return
+    if not note["id"]:
+        return
     return True
 
 def mySaveAndClose(self, _old):
