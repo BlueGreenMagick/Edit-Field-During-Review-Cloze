@@ -25,6 +25,8 @@ from anki.utils import reMedia
 from anki import models
 from aqt.qt import *
 
+from PIL import Image
+
 from .importing import Ui_Dialog
 
 config = mw.addonManager.getConfig(__name__)
@@ -50,6 +52,7 @@ class AirtableImporter:
         frm.openBtn.clicked.connect(selectFile)
         if config['api_key']:
             frm.apiKey.setText(config['api_key'])
+        frm.imgHeight.setValue(config['img_height'])
 
         def updateTableAndView(text):
             table, view = os.path.splitext(os.path.basename(text))[0].rsplit("-", 1)
@@ -67,6 +70,7 @@ class AirtableImporter:
         self.csvPath = frm.csvPath.text().strip()
         self.tableName = frm.tableName.text().strip()
         self.viewName = frm.viewName.text().strip()
+        self.imgHeight = frm.imgHeight.value()
         
         mw.checkpoint("Import from Airtable")
         mw.progress.start(immediate=True)
@@ -77,6 +81,7 @@ class AirtableImporter:
         self.modelName = model['name']
 
         config['api_key'] = self.apiKey
+        config['img_height'] = self.imgHeight
         config['models'][self.modelName] = {}
         config['models'][self.modelName]["base_key"] = self.baseKey
         config['models'][self.modelName]["table_name"] = self.tableName
@@ -187,7 +192,19 @@ def guessExtension(contentType):
 
 def downloadImage(url, filename):
     r = requests.get(url)
-    fname = mw.col.media.writeData(filename, r.content)
+    data = r.content
+    if config["img_height"] != 512:
+        img = Image.open(io.BytesIO(data))
+        width, height = img.size
+        size = (width, config["img_height"])
+        img.thumbnail(size)
+        img_data = io.BytesIO()
+        save_args = {'format': img.format}
+        if img.format == 'JPEG':
+            save_args['quality'] = 85
+        img.save(img_data, **save_args)
+        data = img_data.getvalue()
+    fname = mw.col.media.writeData(filename, data)
     return fname
 
 def uploadImage(filename):
