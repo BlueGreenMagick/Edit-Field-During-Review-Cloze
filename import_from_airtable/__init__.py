@@ -25,8 +25,6 @@ from anki.utils import reMedia
 from anki import models
 from aqt.qt import *
 
-from PIL import Image
-
 from .importing import Ui_Dialog
 
 config = mw.addonManager.getConfig(__name__)
@@ -193,20 +191,21 @@ def guessExtension(contentType):
     }
     return extMap[contentType]
 
-def downloadImage(url, filename):
+def downloadImage(url, filename, ext):
     r = requests.get(url)
     data = r.content
     if config["img_height"] != 512:
-        img = Image.open(io.BytesIO(data))
-        width, height = img.size
-        size = (width, config["img_height"])
-        img.thumbnail(size)
-        img_data = io.BytesIO()
-        save_args = {'format': img.format}
-        if img.format == 'JPEG':
-            save_args['quality'] = 85
-        img.save(img_data, **save_args)
-        data = img_data.getvalue()
+        img = QPixmap()
+        img.loadFromData(data)
+        img = img.scaledToHeight(config["img_height"], Qt.SmoothTransformation)
+        img_buffer = QBuffer()
+        img_buffer.open(QBuffer.WriteOnly)
+        img_format = ext[1:].upper()
+        args = [img_format]
+        if img_format == "JPG":
+            args += [85]
+        img.save(img_buffer, *args)
+        data = img_buffer.data()
     fname = mw.col.media.writeData(filename, data)
     return fname
 
@@ -227,12 +226,13 @@ def getFieldData(data):
         arr = []
         for img in reversed(data):
             if img['id'] not in config['media']:
-                filename = img['filename'] + guessExtension(img['type'])
+                ext = guessExtension(img['type'])
+                filename = img['filename'] + ext
                 if config['img_size'] == "large":
                     url = img['thumbnails']['large']['url']
                 else:
                     url = img['url']
-                fname = downloadImage(url, filename)
+                fname = downloadImage(url, filename, ext)
                 config['media'][img['id']] = fname
                 config['attachments'][fname] = img
             else:
