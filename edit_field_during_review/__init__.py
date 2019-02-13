@@ -45,6 +45,7 @@ def edit(txt, extra, context, field, fullname):
 addHook('fmod_edit', edit)
 
 def saveField(note, fld, val):
+    mw.checkpoint("Edit Field")
     if fld == "Tags":
         tagsTxt = unicodedata.normalize("NFC", htmlToTextLine(val))
         note.tags = mw.col.tags.canonify(mw.col.tags.split(tagsTxt))
