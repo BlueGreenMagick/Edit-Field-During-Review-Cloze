@@ -105,23 +105,27 @@ class AirtableImporter:
             thread.wait(100)
 
         done = True
-        records = thread.data
-        for r in records:
-            fields = r["fields"]
-            note = mw.col.newNote(forDeck=False)
-            note['id'] = r['id']
-            for f in fields:
-                if f in note:
-                    note[f] = getFieldData(fields[f])
-            note.model()['did'] = did
-            mw.col.addNote(note)
-            self.total += 1
+        if not thread.error:
+            records = thread.data
+            for r in records:
+                fields = r["fields"]
+                note = mw.col.newNote(forDeck=False)
+                note['id'] = r['id']
+                for f in fields:
+                    if f in note:
+                        note[f] = getFieldData(fields[f])
+                note.model()['did'] = did
+                mw.col.addNote(note)
+                self.total += 1
 
         mw.addonManager.writeConfig(__name__, config)
         mw.progress.finish()
         mw.reset()
 
-        tooltip(ngettext("%d note imported.", "%d notes imported.", self.total) % self.total, period=1000)
+        if thread.error:
+            showText(thread.error)
+        else:
+            tooltip(ngettext("%d note imported.", "%d notes imported.", self.total) % self.total, period=1000)
 
     def getFieldNames(self, csvPath):
         with io.open(csvPath, "r", encoding='utf-8-sig', newline='') as csvfile:
@@ -154,6 +158,7 @@ class Downloader(QThread):
         self.headers = { "Authorization": "Bearer {}".format(self.apiKey) }
         self.data = []
         self.total = 0
+        self.error = None
 
     def run(self):
         offset = self.getRecords(self.headers)
@@ -181,7 +186,8 @@ class Downloader(QThread):
                 self.recv.emit(self.total)
                 return offset
         except requests.exceptions.HTTPError as e:
-            showText(traceback.format_exc())
+            self.error = traceback.format_exc()
+            return None
 
 def guessExtension(contentType):
     extMap = {
