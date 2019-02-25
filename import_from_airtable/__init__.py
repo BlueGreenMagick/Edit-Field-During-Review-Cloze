@@ -195,7 +195,9 @@ def guessExtension(contentType):
     extMap = {
         "image/jpeg": ".jpg",
         "image/png": ".png",
-        "image/gif": ".gif"
+        "image/gif": ".gif",
+        "audio/mpeg": ".mp3",
+        "audio/mp3": ".mp3",
     }
     return extMap[contentType]
 
@@ -214,6 +216,12 @@ def downloadImage(url, filename, ext):
             args += [85]
         img.save(img_buffer, *args)
         data = img_buffer.data()
+    fname = mw.col.media.writeData(filename, data)
+    return fname
+
+def downloadSound(url, filename, ext):
+    r = requests.get(url)
+    data = r.content
     fname = mw.col.media.writeData(filename, data)
     return fname
 
@@ -241,20 +249,29 @@ def uploadSound(filename):
 def getFieldData(data):
     if isinstance(data, list):
         arr = []
-        for img in reversed(data):
-            if img['id'] not in config['media']:
-                ext = guessExtension(img['type'])
-                filename = img['filename'] + ext
-                if config['img_size'] == "large":
-                    url = img['thumbnails']['large']['url']
+        for media in reversed(data):
+            if media['id'] not in config['media']:
+                ext = guessExtension(media['type'])
+                filename = media['filename']
+                if not filename.endswith(ext):
+                    filename += ext
+                if media['type'].startswith("image"):
+                    if config['img_size'] == "large":
+                        url = media['thumbnails']['large']['url']
+                    else:
+                        url = media['url']
+                    fname = downloadImage(url, filename, ext)
                 else:
-                    url = img['url']
-                fname = downloadImage(url, filename, ext)
-                config['media'][img['id']] = fname
-                config['attachments'][fname] = img
+                    url = media['url']
+                    fname = downloadSound(url, filename, ext)
+                config['media'][media['id']] = fname
+                config['attachments'][fname] = media
             else:
-                fname = config['media'][img['id']]
-            arr.append('<img src="{}" />'.format(fname))
+                fname = config['media'][media['id']]
+            if media['type'].startswith("image"):
+                arr.append('<img src="{}" />'.format(fname))
+            else:
+                arr.append('[sound:{}]'.format(fname))
         return " ".join(arr)
     else:
         return data
