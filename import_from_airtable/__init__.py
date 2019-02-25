@@ -10,6 +10,7 @@ Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
 
 import csv
 import io
+import itertools
 import os
 import re
 import requests
@@ -21,13 +22,14 @@ from aqt import mw, editcurrent, addcards, editor
 from aqt.utils import getFile, tooltip, showText
 from anki.lang import _, ngettext
 from anki.hooks import wrap, addHook
-from anki.utils import reMedia
 from anki import models
 from aqt.qt import *
 
 from .importing import Ui_Dialog
 
 config = mw.addonManager.getConfig(__name__)
+
+reMedia = re.compile(r"(?i)<img[^>]+src=[\"']?([^\"'>]+)[\"']?[^>]*>|\[sound:(.*?)\]")
 
 class AirtableImporter:
 
@@ -227,6 +229,15 @@ def uploadImage(filename):
     except requests.exceptions.HTTPError as e:
         showText(traceback.format_exc())
 
+def uploadSound(filename):
+    files = {'file': open(filename, 'rb')}
+    try:
+        r = requests.post('https://0x0.st', files=files)
+        r.raise_for_status()
+        return r.text
+    except requests.exceptions.HTTPError as e:
+        showText(traceback.format_exc())
+
 def getFieldData(data):
     if isinstance(data, list):
         arr = []
@@ -254,16 +265,21 @@ def prepareData(note):
     fields = note.keys()
     for fld in fields:
         if fld != "id":
-            images = re.findall(reMedia, note[fld])
-            if images:
-                data["fields"][fld] = []
-                for img in images:
-                    if img not in config['attachments']:
-                        url = uploadImage(img)
-                        filename = os.path.splitext(img)[0]
-                        data["fields"][fld].append({"url": url, "filename": filename})
+            matches = re.findall(reMedia, note[fld])
+            media = list(filter(None, itertools.chain(*matches)))
+            if media:
+                arr = []
+                for file in media:
+                    if file not in config['attachments']:
+                        filename, ext = os.path.splitext(file)
+                        if ext in ("jpg", "jpeg", "png", "gif"):
+                            url = uploadImage(file)
+                        else:
+                            url = uploadSound(file)
+                        arr.append({"url": url, "filename": filename})
                     else:
-                        data["fields"][fld].append(config['attachments'][img])
+                        arr.append(config['attachments'][file])
+                data["fields"][fld] = list(arr[::-1])
             else:
                 data["fields"][fld] = note[fld]
     data["typecast"] = True
