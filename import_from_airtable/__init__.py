@@ -260,7 +260,8 @@ def prepareData(note):
                 for img in images:
                     if img not in config['attachments']:
                         url = uploadImage(img)
-                        data["fields"][fld].append({"url"   : url})
+                        filename = os.path.splitext(img)[0]
+                        data["fields"][fld].append({"url": url, "filename": filename})
                     else:
                         data["fields"][fld].append(config['attachments'][img])
             else:
