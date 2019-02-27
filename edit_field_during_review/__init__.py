@@ -10,12 +10,14 @@ Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
 
 from anki.hooks import addHook, wrap
 from anki.utils import htmlToTextLine
+from aqt.editor import Editor
 from aqt.reviewer import Reviewer
 from aqt.webview import AnkiWebView
 from aqt.clayout import CardLayout
 from aqt import mw, dialogs
 
 import unicodedata
+import urllib.parse
 
 def edit(txt, extra, context, field, fullname):
     config = mw.addonManager.getConfig(__name__)
@@ -50,7 +52,13 @@ def saveField(note, fld, val):
         tagsTxt = unicodedata.normalize("NFC", htmlToTextLine(val))
         note.tags = mw.col.tags.canonify(mw.col.tags.split(tagsTxt))
     else:
-        note[fld] = mw.col.media.escapeImages(val, unescape=True)
+        # https://github.com/dae/anki/blob/47eab46f05c8cc169393c785f4c3f49cf1d7cca8/aqt/editor.py#L257-L263
+        txt = urllib.parse.unquote(val)
+        txt = unicodedata.normalize("NFC", txt)
+        txt = Editor.mungeHTML(None, txt)
+        txt = txt.replace("\x00", "")
+        txt = mw.col.media.escapeImages(txt, unescape=True)
+        note[fld] = txt
     note.flush()
 
 def myLinkHandler(reviewer, url):
