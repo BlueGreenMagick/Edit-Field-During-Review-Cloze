@@ -50,7 +50,7 @@ def saveField(note, fld, val):
         tagsTxt = unicodedata.normalize("NFC", htmlToTextLine(val))
         note.tags = mw.col.tags.canonify(mw.col.tags.split(tagsTxt))
     else:
-        note[fld] = val
+        note[fld] = mw.col.media.escapeImages(val, unescape=True)
     note.flush()
 
 def myLinkHandler(reviewer, url):
