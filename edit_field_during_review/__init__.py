@@ -45,10 +45,10 @@ def edit(txt, extra, context, field, fullname):
 addHook('fmod_edit', edit)
 
 def saveField(note, fld, val):
-    mw.checkpoint("Edit Field")
     if fld == "Tags":
         tagsTxt = unicodedata.normalize("NFC", htmlToTextLine(val))
-        note.tags = mw.col.tags.canonify(mw.col.tags.split(tagsTxt))
+        txt = mw.col.tags.canonify(mw.col.tags.split(tagsTxt))
+        field = note.tags
     else:
         # https://github.com/dae/anki/blob/47eab46f05c8cc169393c785f4c3f49cf1d7cca8/aqt/editor.py#L257-L263
         txt = urllib.parse.unquote(val)
@@ -56,6 +56,13 @@ def saveField(note, fld, val):
         txt = Editor.mungeHTML(None, txt)
         txt = txt.replace("\x00", "")
         txt = mw.col.media.escapeImages(txt, unescape=True)
+        field = note[fld]
+    if field == txt:
+        return
+    mw.checkpoint("Edit Field")
+    if fld == "Tags":
+        note.tags = txt
+    else:
         note[fld] = txt
     note.flush()
 
