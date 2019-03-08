@@ -1,1 +1,4 @@
-{"tag": "div"}
+{
+  "tag": "div",
+  "undo": true
+}
