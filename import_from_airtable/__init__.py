@@ -18,7 +18,7 @@ import shutil
 import time
 import traceback
 
-from aqt import mw, editcurrent, addcards, editor
+from aqt import mw, editcurrent, addcards, editor, modelchooser
 from aqt.utils import getFile, tooltip, showText
 from anki.lang import _, ngettext
 from anki.hooks import wrap, addHook
@@ -62,9 +62,17 @@ class AirtableImporter:
             frm.tableName.setText(table)
             frm.viewName.setText(view)
 
+        modelChooser = modelchooser.ModelChooser(mw, frm.modelArea, label=False)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy(1), QSizePolicy.Policy(0))
+        modelChooser.models.setSizePolicy(sizePolicy)
+        modelChooser.models.setMinimumWidth(144)
+        modelChooser.models.setText("<new>")
+
         frm.csvPath.textChanged.connect(updateTableAndView)
 
-        if not d.exec_():
+        ret = d.exec_()
+        modelChooser.cleanup()
+        if not ret:
             return
 
         self.total = 0
@@ -78,10 +86,11 @@ class AirtableImporter:
         mw.checkpoint("Import from Airtable")
         mw.progress.start(immediate=True)
 
-        fieldnames = self.getFieldNames(self.csvPath)
-        model = self.addNewNoteType(fieldnames)
-        mw.col.models.setCurrent(model)
-        self.modelName = model['name']
+        if modelChooser.models.text() == "<new>":
+            fieldnames = self.getFieldNames(self.csvPath)
+            model = self.addNewNoteType(fieldnames)
+            mw.col.models.setCurrent(model)
+        self.modelName = mw.col.models.current()['name']
 
         config['api_key'] = self.apiKey
         config['img_height'] = self.imgHeight
