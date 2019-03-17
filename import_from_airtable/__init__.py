@@ -17,6 +17,7 @@ import requests
 import shutil
 import time
 import traceback
+import unicodedata
 
 from aqt import mw, editcurrent, addcards, editor, modelchooser
 from aqt.utils import getFile, tooltip, showText
@@ -126,7 +127,9 @@ class AirtableImporter:
                 note = mw.col.newNote(forDeck=False)
                 note['id'] = r['id']
                 for f in fields:
-                    if f in note:
+                    if f == 'Tags':
+                        note.tags = getTags(fields[f])
+                    elif f in note:
                         note[f] = getFieldData(self.modelName, f, fields[f])
                 note.model()['did'] = did
                 mw.col.addNote(note)
@@ -151,7 +154,8 @@ class AirtableImporter:
         model['css'] = models.defaultModel['css']
         mw.col.models.addField(model, mw.col.models.newField("id"))
         for fld in fields:
-            mw.col.models.addField(model, mw.col.models.newField(fld))
+            if fld != 'Tags':
+                mw.col.models.addField(model, mw.col.models.newField(fld))
         t = mw.col.models.newTemplate("Card 1")
         t['qfmt'] = "{{" + fields[0] + "}}"
         t['afmt'] = "{{FrontSide}}\n\n<hr id=answer>\n\n" + "{{" + fields[:2][-1] + "}}"
@@ -258,6 +262,10 @@ def uploadSound(filename):
     except requests.exceptions.HTTPError as e:
         showText(traceback.format_exc())
 
+def getTags(data):
+    tagsTxt = unicodedata.normalize("NFC", mw.col.tags.join(data))
+    return mw.col.tags.canonify(mw.col.tags.split(tagsTxt))
+
 def getFieldData(model, fld, data):
     metadata = config['models'][model]['metadata']
     if metadata[fld] == None:
@@ -293,7 +301,7 @@ def getFieldData(model, fld, data):
     else:
         return str(data)
     
-def prepareData(model, note):
+def prepareData(metadata, note):
     data = {}
     data["fields"] = {}
     fields = note.keys()
@@ -315,7 +323,6 @@ def prepareData(model, note):
                         arr.append(config['attachments'][file])
                 data["fields"][fld] = list(arr[::-1])
             else:
-                metadata = config['models'][model]['metadata']
                 if metadata[fld] == "list":
                     data["fields"][fld] = note[fld].split()
                 elif note[fld] == "":
@@ -326,13 +333,16 @@ def prepareData(model, note):
                     data["fields"][fld] = bool(note[fld])
                 else:
                     data["fields"][fld] = note[fld]
+    if "Tags" in metadata:
+        data["fields"]["Tags"] = note.tags
     data["typecast"] = True
     return data
 
 def updateRecord(note):
     model = note.model()['name']
+    metadata = config['models'][model]["metadata"]
+    data = prepareData(metadata, note)
     conf = config['models'][model]
-    data = prepareData(model, note)
     headers = { "Authorization": "Bearer {}".format(config['api_key']) }
     try:
         r = requests.patch("https://api.airtable.com/v0/{}/{}/{}".format(conf["base_key"], conf["table_name"], note["id"]), headers=headers, json=data )
@@ -366,6 +376,15 @@ def saveNow(self, callback, keepFocus=False):
 
 editor.Editor.saveNow = wrap(editor.Editor.saveNow, saveNow, "after")
 
+def saveTags(self):
+    if not self.note:
+        return
+    tagsTxt = unicodedata.normalize("NFC", self.tags.text())
+    if self.note.tags != mw.col.tags.canonify(mw.col.tags.split(tagsTxt)):
+        self.edited = True
+
+editor.Editor.saveTags = wrap(editor.Editor.saveTags, saveTags, "before")
+
 def onBridgeCmd(self, cmd):
     if cmd.startswith("blur") or cmd.startswith("key"):
         self.edited = True
@@ -374,7 +393,8 @@ editor.Editor.onBridgeCmd = wrap(editor.Editor.onBridgeCmd, onBridgeCmd, "before
 
 def addRecord(self, note):
     model = note.model()['name']
-    data = prepareData(model, note)
+    metadata = config['models'][model]["metadata"]
+    data = prepareData(metadata, note)
     headers = { "Authorization": "Bearer {}".format(config['api_key']) }
     conf = config['models'][model]
     try:
@@ -489,6 +509,11 @@ class AirtableUpdater:
                     if note[f] != val:
                         note[f] = val
                         flag = True
+                if 'Tags' in fields:
+                    val = getTags(fields['Tags'])
+                    if note.tags != val:
+                        note.tags = val
+                        flag = True
                 if flag:
                     note.flush()
                     self.updated += 1
@@ -496,7 +521,9 @@ class AirtableUpdater:
                 note = mw.col.newNote(forDeck=False)
                 note['id'] = r['id']
                 for f in fields:
-                    if f in note:
+                    if f == 'Tags':
+                        note.tags = getTags(fields[f])
+                    elif f in note:
                         note[f] = getFieldData(model, f, fields[f])
                 note.model()['did'] = self.did
                 mw.col.addNote(note)
