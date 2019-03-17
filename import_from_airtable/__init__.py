@@ -86,8 +86,8 @@ class AirtableImporter:
         mw.checkpoint("Import from Airtable")
         mw.progress.start(immediate=True)
 
+        fieldnames = self.getFieldNames(self.csvPath)
         if modelChooser.models.text() == "<new>":
-            fieldnames = self.getFieldNames(self.csvPath)
             model = self.addNewNoteType(fieldnames)
             mw.col.models.setCurrent(model)
         self.modelName = mw.col.models.current()['name']
@@ -98,6 +98,9 @@ class AirtableImporter:
         config['models'][self.modelName]["base_key"] = self.baseKey
         config['models'][self.modelName]["table_name"] = self.tableName
         config['models'][self.modelName]["view_name"] = self.viewName
+        config['models'][self.modelName]['metadata'] = {}
+        for fld in fieldnames:
+            config['models'][self.modelName]['metadata'][fld] = None
         mw.addonManager.writeConfig(__name__, config)
 
         did = mw.col.decks.id(self.tableName)
@@ -124,7 +127,7 @@ class AirtableImporter:
                 note['id'] = r['id']
                 for f in fields:
                     if f in note:
-                        note[f] = getFieldData(fields[f])
+                        note[f] = getFieldData(self.modelName, f, fields[f])
                 note.model()['did'] = did
                 mw.col.addNote(note)
                 self.total += 1
@@ -255,8 +258,11 @@ def uploadSound(filename):
     except requests.exceptions.HTTPError as e:
         showText(traceback.format_exc())
 
-def getFieldData(data):
-    if isinstance(data, list):
+def getFieldData(model, fld, data):
+    metadata = config['models'][model]['metadata']
+    if metadata[fld] == None:
+        metadata[fld] = type(data).__name__
+    if isinstance(data, list) and isinstance(data[0], dict):
         arr = []
         for media in reversed(data):
             if media['id'] not in config['media']:
@@ -282,10 +288,12 @@ def getFieldData(data):
             else:
                 arr.append('[sound:{}]'.format(fname))
         return " ".join(arr)
+    elif isinstance(data, list):
+        return " ".join(data)
     else:
-        return data
+        return str(data)
     
-def prepareData(note):
+def prepareData(model, note):
     data = {}
     data["fields"] = {}
     fields = note.keys()
@@ -307,15 +315,25 @@ def prepareData(note):
                         arr.append(config['attachments'][file])
                 data["fields"][fld] = list(arr[::-1])
             else:
-                data["fields"][fld] = note[fld]
+                metadata = config['models'][model]['metadata']
+                if metadata[fld] == "list":
+                    data["fields"][fld] = note[fld].split()
+                elif note[fld] == "":
+                    data["fields"][fld] = ""
+                elif metadata[fld] == "int":
+                    data["fields"][fld] = int(note[fld])
+                elif metadata[fld] == "bool":
+                    data["fields"][fld] = bool(note[fld])
+                else:
+                    data["fields"][fld] = note[fld]
     data["typecast"] = True
     return data
 
 def updateRecord(note):
-    data = prepareData(note)
-    headers = { "Authorization": "Bearer {}".format(config['api_key']) }
     model = note.model()['name']
     conf = config['models'][model]
+    data = prepareData(model, note)
+    headers = { "Authorization": "Bearer {}".format(config['api_key']) }
     try:
         r = requests.patch("https://api.airtable.com/v0/{}/{}/{}".format(conf["base_key"], conf["table_name"], note["id"]), headers=headers, json=data )
         r.raise_for_status()
@@ -355,8 +373,8 @@ def onBridgeCmd(self, cmd):
 editor.Editor.onBridgeCmd = wrap(editor.Editor.onBridgeCmd, onBridgeCmd, "before")
 
 def addRecord(self, note):
-    data = prepareData(note)
     model = note.model()['name']
+    data = prepareData(model, note)
     headers = { "Authorization": "Bearer {}".format(config['api_key']) }
     conf = config['models'][model]
     try:
@@ -465,7 +483,7 @@ class AirtableUpdater:
                     if f == 'id':
                         continue
                     if f in fields:
-                        val = getFieldData(fields[f])
+                        val = getFieldData(model, f, fields[f])
                     else:
                         val = ""
                     if note[f] != val:
@@ -479,7 +497,7 @@ class AirtableUpdater:
                 note['id'] = r['id']
                 for f in fields:
                     if f in note:
-                        note[f] = getFieldData(fields[f])
+                        note[f] = getFieldData(model, f, fields[f])
                 note.model()['did'] = self.did
                 mw.col.addNote(note)
                 self.added += 1
