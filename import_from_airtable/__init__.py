@@ -124,13 +124,14 @@ class AirtableImporter:
             records = thread.data
             for r in records:
                 fields = r["fields"]
+                addNewFields(self.modelName, fields)
                 note = mw.col.newNote(forDeck=False)
                 note['id'] = r['id']
                 for f in fields:
                     if f == 'Tags':
                         note.tags = getTags(fields[f])
-                    elif f in note:
-                        note[f] = getFieldData(self.modelName, f, fields[f])
+                        continue
+                    note[f] = getFieldData(self.modelName, f, fields[f])
                 note.model()['did'] = did
                 mw.col.addNote(note)
                 self.total += 1
@@ -261,6 +262,16 @@ def uploadSound(filename):
         return r.text
     except requests.exceptions.HTTPError as e:
         showText(traceback.format_exc())
+
+def addNewFields(model, fields):
+    m = mw.col.models.byName(model)
+    newfields = [f for f in fields if f not in mw.col.models.fieldNames(m) and f != "Tags"]
+    if not newfields:
+        return
+    for fld in newfields:
+        mw.col.models.addField(m, mw.col.models.newField(fld))
+        config['models'][model]['metadata'][fld] = None
+    mw.addonManager.writeConfig(__name__, config)
 
 def getTags(data):
     tagsTxt = unicodedata.normalize("NFC", mw.col.tags.join(data))
@@ -492,9 +503,10 @@ class AirtableUpdater:
             note = mw.col.getNote(nid)
             rids[note['id']] = nid
 
-        fieldnames = mw.col.models.fieldNames(m)
         for r in records:
             fields = r["fields"]
+            addNewFields(model, fields)
+            fieldnames = mw.col.models.fieldNames(m)
             if r['id'] in rids:
                 nid = rids[r['id']]
                 note = mw.col.getNote(nid)
@@ -523,8 +535,8 @@ class AirtableUpdater:
                 for f in fields:
                     if f == 'Tags':
                         note.tags = getTags(fields[f])
-                    elif f in note:
-                        note[f] = getFieldData(model, f, fields[f])
+                        continue
+                    note[f] = getFieldData(model, f, fields[f])
                 note.model()['did'] = self.did
                 mw.col.addNote(note)
                 self.added += 1
