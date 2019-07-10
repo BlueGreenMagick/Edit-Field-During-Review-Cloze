@@ -16,11 +16,22 @@ from aqt import mw
 
 import unicodedata
 import urllib.parse
+import sys
 
 def edit(txt, extra, context, field, fullname):
     config = mw.addonManager.getConfig(__name__)
     txt = """<%s contenteditable="true" data-field="%s">%s</%s>""" % (config['tag'], field, txt, config['tag'])
     txt += """<script>"""
+    txt += """
+    if($("[contenteditable=true][data-field='%s'] > .cloze")[0]){
+        $("[contenteditable=true][data-field='%s']").on("focus",function(){
+            pycmd("ankisave!focuson#%s");
+        })
+        $("[contenteditable=true][data-field='%s']").on("focusout",function(){
+            pycmd("ankisave!focusoff#%s");
+        })
+    }
+    """ % (field, field, field, field, field)
     txt += """
             $("[contenteditable=true][data-field='%s']").blur(function() {
                 pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
@@ -80,6 +91,23 @@ def myLinkHandler(reviewer, url):
             clearTimeout(autoAlertTimeout);
             clearTimeout(autoAgainTimeout);
         """)
+    elif url.startswith("ankisave!focuson#"):
+        val = url.replace("ankisave!focuson#", "")
+        mw.reviewer.web.eval("""
+        $("[contenteditable=true][data-field='%s']").html("%s")
+        """ % (val,reviewer.card.note()[val]))
+    elif url.startswith("ankisave!focusoff#"):
+        if mw.reviewer.state == "question":
+            mw.reviewer._showQuestion()
+        elif mw.reviewer.state == "answer":
+            mw.reviewer._showAnswer()
+        else:
+            sys.stderr.write("""'Edit field during review' addon:
+            You are not supposed to see this message, but if you are seeing this, there was an error.
+            It is probably harmless, and probably doesn't require restart.
+            Please report this to the developer.
+            unexpected state: %s
+            """ % mw.reviewer.state)    
     else:
         origLinkHandler(reviewer, url)
 
