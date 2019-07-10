@@ -16,30 +16,36 @@ from aqt import mw
 
 import unicodedata
 import urllib.parse
-import sys
+import html
+
+
+def escape(txt):  # backslash can't be used to escape inside html tags
+    txt = txt.replace("'", "\\'")
+    txt = txt.replace('"', '\\";')
+    return txt
 
 
 def edit(txt, extra, context, field, fullname):
     config = mw.addonManager.getConfig(__name__)
-    txt = """<%s contenteditable="true" data-field="%s">%s</%s>""" % (
-        config['tag'], field, txt, config['tag'])
+    txt = """<%s contenteditable="true" data-field='%s'>%s</%s>""" % (
+        config['tag'], html.escape(field), txt, config['tag'])
     txt += """<script>"""
     txt += """
-            if($("[contenteditable=true][data-field='%(fld)s'] > .cloze")[0]){
-                $("[contenteditable=true][data-field='%(fld)s']").focus(function(){
+            if($("[contenteditable=true][data-field='%(efld)s'] > .cloze")[0]){
+                $("[contenteditable=true][data-field='%(efld)s']").focus(function(){
                     pycmd("ankisave!focuson#%(fld)s");
                 })
-                $("[contenteditable=true][data-field='%(fld)s']").blur(function(){
-                    pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
-                    pycmd("ankisave!focusoff#%(fld)s");
+                $("[contenteditable=true][data-field='%(efld)s']").blur(function(){
+                    pycmd("ankisave#%(fld)s#" + $(this).html());
+                    pycmd("ankisave!focusoff#");
                 })
             }
             else{
-                $("[contenteditable=true][data-field='%(fld)s']").blur(function() {
-                    pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
+                $("[contenteditable=true][data-field='%(efld)s']").blur(function() {
+                    pycmd("ankisave#%(fld)s#" + $(this).html());
                 });
             }     
-            """ % {"fld":field}
+            """ % {"fld": escape(field), "efld": escape(escape(field))}
     if config['tag'] == "span":
         txt += """
             $("[contenteditable=true][data-field='%s']").keydown(function(evt) {
@@ -47,12 +53,12 @@ def edit(txt, extra, context, field, fullname):
                     evt.stopPropagation();
                 }
             });
-        """ % field
+        """ % escape(escape(field))
     txt += """
             $("[contenteditable=true][data-field='%s']").focus(function() {
                 pycmd("ankisave!speedfocus#");
             });
-        """ % field
+        """ % escape(escape(field))
     txt += """</script>"""
     return txt
 
@@ -98,22 +104,15 @@ def myLinkHandler(reviewer, url):
             clearTimeout(autoAgainTimeout);
         """)
     elif url.startswith("ankisave!focuson#"):
-        val = url.replace("ankisave!focuson#", "")
+        field = url.replace("ankisave!focuson#", "")
         mw.reviewer.web.eval("""
         $("[contenteditable=true][data-field='%s']").html("%s")
-        """ % (val, reviewer.card.note()[val]))
+        """ % (escape(escape(field)), reviewer.card.note()[field].replace('"', '\\"')))
     elif url.startswith("ankisave!focusoff#"):
         if mw.reviewer.state == "question":
             mw.reviewer._showQuestion()
         elif mw.reviewer.state == "answer":
             mw.reviewer._showAnswer()
-        else:
-            sys.stderr.write("""'Edit field during review' addon:
-            You are not supposed to see this message, but if you are seeing this, there was an error.
-            It is probably harmless, and probably doesn't require restart.
-            Please report this to the developer.
-            unexpected state: %s
-            """ % mw.reviewer.state)
     else:
         origLinkHandler(reviewer, url)
 
