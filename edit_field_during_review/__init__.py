@@ -25,21 +25,21 @@ def edit(txt, extra, context, field, fullname):
         config['tag'], field, txt, config['tag'])
     txt += """<script>"""
     txt += """
-            if($("[contenteditable=true][data-field='%s'] > .cloze")[0]){
-                $("[contenteditable=true][data-field='%s']").focus(function(){
-                    pycmd("ankisave!focuson#%s");
+            if($("[contenteditable=true][data-field='%(fld)s'] > .cloze")[0]){
+                $("[contenteditable=true][data-field='%(fld)s']").focus(function(){
+                    pycmd("ankisave!focuson#%(fld)s");
                 })
-                $("[contenteditable=true][data-field='%s']").blur(function(){
+                $("[contenteditable=true][data-field='%(fld)s']").blur(function(){
                     pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
-                    pycmd("ankisave!focusoff#%s");
+                    pycmd("ankisave!focusoff#%(fld)s");
                 })
             }
             else{
-                $("[contenteditable=true][data-field='%s']").blur(function() {
+                $("[contenteditable=true][data-field='%(fld)s']").blur(function() {
                     pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
                 });
             }     
-            """ % (field, field, field, field, field, field)
+            """ % {"fld":field}
     if config['tag'] == "span":
         txt += """
             $("[contenteditable=true][data-field='%s']").keydown(function(evt) {
