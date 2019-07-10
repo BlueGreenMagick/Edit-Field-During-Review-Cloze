@@ -18,25 +18,28 @@ import unicodedata
 import urllib.parse
 import sys
 
+
 def edit(txt, extra, context, field, fullname):
     config = mw.addonManager.getConfig(__name__)
-    txt = """<%s contenteditable="true" data-field="%s">%s</%s>""" % (config['tag'], field, txt, config['tag'])
+    txt = """<%s contenteditable="true" data-field="%s">%s</%s>""" % (
+        config['tag'], field, txt, config['tag'])
     txt += """<script>"""
     txt += """
-    if($("[contenteditable=true][data-field='%s'] > .cloze")[0]){
-        $("[contenteditable=true][data-field='%s']").on("focus",function(){
-            pycmd("ankisave!focuson#%s");
-        })
-        $("[contenteditable=true][data-field='%s']").on("focusout",function(){
-            pycmd("ankisave!focusoff#%s");
-        })
-    }
-    """ % (field, field, field, field, field)
-    txt += """
-            $("[contenteditable=true][data-field='%s']").blur(function() {
-                pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
-            });
-        """ % field
+            if($("[contenteditable=true][data-field='%s'] > .cloze")[0]){
+                $("[contenteditable=true][data-field='%s']").focus(function(){
+                    pycmd("ankisave!focuson#%s");
+                })
+                $("[contenteditable=true][data-field='%s']").blur(function(){
+                    pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
+                    pycmd("ankisave!focusoff#%s");
+                })
+            }
+            else{
+                $("[contenteditable=true][data-field='%s']").blur(function() {
+                    pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
+                });
+            }     
+            """ % (field, field, field, field, field, field)
     if config['tag'] == "span":
         txt += """
             $("[contenteditable=true][data-field='%s']").keydown(function(evt) {
@@ -53,7 +56,9 @@ def edit(txt, extra, context, field, fullname):
     txt += """</script>"""
     return txt
 
+
 addHook('fmod_edit', edit)
+
 
 def saveField(note, fld, val):
     if fld == "Tags":
@@ -79,6 +84,7 @@ def saveField(note, fld, val):
         note[fld] = txt
     note.flush()
 
+
 def myLinkHandler(reviewer, url):
     if url.startswith("ankisave#"):
         fld, val = url.replace("ankisave#", "").split("#", 1)
@@ -95,7 +101,7 @@ def myLinkHandler(reviewer, url):
         val = url.replace("ankisave!focuson#", "")
         mw.reviewer.web.eval("""
         $("[contenteditable=true][data-field='%s']").html("%s")
-        """ % (val,reviewer.card.note()[val]))
+        """ % (val, reviewer.card.note()[val]))
     elif url.startswith("ankisave!focusoff#"):
         if mw.reviewer.state == "question":
             mw.reviewer._showQuestion()
@@ -107,9 +113,10 @@ def myLinkHandler(reviewer, url):
             It is probably harmless, and probably doesn't require restart.
             Please report this to the developer.
             unexpected state: %s
-            """ % mw.reviewer.state)    
+            """ % mw.reviewer.state)
     else:
         origLinkHandler(reviewer, url)
+
 
 origLinkHandler = Reviewer._linkHandler
 Reviewer._linkHandler = myLinkHandler
