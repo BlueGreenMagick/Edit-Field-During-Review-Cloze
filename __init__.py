@@ -2,50 +2,46 @@
 
 """
 Anki Add-on: Edit Field During Review
-
 Edit text in a field during review without opening the edit window
-
 Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
 """
 
 from anki.hooks import addHook, wrap
 from anki.utils import htmlToTextLine
+from aqt.utils import tooltip
 from aqt.editor import Editor
 from aqt.reviewer import Reviewer
 from aqt import mw
 
+import base64
 import unicodedata
 import urllib.parse
-import html
 
-
-def escape(txt):  # backslash can't be used to escape inside html tags
-    txt = txt.replace("'", "\\'")
-    txt = txt.replace('"', '\\";')
-    return txt
+tooltip("Using forked version of Edit During Field Review")
 
 
 def edit(txt, extra, context, field, fullname):
     config = mw.addonManager.getConfig(__name__)
-    txt = """<%s contenteditable="true" data-field='%s'>%s</%s>""" % (
-        config['tag'], html.escape(field), txt, config['tag'])
+    field = base64.b64encode(field.encode('utf-8')).decode('ascii')
+    txt = """<%s contenteditable="true" data-field="%s">%s</%s>""" % (
+        config['tag'], field, txt, config['tag'])
     txt += """<script>"""
     txt += """
-            if($("[contenteditable=true][data-field='%(efld)s'] > .cloze")[0]){
-                $("[contenteditable=true][data-field='%(efld)s']").focus(function(){
+            if($("[contenteditable=true][data-field='%(fld)s'] > .cloze")[0]){
+                $("[contenteditable=true][data-field='%(fld)s']").focus(function(){
                     pycmd("ankisave!focuson#%(fld)s");
                 })
-                $("[contenteditable=true][data-field='%(efld)s']").blur(function(){
-                    pycmd("ankisave#%(fld)s#" + $(this).html());
-                    pycmd("ankisave!focusoff#");
+                $("[contenteditable=true][data-field='%(fld)s']").blur(function(){
+                    pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
+                    pycmd("ankisave!focusoff#%(fld)s");
                 })
             }
             else{
-                $("[contenteditable=true][data-field='%(efld)s']").blur(function() {
-                    pycmd("ankisave#%(fld)s#" + $(this).html());
+                $("[contenteditable=true][data-field='%(fld)s']").blur(function() {
+                    pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
                 });
             }     
-            """ % {"fld": escape(field), "efld": escape(escape(field))}
+            """ % {"fld":field}
     if config['tag'] == "span":
         txt += """
             $("[contenteditable=true][data-field='%s']").keydown(function(evt) {
@@ -53,12 +49,12 @@ def edit(txt, extra, context, field, fullname):
                     evt.stopPropagation();
                 }
             });
-        """ % escape(escape(field))
+        """ % field
     txt += """
             $("[contenteditable=true][data-field='%s']").focus(function() {
                 pycmd("ankisave!speedfocus#");
             });
-        """ % escape(escape(field))
+        """ % field
     txt += """</script>"""
     return txt
 
@@ -67,6 +63,7 @@ addHook('fmod_edit', edit)
 
 
 def saveField(note, fld, val):
+    fld = base64.b64decode(fld, validate=True).decode('utf-8')
     if fld == "Tags":
         tagsTxt = unicodedata.normalize("NFC", htmlToTextLine(val))
         txt = mw.col.tags.canonify(mw.col.tags.split(tagsTxt))
@@ -98,21 +95,24 @@ def myLinkHandler(reviewer, url):
         saveField(note, fld, val)
         reviewer.card.q(reload=True)
     elif url.startswith("ankisave!speedfocus#"):
-        mw.reviewer.bottom.web.eval("""
+        reviewer.bottom.web.eval("""
             clearTimeout(autoAnswerTimeout);
             clearTimeout(autoAlertTimeout);
             clearTimeout(autoAgainTimeout);
         """)
     elif url.startswith("ankisave!focuson#"):
-        field = url.replace("ankisave!focuson#", "")
-        mw.reviewer.web.eval("""
+        fld = url.replace("ankisave!focuson#", "")
+        decoded_fld = base64.b64decode(fld, validate=True).decode('utf-8')
+        val = reviewer.card.note()[decoded_fld]
+        reviewer.web.eval("""
         $("[contenteditable=true][data-field='%s']").html("%s")
-        """ % (escape(escape(field)), reviewer.card.note()[field].replace('"', '\\"')))
+        """ % (fld, val.replace('"','\\"')))
+        tooltip("focuson")
     elif url.startswith("ankisave!focusoff#"):
-        if mw.reviewer.state == "question":
-            mw.reviewer._showQuestion()
-        elif mw.reviewer.state == "answer":
-            mw.reviewer._showAnswer()
+        if reviewer.state == "question":
+            reviewer._showQuestion()
+        elif reviewer.state == "answer":
+            reviewer._showAnswer()
     else:
         origLinkHandler(reviewer, url)
 
