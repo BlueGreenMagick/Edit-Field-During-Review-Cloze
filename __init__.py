@@ -27,7 +27,7 @@ def edit(txt, extra, context, field, fullname):
         config['tag'], field, txt, config['tag'])
     txt += """<script>"""
     txt += """
-            if($("[contenteditable=true][data-field='%(fld)s'] > .cloze")[0]){
+            if($("[contenteditable=true][data-field='%(fld)s'] > .cloze")){
                 $("[contenteditable=true][data-field='%(fld)s']").focus(function(){
                     pycmd("ankisave!focuson#%(fld)s");
                 })
@@ -107,15 +107,15 @@ def myLinkHandler(reviewer, url):
         encoded_val = base64.b64encode(val.encode('utf-8')).decode('ascii')
         reviewer.web.eval("""
         if(!b64DecodeUnicode){
-        function b64DecodeUnicode(str) {
-            return decodeURIComponent(atob(str).split('').map(function(c) {
-                return '%%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-        }
+            function b64DecodeUnicode(str) {
+                return decodeURIComponent(atob(str).split('').map(function(c) {
+                    return '%%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+            }
         }
         var valueOfFieldEFDRF = b64DecodeUnicode("%s")
         $("[contenteditable=true][data-field='%s']").html(valueOfFieldEFDRF)
-        """ % (encoded_val, fld ))
+        """ % (encoded_val, fld))
     elif url.startswith("ankisave!focusoff#"):
         if reviewer.state == "question":
             reviewer._showQuestion()
