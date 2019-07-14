@@ -116,7 +116,6 @@ def myLinkHandler(reviewer, url):
         var valueOfFieldEFDRF = b64DecodeUnicode("%s")
         $("[contenteditable=true][data-field='%s']").html(valueOfFieldEFDRF)
         """ % (encoded_val, fld ))
-        tooltip("focuson")
     elif url.startswith("ankisave!focusoff#"):
         if reviewer.state == "question":
             reviewer._showQuestion()
