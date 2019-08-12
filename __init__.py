@@ -27,7 +27,7 @@ def edit(txt, extra, context, field, fullname):
         config['tag'], field, txt, config['tag'])
     txt += """<script>"""
     txt += """
-            if($("[contenteditable=true][data-field='%(fld)s'] > .cloze")){
+            if($("[contenteditable=true][data-field='%(fld)s'] > .cloze").length){
                 $("[contenteditable=true][data-field='%(fld)s']").focus(function(){
                     pycmd("ankisave!focuson#%(fld)s");
                 })
