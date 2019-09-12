@@ -88,7 +88,7 @@ def saveField(note, fld, val):
     note.flush()
 
 
-def myLinkHandler(reviewer, url):
+def myLinkHandler(reviewer, url, _old):
     if url.startswith("ankisave#"):
         fld, val = url.replace("ankisave#", "").split("#", 1)
         note = reviewer.card.note()
@@ -122,8 +122,7 @@ def myLinkHandler(reviewer, url):
         elif reviewer.state == "answer":
             reviewer._showAnswer()
     else:
-        origLinkHandler(reviewer, url)
+        return _old(reviewer, url)
 
 
-origLinkHandler = Reviewer._linkHandler
-Reviewer._linkHandler = myLinkHandler
+Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
