@@ -8,7 +8,6 @@ Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
 
 from anki.hooks import addHook, wrap
 from anki.utils import htmlToTextLine
-from aqt.utils import tooltip
 from aqt.editor import Editor
 from aqt.reviewer import Reviewer
 from aqt import mw
@@ -16,8 +15,6 @@ from aqt import mw
 import base64
 import unicodedata
 import urllib.parse
-
-tooltip("Using forked version of Edit During Field Review")
 
 
 def edit(txt, extra, context, field, fullname):
