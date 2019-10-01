@@ -24,20 +24,13 @@ def edit(txt, extra, context, field, fullname):
         config['tag'], field, txt, config['tag'])
     txt += """<script>"""
     txt += """
-            if($("[contenteditable=true][data-field='%(fld)s']").find(".cloze").length){
-                $("[contenteditable=true][data-field='%(fld)s']").focus(function(){
-                    pycmd("ankisave!focuson#%(fld)s");
-                })
-                $("[contenteditable=true][data-field='%(fld)s']").blur(function(){
-                    pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
-                    pycmd("ankisave!focusoff#%(fld)s");
-                })
-            }
-            else{
-                $("[contenteditable=true][data-field='%(fld)s']").blur(function() {
-                    pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
-                });
-            }     
+            $("[contenteditable=true][data-field='%(fld)s']").focus(function(){
+                pycmd("ankisave!focuson#%(fld)s");
+            })
+            $("[contenteditable=true][data-field='%(fld)s']").blur(function(){
+                pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
+                pycmd("ankisave!focusoff#%(fld)s");
+            })  
             """ % {"fld": field}
     if config['tag'] == "span":
         txt += """
@@ -110,8 +103,11 @@ def myLinkHandler(reviewer, url, _old):
                 }).join(''));
             }
         }
-        var valueOfFieldEFDRF = b64DecodeUnicode("%s")
-        $("[contenteditable=true][data-field='%s']").html(valueOfFieldEFDRF)
+        var val = b64DecodeUnicode("%s")
+        elem = document.querySelector("[contenteditable=true][data-field='%s']")
+        if(elem.innerHTML != val){
+            elem.innerHTML = val
+        }
         """ % (encoded_val, fld))
     elif url.startswith("ankisave!focusoff#"):
         if reviewer.state == "question":
