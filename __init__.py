@@ -4,12 +4,14 @@
 Anki Add-on: Edit Field During Review
 Edit text in a field during review without opening the edit window
 Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
+Modified by <bluegreenmagick@gmail.com>
 """
 
 from anki.hooks import addHook, wrap
 from anki.utils import htmlToTextLine
 from aqt.editor import Editor
 from aqt.reviewer import Reviewer
+from aqt.utils import tooltip
 from aqt import mw
 
 import base64
@@ -28,7 +30,7 @@ def edit(txt, extra, context, field, fullname):
                 pycmd("ankisave!focuson#%(fld)s");
             })
             $("[contenteditable=true][data-field='%(fld)s']").blur(function(){
-                pycmd("ankisave#" + $(this).data("field") + "#" + $(this).html());
+                pycmd("ankisave#" + $(this).data("val") + "#" + $(this).data("field") + "#" + $(this).html());
                 pycmd("ankisave!focusoff#%(fld)s");
             })  
             """ % {"fld": field}
@@ -53,7 +55,6 @@ addHook('fmod_edit', edit)
 
 
 def saveField(note, fld, val):
-    fld = base64.b64decode(fld, validate=True).decode('utf-8')
     if fld == "Tags":
         tagsTxt = unicodedata.normalize("NFC", htmlToTextLine(val))
         txt = mw.col.tags.canonify(mw.col.tags.split(tagsTxt))
@@ -80,10 +81,17 @@ def saveField(note, fld, val):
 
 def myLinkHandler(reviewer, url, _old):
     if url.startswith("ankisave#"):
-        fld, val = url.replace("ankisave#", "").split("#", 1)
+        enc_val, fld, new_val = url.replace("ankisave#", "").split("#", 2)
         note = reviewer.card.note()
-        saveField(note, fld, val)
-        reviewer.card.q(reload=True)
+        fld = base64.b64decode(fld, validate=True).decode('utf-8')
+        orig_val = note[fld]
+        orig_enc_val = base64.b64encode(orig_val.encode('utf-8')).decode('ascii')
+        if enc_val == orig_enc_val: #enc_val may be the val of prev reviewed card.
+            saveField(note, fld, new_val)
+            reviewer.card.q(reload=True)
+        else:
+            tooltip("ERROR - Edit Field During Review Cloze\nSomething unexpected occured. The edit was not saved.")
+            
     elif url.startswith("ankisave!speedfocus#"):
         reviewer.bottom.web.eval("""
             clearTimeout(autoAnswerTimeout);
@@ -103,8 +111,10 @@ def myLinkHandler(reviewer, url, _old):
                 }).join(''));
             }
         }
-        var val = b64DecodeUnicode("%s")
+        var encoded_val = "%s"
+        var val = b64DecodeUnicode(encoded_val)
         elem = document.querySelector("[contenteditable=true][data-field='%s']")
+        elem.dataset.val = encoded_val
         if(elem.innerHTML != val){
             elem.innerHTML = val
         }
