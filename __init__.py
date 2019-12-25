@@ -121,7 +121,7 @@ def myLinkHandler(reviewer, url, _old):
         orig_enc_val = base64.b64encode(orig_val.encode('utf-8')).decode('ascii')
         if enc_val == orig_enc_val: #enc_val may be the val of prev reviewed card.
             saveField(note, fld, new_val)
-            reviewer.card.note(reload=True)
+            reviewer.card._getQA(reload=True)
         else:
             tooltip("ERROR - Edit Field During Review Cloze\nSomething unexpected occured. The edit was not saved.%s"%fld)
             
