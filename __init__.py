@@ -21,15 +21,17 @@ import urllib.parse
 
 card_js ="""
 <script>
-function addListeners(el){
-    el.addEventListener('mousedown',function(event){
+function addListeners(e){
+    e.addEventListener('mousedown',function(event){
+        var el = event.currentTarget
         if(%(ctrl)s&&!event.ctrlKey){
             if(el != document.activeElement){
                 el.setAttribute("data-EFDRCdontfocus","true");
             }
         }
     })
-    el.addEventListener('focus', function(event){
+    e.addEventListener('focus', function(event){
+        var el = event.currentTarget
         if(el.getAttribute("data-EFDRCdontfocus") == "true"){
             el.blur()
         }else{
@@ -37,12 +39,15 @@ function addListeners(el){
             pycmd("ankisave!speedfocus#");
         }
     })
-    el.addEventListener('blur',function(event){
+    e.addEventListener('blur',function(event){
+        var el = event.currentTarget;
         if(el.getAttribute("data-EFDRCdontfocus") == "true"){
             el.setAttribute("data-EFDRCdontfocus","false"); 
-        }else{
+        }else if(el.hasAttribute("data-EFDRCval")){
             pycmd("ankisave#" + el.getAttribute("data-EFDRCval") + "#" + el.getAttribute("data-EFDRCfield") + "#" + el.innerHTML);
-            pycmd("ankisave!focusoff#%(fld)s");
+            pycmd("ankisave!reload");
+        }else{
+            pycmd("ankisave!reload");
         }
     })
     if(%(span)s){
@@ -118,7 +123,7 @@ def myLinkHandler(reviewer, url, _old):
             saveField(note, fld, new_val)
             reviewer.card.q(reload=True)
         else:
-            tooltip("ERROR - Edit Field During Review Cloze\nSomething unexpected occured. The edit was not saved.")
+            tooltip("ERROR - Edit Field During Review Cloze\nSomething unexpected occured. The edit was not saved.%s"%fld)
             
     elif url.startswith("ankisave!speedfocus#"):
         reviewer.bottom.web.eval("""
@@ -150,7 +155,7 @@ def myLinkHandler(reviewer, url, _old):
             }
         }
         """ % (encoded_val, fld))
-    elif url.startswith("ankisave!focusoff#"):
+    elif url.startswith("ankisave!reload"):
         if reviewer.state == "question":
             reviewer._showQuestion()
         elif reviewer.state == "answer":
