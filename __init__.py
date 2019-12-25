@@ -41,7 +41,7 @@ function addListeners(el){
         if(el.getAttribute("data-EFDRCdontfocus") == "true"){
             el.setAttribute("data-EFDRCdontfocus","false"); 
         }else{
-            pycmd("ankisave#" + el.dataset.val + "#" + el.dataset.field + "#" + el.innerHTML);
+            pycmd("ankisave#" + el.getAttribute("data-EFDRCval") + "#" + el.getAttribute("data-EFDRCfield") + "#" + el.innerHTML);
             pycmd("ankisave!focusoff#%(fld)s");
         }
     })
@@ -53,7 +53,7 @@ function addListeners(el){
         })
     }
 }
-var els = document.querySelectorAll("[contenteditable=true][data-field='%(fld)s']");
+var els = document.querySelectorAll("[contenteditable=true][data-EFDRCfield='%(fld)s']");
 for(var e = 0; e < els.length; e++){
     var el = els[e];
     addListeners(el)
@@ -73,7 +73,7 @@ def edit(txt, extra, context, field, fullname):
     else:
         ctrl = "false"
     field = base64.b64encode(field.encode('utf-8')).decode('ascii')
-    txt = """<%s contenteditable="true" data-field="%s" data-EFDRCdontfocus="false">%s</%s>""" % (
+    txt = """<%s contenteditable="true" data-EFDRCfield="%s" data-EFDRCdontfocus="false">%s</%s>""" % (
         config['tag'], field, txt, config['tag'])
     txt += card_js % ({"fld":field, "span":span, "ctrl":ctrl})
     return txt
@@ -141,8 +141,8 @@ def myLinkHandler(reviewer, url, _old):
         }
         var encoded_val = "%s"
         var val = b64DecodeUnicode(encoded_val)
-        elem = document.querySelector("[contenteditable=true][data-field='%s']")
-        elem.dataset.val = encoded_val
+        elem = document.querySelector("[contenteditable=true][data-EFDRCfield='%s']")
+        elem.setAttribute("data-EFDRCval", encoded_val)
         if(elem.innerHTML != val){
             elem.innerHTML = val
         }
