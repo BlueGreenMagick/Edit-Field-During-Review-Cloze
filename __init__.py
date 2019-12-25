@@ -19,35 +19,44 @@ import unicodedata
 import urllib.parse
 
 
+card_js ="""
+<script>
+function addListeners(el){
+    el.addEventListener('focus', function(event){
+        pycmd("ankisave!focuson#%(fld)s");
+        pycmd("ankisave!speedfocus#");
+    })
+    el.addEventListener('blur',function(event){
+        pycmd("ankisave#" + el.dataset.val + "#" + el.dataset.field + "#" + el.innerHTML);
+        pycmd("ankisave!focusoff#%(fld)s");
+    })
+    if(%(span)s){
+        el.addEventListener('keydown', function(event){
+            if (event.keyCode == 8) {
+                event.stopPropagation();
+            }
+        })
+    }
+}
+var els = document.querySelectorAll("[contenteditable=true][data-field='%(fld)s']");
+for(var e = 0; e < els.length; e++){
+    var el = els[e];
+    addListeners(el)
+}
+</script>
+"""
+
+
 def edit(txt, extra, context, field, fullname):
     config = mw.addonManager.getConfig(__name__)
+    if config['tag'] == "span":
+        span = "true"
+    else:
+        span = "false"
     field = base64.b64encode(field.encode('utf-8')).decode('ascii')
     txt = """<%s contenteditable="true" data-field="%s">%s</%s>""" % (
         config['tag'], field, txt, config['tag'])
-    txt += """<script>"""
-    txt += """
-            $("[contenteditable=true][data-field='%(fld)s']").focus(function(){
-                pycmd("ankisave!focuson#%(fld)s");
-            })
-            $("[contenteditable=true][data-field='%(fld)s']").blur(function(){
-                pycmd("ankisave#" + $(this).data("val") + "#" + $(this).data("field") + "#" + $(this).html());
-                pycmd("ankisave!focusoff#%(fld)s");
-            })  
-            """ % {"fld": field}
-    if config['tag'] == "span":
-        txt += """
-            $("[contenteditable=true][data-field='%s']").keydown(function(evt) {
-                if (evt.keyCode == 8) {
-                    evt.stopPropagation();
-                }
-            });
-        """ % field
-    txt += """
-            $("[contenteditable=true][data-field='%s']").focus(function() {
-                pycmd("ankisave!speedfocus#");
-            });
-        """ % field
-    txt += """</script>"""
+    txt += card_js % ({"fld":field, "span":span})
     return txt
 
 
