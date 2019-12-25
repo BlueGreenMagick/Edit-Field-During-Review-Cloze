@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Anki Add-on: Edit Field During Review
+Anki Add-on: Edit Field During Review Cloze
 Edit text in a field during review without opening the edit window
 Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
 Modified by <bluegreenmagick@gmail.com>
@@ -22,13 +22,28 @@ import urllib.parse
 card_js ="""
 <script>
 function addListeners(el){
+    el.addEventListener('mousedown',function(event){
+        if(%(ctrl)s&&!event.ctrlKey){
+            if(el != document.activeElement){
+                el.setAttribute("data-EFDRCdontfocus","true");
+            }
+        }
+    })
     el.addEventListener('focus', function(event){
-        pycmd("ankisave!focuson#%(fld)s");
-        pycmd("ankisave!speedfocus#");
+        if(el.getAttribute("data-EFDRCdontfocus") == "true"){
+            el.blur()
+        }else{
+            pycmd("ankisave!focuson#%(fld)s");
+            pycmd("ankisave!speedfocus#");
+        }
     })
     el.addEventListener('blur',function(event){
-        pycmd("ankisave#" + el.dataset.val + "#" + el.dataset.field + "#" + el.innerHTML);
-        pycmd("ankisave!focusoff#%(fld)s");
+        if(el.getAttribute("data-EFDRCdontfocus") == "true"){
+            el.setAttribute("data-EFDRCdontfocus","false"); 
+        }else{
+            pycmd("ankisave#" + el.dataset.val + "#" + el.dataset.field + "#" + el.innerHTML);
+            pycmd("ankisave!focusoff#%(fld)s");
+        }
     })
     if(%(span)s){
         el.addEventListener('keydown', function(event){
@@ -53,10 +68,14 @@ def edit(txt, extra, context, field, fullname):
         span = "true"
     else:
         span = "false"
+    if config["ctrl_click"]:
+        ctrl = "true"
+    else:
+        ctrl = "false"
     field = base64.b64encode(field.encode('utf-8')).decode('ascii')
-    txt = """<%s contenteditable="true" data-field="%s">%s</%s>""" % (
+    txt = """<%s contenteditable="true" data-field="%s" data-EFDRCdontfocus="false">%s</%s>""" % (
         config['tag'], field, txt, config['tag'])
-    txt += card_js % ({"fld":field, "span":span})
+    txt += card_js % ({"fld":field, "span":span, "ctrl":ctrl})
     return txt
 
 
