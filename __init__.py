@@ -37,10 +37,8 @@ function wrapInternal(front, back) {
     const content = r.cloneContents();
     const span = document.createElement("span");
     span.appendChild(content);
-    if (true) {
-        const new_ = wrappedExceptForWhitespace(span.innerText, front, back);
-        document.execCommand("inserttext", false, new_);
-    }
+    const new_ = wrappedExceptForWhitespace(span.innerText, front, back);
+    document.execCommand("inserttext", false, new_);
     if (!span.innerHTML) {
         // run with an empty selection; move cursor back past postfix
         r = s.getRangeAt(0);
@@ -80,6 +78,7 @@ function addListeners(e){
             pycmd("ankisave!reload");
         }
     })
+    
     if(%(span)s){
         el.addEventListener('keydown', function(event){
             if (event.keyCode == 8) {
@@ -87,11 +86,12 @@ function addListeners(e){
             }
         })
     }
+
     e.addEventListener('keydown',function(event){
         //onCloze from /aqt/editor.py
         if(event.code == "KeyC" && event.ctrlKey && event.shiftKey){
             var el = event.currentTarget;
-            highest = 0;
+            var highest = 0;
             var val = el.innerHTML;
             var m;
             var myRe = /\{\{c(\d+)::/g;
@@ -101,7 +101,7 @@ function addListeners(e){
             if(!event.altKey){
                 highest += 1;
             } 
-            highest = Math.max(1, highest);
+            var highest = Math.max(1, highest);
             wrapInternal("{\{c" + highest + "::", "}\}");
         }
         var el = event.currentTarget;
@@ -112,6 +112,7 @@ function addListeners(e){
         }
     })
 }
+
 var els = document.querySelectorAll("[contenteditable=true][data-EFDRCfield='%(fld)s']");
 for(var e = 0; e < els.length; e++){
     var el = els[e];
@@ -119,6 +120,7 @@ for(var e = 0; e < els.length; e++){
 }
 </script>
 """
+
 
 def edit(txt, extra, context, field, fullname):
     config = mw.addonManager.getConfig(__name__)
@@ -135,9 +137,6 @@ def edit(txt, extra, context, field, fullname):
         config['tag'], field, txt, config['tag'])
     txt += card_js % ({"fld":field, "span":span, "ctrl":ctrl})
     return txt
-
-
-addHook('fmod_edit', edit)
 
 
 def saveField(note, fld, val):
@@ -218,3 +217,4 @@ def myLinkHandler(reviewer, url, _old):
 
 
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
+addHook('fmod_edit', edit)
