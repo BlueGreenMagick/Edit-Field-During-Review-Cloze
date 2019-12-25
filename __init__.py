@@ -23,7 +23,7 @@ card_js ="""
 <script>
 function addListeners(e){
     e.addEventListener('mousedown',function(event){
-        var el = event.currentTarget
+        var el = event.currentTarget;
         if(%(ctrl)s&&!event.ctrlKey){
             if(el != document.activeElement){
                 el.setAttribute("data-EFDRCdontfocus","true");
@@ -31,7 +31,7 @@ function addListeners(e){
         }
     })
     e.addEventListener('focus', function(event){
-        var el = event.currentTarget
+        var el = event.currentTarget;
         if(el.getAttribute("data-EFDRCdontfocus") == "true"){
             el.blur()
         }else{
@@ -61,7 +61,7 @@ function addListeners(e){
 var els = document.querySelectorAll("[contenteditable=true][data-EFDRCfield='%(fld)s']");
 for(var e = 0; e < els.length; e++){
     var el = els[e];
-    addListeners(el)
+    addListeners(el);
 }
 </script>
 """
@@ -144,14 +144,14 @@ def myLinkHandler(reviewer, url, _old):
                 }).join(''));
             }
         }
-        var encoded_val = "%s"
-        var val = b64DecodeUnicode(encoded_val)
+        var encoded_val = "%s";
+        var val = b64DecodeUnicode(encoded_val);
         var elems = document.querySelectorAll("[contenteditable=true][data-EFDRCfield='%s']")
         for(var e = 0; e < elems.length; e++){
-            var elem = elems[e]
-            elem.setAttribute("data-EFDRCval", encoded_val)
+            var elem = elems[e];
+            elem.setAttribute("data-EFDRCval", encoded_val);
             if(elem.innerHTML != val){
-                elem.innerHTML = val
+                elem.innerHTML = val;
             }
         }
         """ % (encoded_val, fld))
