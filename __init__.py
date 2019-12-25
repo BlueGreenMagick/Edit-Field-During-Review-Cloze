@@ -21,6 +21,36 @@ import urllib.parse
 
 card_js ="""
 <script>
+//wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts
+function wrappedExceptForWhitespace(text, front, back) {
+    var match = text.match(/^(\s*)([^]*?)(\s*)$/);
+    return match[1] + front + match[2] + back + match[3];
+}
+
+function wrapInternal(front, back) {
+    if (document.activeElement.dir === "rtl") {
+        front = "&#8235;" + front + "&#8236;";
+        back = "&#8235;" + back + "&#8236;";
+    }
+    const s = window.getSelection();
+    let r = s.getRangeAt(0);
+    const content = r.cloneContents();
+    const span = document.createElement("span");
+    span.appendChild(content);
+    if (true) {
+        const new_ = wrappedExceptForWhitespace(span.innerText, front, back);
+        document.execCommand("inserttext", false, new_);
+    }
+    if (!span.innerHTML) {
+        // run with an empty selection; move cursor back past postfix
+        r = s.getRangeAt(0);
+        r.setStart(r.startContainer, r.startOffset - back.length);
+        r.collapse(true);
+        s.removeAllRanges();
+        s.addRange(r);
+    }
+}
+
 function addListeners(e){
     e.addEventListener('mousedown',function(event){
         var el = event.currentTarget;
@@ -57,6 +87,30 @@ function addListeners(e){
             }
         })
     }
+    e.addEventListener('keydown',function(event){
+        //onCloze from /aqt/editor.py
+        if(event.code == "KeyC" && event.ctrlKey && event.shiftKey){
+            var el = event.currentTarget;
+            highest = 0;
+            var val = el.innerHTML;
+            var m;
+            var myRe = /\{\{c(\d+)::/g;
+            while ((m = myRe.exec(val)) !== null) {
+                highest = Math.max(highest, m[1]);
+            }
+            if(!event.altKey){
+                highest += 1;
+            } 
+            highest = Math.max(1, highest);
+            wrapInternal("{\{c" + highest + "::", "}\}");
+        }
+        var el = event.currentTarget;
+        if(%(ctrl)s&&!event.ctrlKey){
+            if(el != document.activeElement){
+                el.setAttribute("data-EFDRCdontfocus","true");
+            }
+        }
+    })
 }
 var els = document.querySelectorAll("[contenteditable=true][data-EFDRCfield='%(fld)s']");
 for(var e = 0; e < els.length; e++){
@@ -65,7 +119,6 @@ for(var e = 0; e < els.length; e++){
 }
 </script>
 """
-
 
 def edit(txt, extra, context, field, fullname):
     config = mw.addonManager.getConfig(__name__)
