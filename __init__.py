@@ -125,7 +125,7 @@ if(typeof wrappedExceptForWhitespace != "function"){
         e.addEventListener('keydown',function(event){
             //onCloze from /aqt/editor.py
             var el = event.currentTarget;
-            if(event.code == "KeyC" && event.ctrlKey && event.shiftKey){
+            if(event.code == "KeyC" && event.shiftKey && (event.ctrlKey||event.metaKey)){
                 var highest = 0;
                 var val = el.innerHTML;
                 var m;
@@ -144,13 +144,13 @@ if(typeof wrappedExceptForWhitespace != "function"){
     }
     if(%(ctrl)s){
         window.addEventListener('keydown',function(event){
-            if(event.keyCode == 17){
+            if(event.keyCode == 17 || event.keyCode == 91){ //91 is cmd key in mac
                 EFDRCctrldown();
             }   
         })
 
         window.addEventListener('keyup',function(event){
-            if(event.keyCode == 17){
+            if(event.keyCode == 17 || event.keyCode == 91){
                 EFDRCctrlup();
             }    
         })
