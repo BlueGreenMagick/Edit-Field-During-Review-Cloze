@@ -26,7 +26,7 @@ from .semieditor import semiEditorWebView
 from .web import bottom_js, paste_js, card_js
 
 editorwv = semiEditorWebView()
-
+config = mw.addonManager.getConfig(__name__)
 
 def bool_to_str(b):
     if b:
@@ -35,7 +35,6 @@ def bool_to_str(b):
         return "false"
 
 def edit(txt, extra, context, field, fullname):
-    config = mw.addonManager.getConfig(__name__)
     span = bool_to_str(config["tag"])
     ctrl = bool_to_str(config["ctrl_click"])
     paste = bool_to_str(config["process_paste"])
