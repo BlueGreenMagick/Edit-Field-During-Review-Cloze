@@ -192,7 +192,7 @@ window.filterNode = function (node, extendedMode) {
 """
 
 
-#span, fld, ctrl is formatted. 
+#span, fld, ctrl, paste is formatted. 
 #Capital EFDRC is just for easier code reading. Case doesn't matter.
 card_js ="""
 <script>
