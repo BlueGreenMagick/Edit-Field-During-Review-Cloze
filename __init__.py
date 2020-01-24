@@ -28,21 +28,24 @@ from .web import bottom_js, paste_js, card_js
 editorwv = semiEditorWebView()
 
 
+def bool_to_str(b):
+    if b:
+        return "true"
+    else:
+        return "false"
+
 def edit(txt, extra, context, field, fullname):
     config = mw.addonManager.getConfig(__name__)
-    if config['tag'] == "span":
-        span = "true"
-    else:
-        span = "false"
-    if config["ctrl_click"]:
-        ctrl = "true"
-    else:
-        ctrl = "false"
+    span = bool_to_str(config["tag"])
+    ctrl = bool_to_str(config["ctrl_click"])
+    paste = bool_to_str(config["process_paste"])
+
     field = base64.b64encode(field.encode('utf-8')).decode('ascii')
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
         config['tag'], field, txt, config['tag'])
-    txt += card_js % ({"fld":field, "span":span, "ctrl":ctrl})
-    txt += paste_js
+    txt += card_js % ({"fld":field, "span":span, "ctrl":ctrl, "paste": paste})
+    if config["process_paste"]:
+        txt += paste_js
     mw.reviewer.bottom.web.eval(bottom_js% ({"ctrl":ctrl}))
     return txt
 

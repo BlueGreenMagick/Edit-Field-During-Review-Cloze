@@ -270,7 +270,9 @@ if(typeof wrappedExceptForWhitespace != "function"){
     }
 
     window.EFDRCaddListeners = function(e, fld, spanBool){
-        e.addEventListener('paste', handlePaste);
+        if(%(paste)s){
+            e.addEventListener('paste', handlePaste);
+        }
 
         e.addEventListener('focus', function(event){
             pycmd("ankisave!focuson#" + fld);

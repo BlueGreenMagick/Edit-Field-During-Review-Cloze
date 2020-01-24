@@ -1,5 +1,6 @@
 {
   "ctrl_click":false,
   "tag": "div",
-  "undo": true
+  "undo": true,
+  "process_paste": true 
 }
