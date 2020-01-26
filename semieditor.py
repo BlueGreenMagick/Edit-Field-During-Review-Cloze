@@ -18,6 +18,7 @@ class semiEditor():
     
     def __init__(self):
         self.mw = mw
+        self.parentWindow = mw
 
 
         
