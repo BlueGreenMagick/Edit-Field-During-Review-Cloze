@@ -2,6 +2,7 @@ from aqt.editor import Editor, EditorWebView
 from aqt import mw
 
 
+
 class semiEditor():
     #Necessary methods/variables for handling paste
     _pastePreFilter = Editor._pastePreFilter
@@ -18,7 +19,7 @@ class semiEditor():
     
     def __init__(self):
         self.mw = mw
-        self.parentWindow = mw
+        self.parentWindow = mw.web
 
 
         
