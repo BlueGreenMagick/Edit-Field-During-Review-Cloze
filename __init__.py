@@ -9,6 +9,7 @@ Modified by <bluegreenmagick@gmail.com>
 
 from anki.hooks import addHook, wrap
 from anki.utils import htmlToTextLine
+from anki import version as ankiversion
 
 from aqt import mw
 from aqt.editor import Editor
@@ -25,8 +26,13 @@ import json
 from .semieditor import semiEditorWebView
 from .web import bottom_js, paste_js, card_js
 
-editorwv = semiEditorWebView()
 config = mw.addonManager.getConfig(__name__)
+ankiver_minor = int(ankiversion.split('.')[2])
+ankiver_major = ankiversion[0:3]
+
+if config["process_paste"]:
+    editorwv = semiEditorWebView()
+
 
 def bool_to_str(b):
     if b:
@@ -86,7 +92,10 @@ def myLinkHandler(reviewer, url, _old):
         orig_enc_val = base64.b64encode(orig_val.encode('utf-8')).decode('ascii')
         if enc_val == orig_enc_val: #enc_val may be the val of prev reviewed card.
             saveField(note, fld, new_val)
-            reviewer.card._getQA(reload=True)
+            if ankiver_major == "2.1" and ankiver_minor < 20:
+                reviewer.card._getQA(reload=True)
+            else:
+                reviewer.card.render_output(reload=True)
         else:
             tooltip(ERROR_MSG%fld)
             
