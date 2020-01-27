@@ -3,34 +3,16 @@ from aqt import mw
 
 
 
-class semiEditor():
-    #Necessary methods/variables for handling paste
-    _pastePreFilter = Editor._pastePreFilter
-    removeTags = Editor.removeTags
-    isURL = Editor.isURL
-    _retrieveURL = Editor._retrieveURL
-    inlinedImageToFilename = Editor.inlinedImageToFilename
-    _addPastedImage = Editor._addPastedImage
-    fnameToLink = Editor.fnameToLink
-    _addMediaFromData = Editor._addMediaFromData
-    urlToLink = Editor.urlToLink
-    urlToFile = Editor.urlToFile
-    inlinedImageToLink = Editor.inlinedImageToLink
+class semiEditor(Editor):
     
     def __init__(self):
         self.mw = mw
-        self.parentWindow = mw.web
+        self.parentWindow = mw
 
 
         
 
-class semiEditorWebView():
-    #Necessary methods/variables for handling paste
-    _processMime = EditorWebView._processMime
-    _processUrls = EditorWebView._processUrls
-    _processText = EditorWebView._processText
-    _processImage = EditorWebView._processImage
-    _processHtml = EditorWebView._processHtml
+class semiEditorWebView(EditorWebView):
     
     def __init__(self):
         self.mw = mw
