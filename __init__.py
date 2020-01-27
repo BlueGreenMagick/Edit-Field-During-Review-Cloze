@@ -88,7 +88,7 @@ def saveThenRefreshFld(note, fld, new_val):
 
 def myLinkHandler(reviewer, url, _old):
     if url.startswith("ankisave#"):
-        ERROR_MSG = "ERROR - Edit Field During Review Cloze\nSomething unexpected occured. The edit was not saved. %s"
+        ERROR_MSG = "ERROR - Edit Field During Review Cloze\nSomething unexpected occured. The edit may not have been saved. %s"
         enc_val, fld, new_val = url.replace("ankisave#", "").split("#", 2)
         note = reviewer.card.note()
         fld = base64.b64decode(fld, validate=True).decode('utf-8')
