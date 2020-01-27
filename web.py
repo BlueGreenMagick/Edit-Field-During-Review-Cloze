@@ -28,8 +28,11 @@ window.parseHTML = function(str) {
   return tmp.body.children;
 };
 window.pasteHTML = function (html, internal) {
-    html = filterHTML(html, internal, false);
-    document.execCommand("inserthtml", false, html);
+    try{
+        html = filterHTML(html, internal, false);
+    }finally{
+        document.execCommand("inserthtml", false, html);
+    }
 };
 window.filterHTML = function (html, internal, extendedMode) {
     // wrap it in <top> as we aren't allowed to change top level elements
