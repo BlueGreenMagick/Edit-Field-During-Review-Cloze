@@ -227,6 +227,11 @@ if(typeof wrappedExceptForWhitespace != "function"){
             s.addRange(r);
         }
     }
+    window.b64DecodeUnicode(str) {
+        return decodeURIComponent(atob(str).split('').map(function(c) {
+            return '%%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    }
     
     window.EFDRCctrldown = function(){
         els = document.querySelectorAll("[data-EFDRC='true']"); 

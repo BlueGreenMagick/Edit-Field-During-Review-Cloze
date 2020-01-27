@@ -98,6 +98,8 @@ def myLinkHandler(reviewer, url, _old):
                 reviewer.card.render_output(reload=True)
         else:
             tooltip(ERROR_MSG%fld)
+            #showInfo(url + "\n\n\n" + orig_enc_val)
+
             
     elif url.startswith("ankisave!speedfocus#"):
         reviewer.bottom.web.eval("""
@@ -111,13 +113,6 @@ def myLinkHandler(reviewer, url, _old):
         val = reviewer.card.note()[decoded_fld]
         encoded_val = base64.b64encode(val.encode('utf-8')).decode('ascii')
         reviewer.web.eval("""
-        if(!b64DecodeUnicode){
-            function b64DecodeUnicode(str) {
-                return decodeURIComponent(atob(str).split('').map(function(c) {
-                    return '%%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-            }
-        }
         var encoded_val = "%s";
         var val = b64DecodeUnicode(encoded_val);
         var elems = document.querySelectorAll("[data-EFDRCfield='%s']")
