@@ -30,7 +30,7 @@ def mystart(self, max=0, min=0, label=None, parent=None, immediate=False, _old=N
 
 
 def myfinish(self, _old):
-    if mw.EFDRCsemieditprogress:
+    if hasattr(mw,"EFDRCsemieditprogress") and mw.EFDRCsemieditprogress:
         mw.EFDRCsemieditprogress = False
         self.app.restoreOverrideCursor()
         return
