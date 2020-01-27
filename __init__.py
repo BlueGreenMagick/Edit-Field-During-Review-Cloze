@@ -79,7 +79,7 @@ def saveField(note, fld, val):
         note[fld] = txt
     note.flush()
 
-def saveThenRefreshFld(note, fld, new_val):
+def saveThenRefreshFld(reviewer, note, fld, new_val):
     saveField(note, fld, new_val)
     if ankiver_major == "2.1" and ankiver_minor < 20:
         reviewer.card._getQA(reload=True)
@@ -97,7 +97,7 @@ def myLinkHandler(reviewer, url, _old):
         orig_val = note[fld]
         orig_enc_val = base64.b64encode(orig_val.encode('utf-8')).decode('ascii')
         if enc_val == orig_enc_val: #enc_val may be the val of prev reviewed card.
-            saveThenRefreshFld(note, fld, new_val)
+            saveThenRefreshFld(reviewer, note, fld, new_val)
         else:
             tooltip(ERROR_MSG%fld)
             #showInfo(url + "\n\n\n" + orig_enc_val)
