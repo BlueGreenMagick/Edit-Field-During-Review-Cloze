@@ -7,24 +7,25 @@ Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
 Modified by <bluegreenmagick@gmail.com>
 """
 
-from anki.hooks import addHook, wrap
-from anki.utils import htmlToTextLine
-from anki import version as ankiversion
-
-from aqt import mw
-from aqt.editor import Editor
-from aqt.reviewer import Reviewer
-from aqt.utils import tooltip, showInfo
-from aqt.editor import Editor
-from aqt.qt import QClipboard
-
 import base64
 import unicodedata
 import urllib.parse
 import json
 
+from anki.hooks import addHook, wrap
+from anki.utils import htmlToTextLine
+from anki import version as ankiversion
+
+from aqt import mw
+from aqt.qt import QClipboard
+from aqt.editor import Editor
+from aqt.reviewer import Reviewer
+from aqt.utils import tooltip, showInfo
+from aqt.editor import Editor
+
 from .semieditor import semiEditorWebView
 from .web import bottom_js, paste_js, card_js
+
 
 config = mw.addonManager.getConfig(__name__)
 ankiver_minor = int(ankiversion.split('.')[2])
@@ -100,9 +101,7 @@ def myLinkHandler(reviewer, url, _old):
             saveThenRefreshFld(reviewer, note, fld, new_val)
         else:
             tooltip(ERROR_MSG%fld)
-            #showInfo(url + "\n\n\n" + orig_enc_val)
 
-            
     elif url.startswith("ankisave!speedfocus#"):
         reviewer.bottom.web.eval("""
             clearTimeout(autoAnswerTimeout);
