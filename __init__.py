@@ -41,6 +41,13 @@ def bool_to_str(b):
     else:
         return "false"
 
+#code for new style hooks
+#from anki import hooks 
+#hooks.field_filter.append(new_fld_hook)
+def new_fld_hook(txt, field, filt, ctx):
+    if filt == "edit":
+        return edit(txt, None, None, field, None)
+
 def edit(txt, extra, context, field, fullname):
     span = bool_to_str(config["tag"])
     ctrl = bool_to_str(config["ctrl_click"])
