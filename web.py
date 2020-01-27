@@ -227,7 +227,7 @@ if(typeof wrappedExceptForWhitespace != "function"){
             s.addRange(r);
         }
     }
-    window.b64DecodeUnicode(str) {
+    window.b64DecodeUnicode = function(str) {
         return decodeURIComponent(atob(str).split('').map(function(c) {
             return '%%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
