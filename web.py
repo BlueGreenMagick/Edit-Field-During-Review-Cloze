@@ -257,7 +257,7 @@ if(typeof wrappedExceptForWhitespace != "function"){
     }
 
     window.handlePaste = function(e){
-        var mimetype = ["text/html", "image/", "video/", "audio/"]
+        var mimetype = ["text/html", "image/", "video/", "audio/", "application/"];
         var paste = (e.clipboardData || window.clipboardData);
         for(var x = 0; x < paste.types.length; x++){
             mtype = paste.types[x];
