@@ -7,6 +7,42 @@ Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
 Modified by <bluegreenmagick@gmail.com>
 """
 
+"""
+
+-hooks: 
+fmod_edit (fmod)
+
+-wraps: 
+Reviewer._linkHandler
+ProgressManager.start
+ProgressManager.finish
+
+-extends:
+Editor
+EditorWebView
+
+-used methods/variables: 
+mw.addonManager.getConfig
+mw.reviewer.bottom.web.eval
+mw.col.tags.canonify, mw.col.tags.split
+mw.col.media.escapeImages
+mw.checkpoint
+mw.app.clipboard().mimeData, mw.app.setOverrideCursor
+Editor.mungeHTML
+anki.utils.htmlToTextLine
+anki.version
+aqt.utils.tooltip, aqt.utils.showInfo
+
+
+-copied methods/variables:
+--from editor.ts:
+wrapInternal, wrappedExceptForWhitespace, parseHTML, pasteHTML, filterHTML, filterExternalSpan, filterInternalNode, filterNode
+allowedTagsBasic, allowedTagsExtended, TAGS_WITHOUT_ATTRS, allowedStyling, 
+
+"""
+
+
+
 import base64
 import unicodedata
 import urllib.parse
