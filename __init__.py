@@ -57,7 +57,6 @@ from aqt.qt import QClipboard
 from aqt.editor import Editor
 from aqt.reviewer import Reviewer
 from aqt.utils import tooltip, showInfo
-from aqt.editor import Editor
 
 from .semieditor import semiEditorWebView
 from .web import bottom_js, paste_js, card_js
