@@ -237,7 +237,7 @@ if(typeof wrappedExceptForWhitespace != "function"){
         els = document.querySelectorAll("[data-EFDRC='true']"); 
         for(var e = 0; e < els.length; e++){
             var el = els[e];
-            el.setAttribute("contenteditable", "true")
+            el.setAttribute("contenteditable", "true");
             if(el.hasAttribute("data-EFDRCnotctrl")){
                 el.removeAttribute("data-EFDRCnotctrl");
             }
@@ -270,7 +270,7 @@ if(typeof wrappedExceptForWhitespace != "function"){
             }
             if(to_send){
                 e.preventDefault();
-                pycmd("EFDRC#paste")
+                pycmd("EFDRC#paste");
                 break;
             }
         }
