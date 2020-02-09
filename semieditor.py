@@ -36,6 +36,7 @@ def mystart(*args, **kwargs):
         mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
         return
     else:
+        myprogress = False
         return _old(*args, **kwargs)
 
 
