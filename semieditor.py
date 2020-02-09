@@ -6,6 +6,7 @@ from aqt.progress import ProgressManager
 from aqt.editor import Editor, EditorWebView
 from aqt.utils import showInfo, tooltip
 
+myprogress = False
 
 class semiEditor(Editor):
 
@@ -22,6 +23,7 @@ class semiEditorWebView(EditorWebView):
 
 
 def mystart(*args, **kwargs):
+    global myprogress
     _old = kwargs.pop("_old")
     if "parent" in kwargs:
         parent = kwargs["parent"]
@@ -30,7 +32,7 @@ def mystart(*args, **kwargs):
     else:
         parent = None
     if parent == "EFDRCsemiedit":
-        mw.EFDRCsemieditprogress = True
+        myprogress = True
         mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
         return
     else:
@@ -38,8 +40,9 @@ def mystart(*args, **kwargs):
 
 
 def myfinish(self, _old):
-    if hasattr(mw,"EFDRCsemieditprogress") and mw.EFDRCsemieditprogress:
-        mw.EFDRCsemieditprogress = False
+    global myprogress
+    if myprogress:
+        myprogress = False
         self.app.restoreOverrideCursor()
         return
     else:
