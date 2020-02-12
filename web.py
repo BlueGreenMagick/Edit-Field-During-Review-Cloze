@@ -2,13 +2,13 @@ bottom_js = """
 if(typeof EFDRConctrlkey != "function" && %(ctrl)s){
     window.EFDRConctrlkey = function(){
         window.addEventListener('keydown',function(event){
-            if(event.keyCode == 17){
+            if(event.code == "ControlLeft"){
                 pycmd("EFDRC#ctrldown");
             }    
         })
 
         window.addEventListener('keyup',function(event){
-            if(event.keyCode == 17){
+            if(event.code == "ControlLeft"){
                 pycmd("EFDRC#ctrlup");
             }    
         })        
@@ -303,7 +303,7 @@ if(typeof wrappedExceptForWhitespace != "function"){
         
         if(spanBool){
             el.addEventListener('keydown', function(event){
-                if (event.keyCode == 8) {
+                if (event.code == "Backspace") {
                     event.stopPropagation();
                 }
             })
@@ -331,13 +331,13 @@ if(typeof wrappedExceptForWhitespace != "function"){
     }
     if(%(ctrl)s){
         window.addEventListener('keydown',function(event){
-            if(event.keyCode == 17 || event.keyCode == 91){ //91 is cmd key in mac
+            if(event.code == "ControlLeft"){
                 EFDRCctrldown();
             }   
         })
 
         window.addEventListener('keyup',function(event){
-            if(event.keyCode == 17 || event.keyCode == 91){
+            if(event.keyCode == "ControlLeft"){
                 EFDRCctrlup();
             }    
         })
