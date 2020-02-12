@@ -47,6 +47,7 @@ import base64
 import unicodedata
 import urllib.parse
 import json
+import os
 
 from anki.hooks import addHook, wrap
 from anki.utils import htmlToTextLine
@@ -59,7 +60,6 @@ from aqt.reviewer import Reviewer
 from aqt.utils import tooltip, showInfo
 
 from .semieditor import semiEditorWebView
-from .web import bottom_js, paste_js, card_js
 
 
 config = mw.addonManager.getConfig(__name__)
@@ -68,6 +68,28 @@ ankiver_major = ankiversion[0:3]
 
 if config["process_paste"]:
     editorwv = semiEditorWebView()
+
+#get js files
+def wrap_script(txt):
+    return "<script>" + txt + "</script>"
+
+def abs_path(rel_path):
+    dir = os.path.dirname(__file__)
+    abs_file_path = os.path.join(dir, rel_path)
+    return abs_file_path
+
+with open(abs_path("card.js"), 'r') as f:
+    txt = f.read()
+    card_js = wrap_script(txt)
+
+with open(abs_path("paste.js"), 'r') as f:
+    txt = f.read()
+    paste_js = wrap_script(txt)
+
+#does not need to be wrapped in <script> because it is injected using web.eval
+with open(abs_path("bottom.js"), 'r') as f:
+    txt = f.read()
+    bottom_js = wrap_script(txt)
 
 
 def bool_to_str(b):
