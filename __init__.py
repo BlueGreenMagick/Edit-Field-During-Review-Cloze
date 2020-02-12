@@ -87,11 +87,12 @@ def edit(txt, extra, context, field, fullname):
     span = bool_to_str(config["tag"])
     ctrl = bool_to_str(config["ctrl_click"])
     paste = bool_to_str(config["process_paste"])
+    br_newline = bool_to_str(config["newline_with_br"])
 
     field = base64.b64encode(field.encode('utf-8')).decode('ascii')
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
         config['tag'], field, txt, config['tag'])
-    txt += card_js % ({"fld":field, "span":span, "ctrl":ctrl, "paste": paste})
+    txt += card_js % ({"fld":field, "span":span, "ctrl":ctrl, "paste": paste, "br_newline": br_newline})
     if config["process_paste"]:
         txt += paste_js
     mw.reviewer.bottom.web.eval(bottom_js% ({"ctrl":ctrl}))

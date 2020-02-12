@@ -308,6 +308,20 @@ if(typeof wrappedExceptForWhitespace != "function"){
                 }
             })
         }
+        e.addEventListener('keyup', function(event){
+            var el = event.currentTarget;
+            if (!el.lastChild || el.lastChild.nodeName.toLowerCase() != "br") {
+                el.appendChild(document.createElement("br"));
+            }
+        })
+
+        e.addEventListener('mouseup', function(event){
+            var el = event.currentTarget;
+            if (!el.lastChild || el.lastChild.nodeName.toLowerCase() != "br") {
+                el.appendChild(document.createElement("br"));
+            }
+        })
+
 
         e.addEventListener('keydown',function(event){
             //onCloze from /aqt/editor.py
@@ -326,6 +340,19 @@ if(typeof wrappedExceptForWhitespace != "function"){
                 var highest = Math.max(1, highest);
                 wrapInternal("{\{c" + highest + "::", "}\}");
             }
+            if(event.code == "Enter" && %(br_newline)s){
+                br = document.createElement("br")
+                event.preventDefault();
+                selection = window.getSelection();
+                range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(br);
+                range.setStartAfter(br);
+                range.setEndAfter(br);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+
 
         })
     }

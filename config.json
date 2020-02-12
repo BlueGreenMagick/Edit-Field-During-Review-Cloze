@@ -1,5 +1,6 @@
 {
   "ctrl_click":false,
+  "newline_with_br": true,
   "process_paste": true,
   "tag": "div",
   "undo": true
