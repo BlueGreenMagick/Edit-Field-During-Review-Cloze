@@ -84,7 +84,7 @@ if(typeof wrappedExceptForWhitespace != "function"){
         
     }
 
-    window.EFDRCaddListeners = function(e, fld, spanBool){
+    window.EFDRCaddListeners = function(e, fld){
         if(PASTE){
             e.addEventListener('paste', handlePaste);
         }
@@ -108,13 +108,6 @@ if(typeof wrappedExceptForWhitespace != "function"){
             }
         })
         
-        if(spanBool){
-            el.addEventListener('keydown', function(event){
-                if (event.code == "Backspace") {
-                    event.stopPropagation();
-                }
-            })
-        }
         e.addEventListener('keyup', function(event){
             var el = event.currentTarget;
             if (!el.lastChild || el.lastChild.nodeName.toLowerCase() != "br") {
@@ -147,7 +140,13 @@ if(typeof wrappedExceptForWhitespace != "function"){
                 var highest = Math.max(1, highest);
                 wrapInternal("{\{c" + highest + "::", "}\}");
             }
-            if(event.code == "Enter" && BR_NEWLINE){
+            if(SPAN){
+                if (event.code == "Backspace") {
+                    event.stopPropagation();
+                }
+            }
+
+            if(BR_NEWLINE && event.code == "Enter"){
                 br = document.createElement("br")
                 event.preventDefault();
                 selection = window.getSelection();
@@ -182,7 +181,7 @@ if(typeof wrappedExceptForWhitespace != "function"){
 els = document.querySelectorAll("[data-EFDRCfield='"+ FLD +"']");
 for(var e = 0; e < els.length; e++){
     var el = els[e];
-    EFDRCaddListeners(el, FLD, SPAN);
+    EFDRCaddListeners(el, FLD);
 }
 
 if(!CTRL){
