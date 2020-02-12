@@ -2,7 +2,7 @@
 
 CTRL = %(ctrl)s; //bool
 PASTE = %(paste)s; //bool
-SPAN = %(span)s;
+SPAN = %(span)s; //bool
 BR_NEWLINE = %(br_newline)s; //bool
 FLD = "%(fld)s"; //string
 
@@ -84,13 +84,13 @@ if(typeof wrappedExceptForWhitespace != "function"){
         
     }
 
-    window.EFDRCaddListeners = function(e, fld){
+    window.EFDRCaddListeners = function(e){
         if(PASTE){
             e.addEventListener('paste', handlePaste);
         }
 
         e.addEventListener('focus', function(event){
-            pycmd("ankisave!focuson#" + fld);
+            pycmd("ankisave!focuson#" + FLD);
             pycmd("ankisave!speedfocus#");
         })
 
@@ -181,7 +181,7 @@ if(typeof wrappedExceptForWhitespace != "function"){
 els = document.querySelectorAll("[data-EFDRCfield='"+ FLD +"']");
 for(var e = 0; e < els.length; e++){
     var el = els[e];
-    EFDRCaddListeners(el, FLD);
+    EFDRCaddListeners(el);
 }
 
 if(!CTRL){
