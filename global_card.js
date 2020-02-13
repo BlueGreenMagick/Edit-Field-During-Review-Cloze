@@ -2,19 +2,21 @@
 //Capital EFDRC is just for easier code reading. Case doesn't matter.
 
 
-var EFDRC_CTRL = %(ctrl)s; //bool
-var EFDRC_PASTE = %(paste)s; //bool
-var EFDRC_SPAN = %(span)s; //bool
-var EFDRC_BR_NEWLINE = %(br_newline)s; //bool
+window.EFDRC = {}
+
+EFDRC.CTRL = %(ctrl)s; //bool
+EFDRC.PASTE = %(paste)s; //bool
+EFDRC.SPAN = %(span)s; //bool
+EFDRC.BR_NEWLINE = %(br_newline)s; //bool
 
 
 //wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts
-window.wrappedExceptForWhitespace = function(text, front, back) {
+EFDRC.wrappedExceptForWhitespace = function(text, front, back) {
     var match = text.match(/^(\s*)([^]*?)(\s*)$/);
     return match[1] + front + match[2] + back + match[3];
 }
 
-window.wrapInternal = function(front, back) {
+EFDRC.wrapInternal = function(front, back) {
     if (document.activeElement.dir === "rtl") {
         front = "&#8235;" + front + "&#8236;";
         back = "&#8235;" + back + "&#8236;";
@@ -24,7 +26,7 @@ window.wrapInternal = function(front, back) {
     const content = r.cloneContents();
     const span = document.createElement("span");
     span.appendChild(content);
-    const new_ = wrappedExceptForWhitespace(span.innerText, front, back);
+    const new_ = EFDRC.wrappedExceptForWhitespace(span.innerText, front, back);
     document.execCommand("inserttext", false, new_);
     if (!span.innerHTML) {
         // run with an empty selection; move cursor back past postfix
@@ -36,13 +38,13 @@ window.wrapInternal = function(front, back) {
     }
 }
 
-window.b64DecodeUnicode = function(str) {
+EFDRC.b64DecodeUnicode = function(str) {
     return decodeURIComponent(atob(str).split('').map(function(c) {
         return '%%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
 }
 
-window.EFDRChandlePaste = function(e){
+EFDRC.handlePaste = function(e){
     var mimetype = ["text/html", "image/", "video/", "audio/", "application/"];
     var paste = (e.clipboardData || window.clipboardData);
     for(var x = 0; x < paste.types.length; x++){
@@ -62,7 +64,7 @@ window.EFDRChandlePaste = function(e){
     }
 }    
 
-window.EFDRCctrldown = function(){
+EFDRC.ctrldown = function(){
     els = document.querySelectorAll("[data-EFDRC='true']"); 
     for(var e = 0; e < els.length; e++){
         var el = els[e];
@@ -73,7 +75,7 @@ window.EFDRCctrldown = function(){
     }
 }
 
-window.EFDRCctrlup = function(){
+EFDRC.ctrlup = function(){
     els = document.querySelectorAll("[data-EFDRC='true']");
     for(var e = 0; e < els.length; e++){
         var el = els[e];
@@ -85,9 +87,9 @@ window.EFDRCctrlup = function(){
     }
 }
 
-window.EFDRCaddListeners = function(e, fld){
-    if(EFDRC_PASTE){
-        e.addEventListener('paste', window.EFDRChandlePaste);
+EFDRC.addListeners = function(e, fld){
+    if(EFDRC.PASTE){
+        e.addEventListener('paste', EFDRC.handlePaste);
     }
 
     e.addEventListener('focus', function(event){
@@ -124,14 +126,14 @@ window.EFDRCaddListeners = function(e, fld){
                 highest += 1;
             } 
             var highest = Math.max(1, highest);
-            wrapInternal("{\{c" + highest + "::", "}\}");
+            EFDRC.wrapInternal("{\{c" + highest + "::", "}\}");
         }
-        if(EFDRC_SPAN){
+        if(EFDRC.SPAN){
             if (event.code == "Backspace") {
                 event.stopPropagation();
             }
         }
-        if(EFDRC_BR_NEWLINE && event.code == "Enter" && !event.ctrlKey){
+        if(EFDRC.BR_NEWLINE && event.code == "Enter" && !event.ctrlKey){
             event.preventDefault()
             var selection = window.getSelection();
             var range = selection.getRangeAt(0);
@@ -158,16 +160,16 @@ window.EFDRCaddListeners = function(e, fld){
     })
 }
 
-if(EFDRC_CTRL){
+if(EFDRC.CTRL){
     window.addEventListener('keydown',function(event){
         if(event.code == "ControlLeft"){
-            window.EFDRCctrldown();
+            EFDRC.ctrldown();
         }   
     })
 
     window.addEventListener('keyup',function(event){
         if(event.keyCode == "ControlLeft"){
-            window.EFDRCctrlup();
+            EFDRC.ctrlup();
         }    
     })
 }

@@ -117,12 +117,11 @@ def myRevHtml(reviewer, _old):
     return _old(reviewer) + global_js
 
 def edit(txt, extra, context, field, fullname):
-    ctrl = bool_to_str(config["ctrl_click"])
 
     field = base64.b64encode(field.encode('utf-8')).decode('ascii')
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
         config['tag'], field, txt, config['tag'])
-    txt += card_js % ({"fld":field, "ctrl":ctrl})
+    txt += card_js % ({"fld":field})
     if config["process_paste"]:
         txt += paste_js
     mw.reviewer.bottom.web.eval(bottom_js% ({"ctrl":ctrl}))
@@ -188,7 +187,7 @@ def myLinkHandler(reviewer, url, _old):
         encoded_val = base64.b64encode(val.encode('utf-8')).decode('ascii')
         reviewer.web.eval("""
         var encoded_val = "%s";
-        var val = b64DecodeUnicode(encoded_val);
+        var val = EFDRC.b64DecodeUnicode(encoded_val);
         var elems = document.querySelectorAll("[data-EFDRCfield='%s']")
         for(var e = 0; e < elems.length; e++){
             var elem = elems[e];
