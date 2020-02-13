@@ -1,10 +1,12 @@
+(function(){
+
 //Capital EFDRC is just for easier code reading. Case doesn't matter.
 
-CTRL = %(ctrl)s; //bool
-PASTE = %(paste)s; //bool
-SPAN = %(span)s; //bool
-BR_NEWLINE = %(br_newline)s; //bool
-FLD = "%(fld)s"; //string
+var CTRL = %(ctrl)s; //bool
+var PASTE = %(paste)s; //bool
+var SPAN = %(span)s; //bool
+var BR_NEWLINE = %(br_newline)s; //bool
+var FLD = "%(fld)s"; //string
 
 //wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts
 if(typeof wrappedExceptForWhitespace != "function"){
@@ -107,20 +109,6 @@ if(typeof wrappedExceptForWhitespace != "function"){
                 pycmd("ankisave!reload");
             }
         })
-        
-        e.addEventListener('keyup', function(event){
-            var el = event.currentTarget;
-            if (!el.lastChild || el.lastChild.nodeName.toLowerCase() != "br") {
-                el.appendChild(document.createElement("br"));
-            }
-        })
-
-        e.addEventListener('mouseup', function(event){
-            var el = event.currentTarget;
-            if (!el.lastChild || el.lastChild.nodeName.toLowerCase() != "br") {
-                el.appendChild(document.createElement("br"));
-            }
-        })
 
 
         e.addEventListener('keydown',function(event){
@@ -145,13 +133,24 @@ if(typeof wrappedExceptForWhitespace != "function"){
                     event.stopPropagation();
                 }
             }
-
-            if(BR_NEWLINE && event.code == "Enter"){
-                br = document.createElement("br")
-                event.preventDefault();
-                selection = window.getSelection();
-                range = selection.getRangeAt(0);
+            if(BR_NEWLINE && event.code == "Enter" && !event.ctrlKey){
+                event.preventDefault()
+                var selection = window.getSelection();
+                var range = selection.getRangeAt(0);
                 range.deleteContents();
+                //add 2 brs if caret at end of div
+                var testRange = range.cloneRange();
+                testRange.selectNodeContents(el);
+                testRange.setStart(range.endContainer, range.endOffset);
+                if(testRange.toString() == ""){
+                    if (!el.lastChild || el.lastChild.nodeName.toLowerCase() != "br") {
+                        var br = document.createElement("br")
+                        range.insertNode(br);
+                        range.setStartAfter(br);
+                        range.setEndAfter(br);
+                    }
+                }
+                var br = document.createElement("br")
                 range.insertNode(br);
                 range.setStartAfter(br);
                 range.setEndAfter(br);
@@ -189,3 +188,4 @@ if(!CTRL){
         els[e].setAttribute("contenteditable", "true");
     }
 }
+})()
