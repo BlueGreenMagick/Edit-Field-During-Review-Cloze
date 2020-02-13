@@ -82,6 +82,10 @@ with open(abs_path("card.js"), 'r') as f:
     txt = f.read()
     card_js = wrap_script(txt)
 
+with open(abs_path("global_card.js")) as f:
+    txt = f.read()
+    global_card_js = wrap_script(txt)
+
 with open(abs_path("paste.js"), 'r') as f:
     txt = f.read()
     paste_js = wrap_script(txt)
@@ -90,7 +94,6 @@ with open(abs_path("paste.js"), 'r') as f:
 with open(abs_path("bottom.js"), 'r') as f:
     txt = f.read()
     bottom_js = wrap_script(txt)
-
 
 def bool_to_str(b):
     if b:
@@ -105,16 +108,22 @@ def new_fld_hook(txt, field, filt, ctx):
     if filt == "edit":
         return edit(txt, None, None, field, None)
 
-def edit(txt, extra, context, field, fullname):
+def myRevHtml(reviewer, _old):
     span = bool_to_str(config["tag"])
     ctrl = bool_to_str(config["ctrl_click"])
     paste = bool_to_str(config["process_paste"])
     br_newline = bool_to_str(config["newline_with_br"])
 
+    global_js = global_card_js%({"span":span, "ctrl":ctrl, "paste": paste, "br_newline": br_newline})
+    return _old(reviewer) + global_js
+
+def edit(txt, extra, context, field, fullname):
+    ctrl = bool_to_str(config["ctrl_click"])
+
     field = base64.b64encode(field.encode('utf-8')).decode('ascii')
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
         config['tag'], field, txt, config['tag'])
-    txt += card_js % ({"fld":field, "span":span, "ctrl":ctrl, "paste": paste, "br_newline": br_newline})
+    txt += card_js % ({"fld":field, "ctrl":ctrl})
     if config["process_paste"]:
         txt += paste_js
     mw.reviewer.bottom.web.eval(bottom_js% ({"ctrl":ctrl}))
@@ -211,6 +220,6 @@ def myLinkHandler(reviewer, url, _old):
     else:
         return _old(reviewer, url)
 
-
+Reviewer.revHtml = wrap(Reviewer.revHtml, myRevHtml, "around")
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
 addHook('fmod_edit', edit)
