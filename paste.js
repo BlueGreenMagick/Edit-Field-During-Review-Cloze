@@ -19,7 +19,7 @@
         let outHtml = top.innerHTML;
         if (!extendedMode && !internal) {
             // collapse whitespace
-            outHtml = outHtml.replace(/[\\n\\t ]+/g, " ");
+            outHtml = outHtml.replace(/[\n\t ]+/g, " ");
         }
         outHtml = outHtml.trim();
         //console.log(`input html: ${html}`);
