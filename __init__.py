@@ -92,8 +92,7 @@ with open(abs_path("paste.js"), 'r') as f:
 
 #does not need to be wrapped in <script> because it is injected using web.eval
 with open(abs_path("bottom.js"), 'r') as f:
-    txt = f.read()
-    bottom_js = wrap_script(txt)
+    bottom_js = f.read()
 
 def bool_to_str(b):
     if b:
