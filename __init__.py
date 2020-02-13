@@ -113,8 +113,12 @@ def myRevHtml(reviewer, _old):
     paste = bool_to_str(config["process_paste"])
     br_newline = bool_to_str(config["newline_with_br"])
 
-    global_js = global_card_js%({"span":span, "ctrl":ctrl, "paste": paste, "br_newline": br_newline})
-    return _old(reviewer) + global_js
+    js = global_card_js%({"span":span, "ctrl":ctrl, "paste": paste, "br_newline": br_newline})
+
+    if config["process_paste"]:
+        js += paste_js
+
+    return _old(reviewer) + js
 
 def myRevBottomHTML(reviewer, _old):
     ctrl = bool_to_str(config["ctrl_click"])
@@ -128,8 +132,7 @@ def edit(txt, extra, context, field, fullname):
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
         config['tag'], field, txt, config['tag'])
     txt += card_js % ({"fld":field})
-    if config["process_paste"]:
-        txt += paste_js
+
     mw.reviewer.bottom.web.eval(bottom_js% ({"ctrl":ctrl}))
     return txt
 
