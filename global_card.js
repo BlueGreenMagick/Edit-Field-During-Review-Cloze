@@ -4,10 +4,10 @@
 
 window.EFDRC = {}
 
-EFDRC.CTRL = %(ctrl)s; //bool
-EFDRC.PASTE = %(paste)s; //bool
-EFDRC.SPAN = %(span)s; //bool
-EFDRC.BR_NEWLINE = %(br_newline)s; //bool
+EFDRC.CTRL = "%(ctrl)s"; //bool
+EFDRC.PASTE = "%(paste)s"; //bool
+EFDRC.SPAN = "%(span)s"; //bool
+EFDRC.BR_NEWLINE = "%(br_newline)s"; //bool
 
 
 //wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts

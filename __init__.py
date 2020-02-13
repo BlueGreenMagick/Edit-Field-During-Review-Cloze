@@ -98,7 +98,7 @@ def bool_to_str(b):
     if b:
         return "true"
     else:
-        return "false"
+        return ""
 
 #code for new style hooks
 #from anki import hooks 

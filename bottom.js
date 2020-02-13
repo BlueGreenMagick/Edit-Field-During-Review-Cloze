@@ -1,4 +1,4 @@
-CTRL = %(ctrl)s;
+CTRL = "%(ctrl)s";
 
 if(typeof EFDRConctrlkey != "function" && CTRL){
     window.EFDRConctrlkey = function(){
