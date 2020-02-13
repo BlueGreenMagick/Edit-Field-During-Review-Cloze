@@ -1,4 +1,3 @@
-(function(){
 
 //Capital EFDRC is just for easier code reading. Case doesn't matter.
 
@@ -6,7 +5,7 @@ var CTRL = %(ctrl)s; //bool
 var PASTE = %(paste)s; //bool
 var SPAN = %(span)s; //bool
 var BR_NEWLINE = %(br_newline)s; //bool
-var FLD = "%(fld)s"; //string
+
 
 //wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts
 if(typeof wrappedExceptForWhitespace != "function"){
@@ -36,12 +35,33 @@ if(typeof wrappedExceptForWhitespace != "function"){
             s.addRange(r);
         }
     }
+
     window.b64DecodeUnicode = function(str) {
         return decodeURIComponent(atob(str).split('').map(function(c) {
             return '%%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
     }
-    
+
+    window.handlePaste = function(e){
+        var mimetype = ["text/html", "image/", "video/", "audio/", "application/"];
+        var paste = (e.clipboardData || window.clipboardData);
+        for(var x = 0; x < paste.types.length; x++){
+            mtype = paste.types[x];
+            to_send = false;
+            for(var y = 0; y < mimetype.length; y++){
+                if(mtype.indexOf(mimetype[y]) != -1){
+                    to_send = true;
+                    break;
+                }
+            }
+            if(to_send){
+                e.preventDefault();
+                pycmd("EFDRC#paste");
+                break;
+            }
+        }
+    }    
+
     window.EFDRCctrldown = function(){
         els = document.querySelectorAll("[data-EFDRC='true']"); 
         for(var e = 0; e < els.length; e++){
@@ -65,34 +85,13 @@ if(typeof wrappedExceptForWhitespace != "function"){
         }
     }
 
-    window.handlePaste = function(e){
-        var mimetype = ["text/html", "image/", "video/", "audio/", "application/"];
-        var paste = (e.clipboardData || window.clipboardData);
-        for(var x = 0; x < paste.types.length; x++){
-            mtype = paste.types[x];
-            to_send = false;
-            for(var y = 0; y < mimetype.length; y++){
-                if(mtype.indexOf(mimetype[y]) != -1){
-                    to_send = true;
-                    break;
-                }
-            }
-            if(to_send){
-                e.preventDefault();
-                pycmd("EFDRC#paste");
-                break;
-            }
-        }
-        
-    }
-
-    window.EFDRCaddListeners = function(e){
+    window.EFDRCaddListeners = function(e, fld){
         if(PASTE){
             e.addEventListener('paste', handlePaste);
         }
 
         e.addEventListener('focus', function(event){
-            pycmd("ankisave!focuson#" + FLD);
+            pycmd("ankisave!focuson#" + fld);
             pycmd("ankisave!speedfocus#");
         })
 
@@ -109,7 +108,6 @@ if(typeof wrappedExceptForWhitespace != "function"){
                 pycmd("ankisave!reload");
             }
         })
-
 
         e.addEventListener('keydown',function(event){
             //onCloze from /aqt/editor.py
@@ -157,10 +155,9 @@ if(typeof wrappedExceptForWhitespace != "function"){
                 selection.removeAllRanges();
                 selection.addRange(range);
             }
-
-
         })
     }
+
     if(CTRL){
         window.addEventListener('keydown',function(event){
             if(event.code == "ControlLeft"){
@@ -173,14 +170,16 @@ if(typeof wrappedExceptForWhitespace != "function"){
                 EFDRCctrlup();
             }    
         })
-
     }
 }
+
+(function(){
+var FLD = "%(fld)s"; //string
 
 els = document.querySelectorAll("[data-EFDRCfield='"+ FLD +"']");
 for(var e = 0; e < els.length; e++){
     var el = els[e];
-    EFDRCaddListeners(el);
+    window.EFDRCaddListeners(el, FLD);
 }
 
 if(!CTRL){
