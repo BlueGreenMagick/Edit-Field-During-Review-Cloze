@@ -111,9 +111,8 @@ def myRevHtml(reviewer, _old):
     span = bool_to_str(config["tag"])
     ctrl = bool_to_str(config["ctrl_click"])
     paste = bool_to_str(config["process_paste"])
-    br_newline = bool_to_str(config["newline_with_br"])
 
-    js = global_card_js%({"span":span, "ctrl":ctrl, "paste": paste, "br_newline": br_newline})
+    js = global_card_js%({"span":span, "ctrl":ctrl, "paste": paste})
 
     if config["process_paste"]:
         js += paste_js

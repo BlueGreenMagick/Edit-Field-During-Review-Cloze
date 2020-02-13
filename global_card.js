@@ -7,7 +7,6 @@ window.EFDRC = {}
 EFDRC.CTRL = "%(ctrl)s"; //bool
 EFDRC.PASTE = "%(paste)s"; //bool
 EFDRC.SPAN = "%(span)s"; //bool
-EFDRC.BR_NEWLINE = "%(br_newline)s"; //bool
 
 
 //wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts
@@ -132,30 +131,6 @@ EFDRC.addListeners = function(e, fld){
             if (event.code == "Backspace") {
                 event.stopPropagation();
             }
-        }
-        if(EFDRC.BR_NEWLINE && event.code == "Enter" && !event.ctrlKey){
-            event.preventDefault()
-            var selection = window.getSelection();
-            var range = selection.getRangeAt(0);
-            range.deleteContents();
-            //add 2 brs if caret at end of div
-            var testRange = range.cloneRange();
-            testRange.selectNodeContents(el);
-            testRange.setStart(range.endContainer, range.endOffset);
-            if(testRange.toString() == ""){
-                if (!el.lastChild || el.lastChild.nodeName.toLowerCase() != "br") {
-                    var br = document.createElement("br")
-                    range.insertNode(br);
-                    range.setStartAfter(br);
-                    range.setEndAfter(br);
-                }
-            }
-            var br = document.createElement("br")
-            range.insertNode(br);
-            range.setStartAfter(br);
-            range.setEndAfter(br);
-            selection.removeAllRanges();
-            selection.addRange(range);
         }
     })
 }
