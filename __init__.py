@@ -57,7 +57,7 @@ from aqt import mw
 from aqt.qt import QClipboard
 from aqt.editor import Editor
 from aqt.reviewer import Reviewer
-from aqt.utils import tooltip, showInfo
+from aqt.utils import tooltip, showText
 
 from .semieditor import semiEditorWebView
 
@@ -90,9 +90,9 @@ with open(abs_path("paste.js"), 'r') as f:
     txt = f.read()
     paste_js = wrap_script(txt)
 
-#does not need to be wrapped in <script> because it is injected using web.eval
 with open(abs_path("bottom.js"), 'r') as f:
-    bottom_js = f.read()
+    txt = f.read()
+    bottom_js = wrap_script(txt)
 
 def bool_to_str(b):
     if b:
@@ -116,8 +116,14 @@ def myRevHtml(reviewer, _old):
     global_js = global_card_js%({"span":span, "ctrl":ctrl, "paste": paste, "br_newline": br_newline})
     return _old(reviewer) + global_js
 
-def edit(txt, extra, context, field, fullname):
+def myRevBottomHTML(reviewer, _old):
+    ctrl = bool_to_str(config["ctrl_click"])
+    script = bottom_js%({"ctrl":ctrl})
 
+    return _old(reviewer) + script
+
+def edit(txt, extra, context, field, fullname):
+    ctrl = bool_to_str(config["ctrl_click"])
     field = base64.b64encode(field.encode('utf-8')).decode('ascii')
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
         config['tag'], field, txt, config['tag'])
@@ -203,9 +209,9 @@ def myLinkHandler(reviewer, url, _old):
         elif reviewer.state == "answer":
             reviewer._showAnswer()
     elif url == "EFDRC#ctrldown":
-        reviewer.web.eval("EFDRCctrldown()")
+        reviewer.web.eval("EFDRC.ctrldown()")
     elif url == "EFDRC#ctrlup":
-        reviewer.web.eval("EFDRCctrlup()")
+        reviewer.web.eval("EFDRC.ctrlup()")
     elif url == "EFDRC#paste":
         #use processMime function a little modified in anki source!
         mime = mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
@@ -214,10 +220,11 @@ def myLinkHandler(reviewer, url, _old):
         reviewer.web.eval("pasteHTML(%s, %s);"% (json.dumps(html), json.dumps(internal)))
     elif url.startswith("EFDRC#debug#"):
         fld = url.replace("EFDRC#debug#", "")
-        showInfo(fld)
+        showText(fld)
     else:
         return _old(reviewer, url)
 
+Reviewer._bottomHTML = wrap(Reviewer._bottomHTML, myRevBottomHTML, "around")
 Reviewer.revHtml = wrap(Reviewer.revHtml, myRevHtml, "around")
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
 addHook('fmod_edit', edit)
