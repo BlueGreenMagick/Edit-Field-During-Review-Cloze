@@ -2,6 +2,9 @@
   "ctrl_click":false,
   "process_paste": true,
   "remove_span": false,
+  "special_formatting":[
+    
+  ],
   "tag": "div",
   "undo": true
 }

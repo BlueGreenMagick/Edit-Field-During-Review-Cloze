@@ -8,7 +8,7 @@ EFDRC.CTRL = "%(ctrl)s"; //bool
 EFDRC.PASTE = "%(paste)s"; //bool
 EFDRC.SPAN = "%(span)s"; //bool
 EFDRC.REMSPAN = "%(remove_span)s" //bool
-
+EFDRC.SPECIAL = JSON.parse("%(special)s")
 
 //wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts
 EFDRC.wrappedExceptForWhitespace = function(text, front, back) {
@@ -151,10 +151,15 @@ EFDRC.addListeners = function(e, fld){
             }
         }
         if(EFDRC.REMSPAN){
-            if(event.code = "Backspace"||event.code == "Delete"){
+            if(event.code == "Backspace"||event.code == "Delete"){
                 setTimeout(function(){
                     EFDRC.removeSpan(el);
                 }, 0)
+            }
+        }
+        if(EFDRC.SPECIAL.includes("remove_formatting")){
+            if(event.code == "R" && (event.ctrlKey||event.metaKey)){
+                document.execCommand("removeFormat");
             }
         }
     })

@@ -112,8 +112,9 @@ def myRevHtml(reviewer, _old):
     ctrl = bool_to_str(config["ctrl_click"])
     paste = bool_to_str(config["process_paste"])
     rem_span = bool_to_str(config["remove_span"])
+    special = json.loads(config["special_formatting"])
 
-    js = global_card_js%({"span":span, "ctrl":ctrl, "paste": paste, "remove_span": rem_span})
+    js = global_card_js%({"span":span, "ctrl":ctrl, "paste": paste, "remove_span": rem_span, "special": special})
 
     if config["process_paste"]:
         js += paste_js
