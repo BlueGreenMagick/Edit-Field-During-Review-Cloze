@@ -7,6 +7,7 @@ window.EFDRC = {}
 EFDRC.CTRL = "%(ctrl)s"; //bool
 EFDRC.PASTE = "%(paste)s"; //bool
 EFDRC.SPAN = "%(span)s"; //bool
+EFDRC.REMSPAN = "%(remove_span)s" //bool
 
 
 //wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts
@@ -41,6 +42,19 @@ EFDRC.b64DecodeUnicode = function(str) {
     return decodeURIComponent(atob(str).split('').map(function(c) {
         return '%%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
+}
+
+EFDRC.removeSpan = function(el){
+    elems = el.getElementsByTagName("span");
+    for(var x = 0; x < elems.length; x++){
+        span = elems[x];
+        children = span.childNodes;
+        for(var y = 0; y < children.length; y++){
+            //insert after node so caret position is maintained. If last sibling, inserted at end.
+            span.parentNode.insertBefore(children[y], span.nextSibling); 
+        }
+        span.parentNode.removeChild(span);
+    }
 }
 
 EFDRC.handlePaste = function(e){
@@ -98,6 +112,9 @@ EFDRC.addListeners = function(e, fld){
 
     e.addEventListener('blur',function(event){
         var el = event.currentTarget;
+        if(EFDRC.REMSPAN){
+            EFDRC.removeSpan(el);
+        }
         if(el.hasAttribute("data-EFDRCnotctrl")){
             el.removeAttribute("data-EFDRCnotctrl");
             el.setAttribute("contenteditable", "false");
@@ -109,6 +126,7 @@ EFDRC.addListeners = function(e, fld){
             pycmd("ankisave!reload");
         }
     })
+
 
     e.addEventListener('keydown',function(event){
         //onCloze from /aqt/editor.py
@@ -130,6 +148,13 @@ EFDRC.addListeners = function(e, fld){
         if(EFDRC.SPAN){
             if (event.code == "Backspace") {
                 event.stopPropagation();
+            }
+        }
+        if(EFDRC.REMSPAN){
+            if(event.code = "Backspace"||event.code == "Delete"){
+                setTimeout(function(){
+                    EFDRC.removeSpan(el);
+                }, 0)
             }
         }
     })

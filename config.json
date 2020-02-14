@@ -1,6 +1,7 @@
 {
   "ctrl_click":false,
   "process_paste": true,
+  "remove_span": false,
   "tag": "div",
   "undo": true
 }
