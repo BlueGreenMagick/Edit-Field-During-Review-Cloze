@@ -1,7 +1,3 @@
-
-//Capital EFDRC is just for easier code reading. Case doesn't matter.
-
-
 window.EFDRC = {}
 
 EFDRC.CTRL = "%(ctrl)s"; //bool
@@ -45,10 +41,10 @@ EFDRC.b64DecodeUnicode = function(str) {
 }
 
 EFDRC.removeSpan = function(el){
-    elems = el.getElementsByTagName("span");
+    var elems = el.getElementsByTagName("span");
     for(var x = 0; x < elems.length; x++){
-        span = elems[x];
-        children = span.childNodes;
+        var span = elems[x];
+        var children = span.childNodes;
         for(var y = 0; y < children.length; y++){
             //insert after node so caret position is maintained. If last sibling, inserted at end.
             span.parentNode.insertBefore(children[y], span.nextSibling); 
@@ -61,8 +57,8 @@ EFDRC.handlePaste = function(e){
     var mimetype = ["text/html", "image/", "video/", "audio/", "application/"];
     var paste = (e.clipboardData || window.clipboardData);
     for(var x = 0; x < paste.types.length; x++){
-        mtype = paste.types[x];
-        to_send = false;
+        var mtype = paste.types[x];
+        var to_send = false;
         for(var y = 0; y < mimetype.length; y++){
             if(mtype.indexOf(mimetype[y]) != -1){
                 to_send = true;
@@ -133,7 +129,7 @@ EFDRC.addListeners = function(e, fld){
         var ctrlKey = event.ctrlKey||event.metaKey
         var shiftKey = event.shiftKey;
         var altKey = event.altKey;
-        var codeKey = event.code
+        var codeKey = event.code;
         var el = event.currentTarget;
         if(EFDRC.SPAN){
             if (codeKey == "Backspace") {
@@ -152,7 +148,7 @@ EFDRC.addListeners = function(e, fld){
         var specials_noctrl = {
             "strikethrough": [true, true, "Digit5", "strikeThrough", false],
             "fontcolor": [false, false, "F7", "foreColor", true]
-        }
+        };
 
         var specials_ctrl = {
             //shift, alt, key, command, has arg
@@ -170,7 +166,8 @@ EFDRC.addListeners = function(e, fld){
             "justifyLeft": [true, true, "KeyL", "justifyLeft", false],
             "justifyRight": [true, true, "KeyR", "justifyRight", false],
             "justifyFull": [true, true, "KeyB", "justifyFull", false],
-        }
+        };
+
         if(ctrlKey){
 
             //cloze deletion, onCloze from /aqt/editor.py
@@ -221,8 +218,8 @@ EFDRC.addListeners = function(e, fld){
                     }
                 }
             }
-            
         }
+
     })
 }
 
