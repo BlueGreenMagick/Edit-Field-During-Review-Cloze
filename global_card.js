@@ -7,8 +7,8 @@ window.EFDRC = {}
 EFDRC.CTRL = "%(ctrl)s"; //bool
 EFDRC.PASTE = "%(paste)s"; //bool
 EFDRC.SPAN = "%(span)s"; //bool
-EFDRC.REMSPAN = "%(remove_span)s" //bool
-EFDRC.SPECIAL = JSON.parse("%(special)s")
+EFDRC.REMSPAN = "%(remove_span)s"; //bool
+EFDRC.SPECIAL = JSON.parse(`%(special)s`) //array of array
 
 //wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts
 EFDRC.wrappedExceptForWhitespace = function(text, front, back) {
@@ -89,7 +89,7 @@ EFDRC.ctrldown = function(){
 }
 
 EFDRC.ctrlup = function(){
-    els = document.querySelectorAll("[data-EFDRC='true']");
+    var els = document.querySelectorAll("[data-EFDRC='true']");
     for(var e = 0; e < els.length; e++){
         var el = els[e];
         if(el == document.activeElement){
@@ -129,38 +129,99 @@ EFDRC.addListeners = function(e, fld){
 
 
     e.addEventListener('keydown',function(event){
-        //onCloze from /aqt/editor.py
+        //slightly faster
+        var ctrlKey = event.ctrlKey||event.metaKey
+        var shiftKey = event.shiftKey;
+        var altKey = event.altKey;
+        var codeKey = event.code
         var el = event.currentTarget;
-        if(event.code == "KeyC" && event.shiftKey && (event.ctrlKey||event.metaKey)){
-            var highest = 0;
-            var val = el.innerHTML;
-            var m;
-            var myRe = /\{\{c(\d+)::/g;
-            while ((m = myRe.exec(val)) !== null) {
-                highest = Math.max(highest, m[1]);
-            }
-            if(!event.altKey){
-                highest += 1;
-            } 
-            var highest = Math.max(1, highest);
-            EFDRC.wrapInternal("{\{c" + highest + "::", "}\}");
-        }
         if(EFDRC.SPAN){
-            if (event.code == "Backspace") {
+            if (codeKey == "Backspace") {
                 event.stopPropagation();
             }
         }
         if(EFDRC.REMSPAN){
-            if(event.code == "Backspace"||event.code == "Delete"){
+            if(codeKey == "Backspace"||codeKey == "Delete"){
                 setTimeout(function(){
                     EFDRC.removeSpan(el);
                 }, 0)
             }
         }
-        if(EFDRC.SPECIAL.includes("remove_formatting")){
-            if(event.code == "R" && (event.ctrlKey||event.metaKey)){
-                document.execCommand("removeFormat");
+
+
+        var specials_noctrl = {
+            "strikethrough": [true, true, "Digit5", "strikeThrough", false],
+            "fontcolor": [false, false, "F7", "foreColor", true]
+        }
+
+        var specials_ctrl = {
+            //shift, alt, key, command, has arg
+            "highlight": [true, false, "KeyB", "hiliteColor", true],
+            "subscript": [false, false, "Equal", "subscript", false],
+            "superscript": [true, false, "Equal", "superscript", false],
+            "formatpre": [false, false, "Period", "formatBlock", true],
+            "hyperlink": [true, false, "KeyH", "createLink", false],
+            "unhyperlink": [true, true, "KeyH", "createLink", false],
+            "unorderedlist": [false, false, "BracketLeft", "insertUnorderedList", false],
+            "orderedlist": [false, false, "BracketRight", "insertOrderedList", false],
+            "indent": [true, false, "BracketRight", "indent", false],
+            "outdent": [true, false, "BracketLeft", "outdent", false],
+            "justifyCenter": [true, true, "KeyS", "justifyCenter", false],
+            "justifyLeft": [true, true, "KeyL", "justifyLeft", false],
+            "justifyRight": [true, true, "KeyR", "justifyRight", false],
+            "justifyFull": [true, true, "KeyB", "justifyFull", false],
+        }
+        if(ctrlKey){
+
+            //cloze deletion, onCloze from /aqt/editor.py
+            if(event.code == "KeyC" && shiftKey){
+                var highest = 0;
+                var val = el.innerHTML;
+                var m;
+                var myRe = /\{\{c(\d+)::/g;
+                while ((m = myRe.exec(val)) !== null) {
+                    highest = Math.max(highest, m[1]);
+                }
+                if(!altKey){
+                    highest += 1;
+                } 
+                var highest = Math.max(1, highest);
+                EFDRC.wrapInternal("{\{c" + highest + "::", "}\}");
             }
+            for(var x = 0; x < EFDRC.SPECIAL.length; x++){
+                var special = EFDRC.SPECIAL[x];
+                var keyData = specials_ctrl[special[0]];
+                if(keyData){
+                    var s = keyData[0];
+                    var a = keyData[1];
+                    var c = keyData[2];
+                    if(shiftKey == s && altKey == a && codeKey == c){
+                        if(keyData[4]){
+                            document.execCommand(keyData[3], false, special[1]);
+                        }else{
+                            document.execCommand(keyData[3], false);
+                        }
+                    }
+                }
+            }
+        }else{
+            for(var x = 0; x < EFDRC.SPECIAL.length; x++){
+                var special = EFDRC.SPECIAL[x];
+                var keyData = specials_noctrl[special[0]];
+                if(keyData){
+                    var s = keyData[0];
+                    var a = keyData[1];
+                    var c = keyData[2];
+                    if(shiftKey == s && altKey == a && codeKey == c){
+                        if(keyData[4]){
+                            document.execCommand(keyData[3], false, special[1]);
+                        }else{
+                            document.execCommand(keyData[3], false);
+                        }
+                    }
+                }
+            }
+            
         }
     })
 }
