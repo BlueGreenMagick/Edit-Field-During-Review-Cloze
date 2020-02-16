@@ -152,6 +152,7 @@ EFDRC.addListeners = function(e, fld){
 
         var specials_ctrl = {
             //shift, alt, key, command, has arg
+            "removeformat": [false, false, "KeyR", "removeFormat", false],
             "highlight": [true, false, "KeyB", "hiliteColor", true],
             "subscript": [false, false, "Equal", "subscript", false],
             "superscript": [true, false, "Equal", "superscript", false],

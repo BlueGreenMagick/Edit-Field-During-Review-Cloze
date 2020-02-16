@@ -6,7 +6,7 @@
 
 - remove_span: When editing on reviewer, will remove all span tags. If you rely on span tags, do not set this to true or they will all be deleted. Most users who don't need span tags are recommended to set it to `true`. Default: `false`.
 
-- special_formatting: Shortcuts for special formattings. Possible choices are written below, and its corresponding shortcuts. In the square bracket, write each wrapped in double quotes and square brackets, and put a comma between each choices. (After closing with quotes, before opening quote) Default: `["removeformat"], ["fontcolor", "#00f"],["strikethrough"]`
+- special_formatting: Shortcuts for special formattings. Possible choices are written below, and its corresponding shortcuts. In the square bracket, write each wrapped in double quotes and square brackets, and put a comma between each choices. (After closing with quotes, before opening quote) Default: `[["removeformat"], ["fontcolor", "#00f"], ["strikethrough"]]`
 
 
 
@@ -17,8 +17,9 @@
 
 #### Special Formatting options
 
-The below are additional formatting options you can add to the addon. Italic(Ctrl+I), Bold(Ctrl+B), Underline(Ctrl+U), Remove format(Ctrl+R) is implemented by default.
+The below are additional formatting options you can add to the addon. Italic(Ctrl+I), Bold(Ctrl+B), Underline(Ctrl+U) is implemented by default.
 
+- `"removeformat"`: Ctrl + R
 - `"strikethrough"`: Shift + Alt + 5
 - `"fontcolor"`: F7
 Note that this requires a hex color code as the second value in the array.
