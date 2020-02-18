@@ -67,7 +67,7 @@ EFDRC.handlePaste = function(e){
         }
         if(to_send){
             e.preventDefault();
-            pycmd("EFDRC#paste");
+            pycmd("EFDRC!paste");
             break;
         }
     }
@@ -102,8 +102,8 @@ EFDRC.addListeners = function(e, fld){
     }
 
     e.addEventListener('focus', function(event){
-        pycmd("ankisave!focuson#" + fld);
-        pycmd("ankisave!speedfocus#");
+        pycmd("EFDRC!focuson#" + fld);
+        pycmd("EFDRC!speedfocus#");
     })
 
     e.addEventListener('blur',function(event){
@@ -116,10 +116,10 @@ EFDRC.addListeners = function(e, fld){
             el.setAttribute("contenteditable", "false");
         }
         if(el.hasAttribute("data-EFDRCval")){
-            pycmd("ankisave#" + el.getAttribute("data-EFDRCval") + "#" + el.getAttribute("data-EFDRCfield") + "#" + el.innerHTML);
-            pycmd("ankisave!reload");
+            pycmd("EFDRC#" + el.getAttribute("data-EFDRCval") + "#" + el.getAttribute("data-EFDRCfield") + "#" + el.innerHTML);
+            pycmd("EFDRC!reload");
         }else{
-            pycmd("ankisave!reload");
+            pycmd("EFDRC!reload");
         }
     })
 

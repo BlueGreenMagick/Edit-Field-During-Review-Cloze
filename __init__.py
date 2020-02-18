@@ -170,9 +170,9 @@ def saveThenRefreshFld(reviewer, note, fld, new_val):
         reviewer.card.render_output(reload=True)
 
 def myLinkHandler(reviewer, url, _old):
-    if url.startswith("ankisave#"):
+    if url.startswith("EFDRC#"):
         ERROR_MSG = "ERROR - Edit Field During Review Cloze\nSomething unexpected occured. The edit may not have been saved. %s"
-        enc_val, fld, new_val = url.replace("ankisave#", "").split("#", 2)
+        enc_val, fld, new_val = url.replace("EFDRC#", "").split("#", 2)
         note = reviewer.card.note()
         fld = base64.b64decode(fld, validate=True).decode('utf-8')
         if fld not in note:
@@ -184,14 +184,14 @@ def myLinkHandler(reviewer, url, _old):
         else:
             tooltip(ERROR_MSG%fld)
 
-    elif url.startswith("ankisave!speedfocus#"):
+    elif url.startswith("EFDRC!speedfocus#"):
         reviewer.bottom.web.eval("""
             clearTimeout(autoAnswerTimeout);
             clearTimeout(autoAlertTimeout);
             clearTimeout(autoAgainTimeout);
         """)
-    elif url.startswith("ankisave!focuson#"):
-        fld = url.replace("ankisave!focuson#", "")
+    elif url.startswith("EFDRC!focuson#"):
+        fld = url.replace("EFDRC!focuson#", "")
         decoded_fld = base64.b64decode(fld, validate=True).decode('utf-8')
         val = reviewer.card.note()[decoded_fld]
         encoded_val = base64.b64encode(val.encode('utf-8')).decode('ascii')
@@ -207,23 +207,23 @@ def myLinkHandler(reviewer, url, _old):
             }
         }
         """ % (encoded_val, fld))
-    elif url == "ankisave!reload":
+    elif url == "EFDRC!reload":
         if reviewer.state == "question":
             reviewer._showQuestion()
         elif reviewer.state == "answer":
             reviewer._showAnswer()
-    elif url == "EFDRC#ctrldown":
+    elif url == "EFDRC!ctrldown":
         reviewer.web.eval("EFDRC.ctrldown()")
-    elif url == "EFDRC#ctrlup":
+    elif url == "EFDRC!ctrlup":
         reviewer.web.eval("EFDRC.ctrlup()")
-    elif url == "EFDRC#paste":
+    elif url == "EFDRC!paste":
         #use processMime function a little modified in anki source!
         mime = mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
         html, internal = editorwv._processMime(mime)
         html = editorwv.editor._pastePreFilter(html, internal)
         reviewer.web.eval("pasteHTML(%s, %s);"% (json.dumps(html), json.dumps(internal)))
-    elif url.startswith("EFDRC#debug#"):
-        fld = url.replace("EFDRC#debug#", "")
+    elif url.startswith("EFDRC!debug#"):
+        fld = url.replace("EFDRC!debug#", "")
         showText(fld)
     else:
         return _old(reviewer, url)
