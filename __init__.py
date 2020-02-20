@@ -1,47 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-Anki Add-on: Edit Field During Review Cloze
-Edit text in a field during review without opening the edit window
-Copyright: (c) 2019 Nickolay <kelciour@gmail.com>
-Modified by <bluegreenmagick@gmail.com>
-"""
-
-"""
-
--hooks: 
-fmod_edit (fmod)
-
--wraps: 
-Reviewer._linkHandler
-ProgressManager.start
-ProgressManager.finish
-
--extends:
-Editor
-EditorWebView
-
--used methods/variables: 
-mw.addonManager.getConfig
-mw.reviewer.bottom.web.eval
-mw.col.tags.canonify, mw.col.tags.split
-mw.col.media.escapeImages
-mw.checkpoint
-mw.app.clipboard().mimeData, mw.app.setOverrideCursor
-Editor.mungeHTML
-anki.utils.htmlToTextLine
-anki.version
-aqt.utils.tooltip, aqt.utils.showInfo
-
-
--copied methods/variables:
---from editor.ts:
-wrapInternal, wrappedExceptForWhitespace, parseHTML, pasteHTML, filterHTML, filterExternalSpan, filterInternalNode, filterNode
-allowedTagsBasic, allowedTagsExtended, TAGS_WITHOUT_ATTRS, allowedStyling, 
-
-"""
-
-
 
 import base64
 import unicodedata
@@ -63,6 +21,7 @@ from .semieditor import semiEditorWebView
 
 
 config = mw.addonManager.getConfig(__name__)
+
 ankiver_minor = int(ankiversion.split('.')[2])
 ankiver_major = ankiversion[0:3]
 
@@ -100,12 +59,12 @@ def bool_to_str(b):
     else:
         return ""
 
-#code for new style hooks
-#from anki import hooks 
-#hooks.field_filter.append(new_fld_hook)
+#Code for new style hooks.
 def new_fld_hook(txt, field, filt, ctx):
     if filt == "edit":
         return edit(txt, None, None, field, None)
+#from anki import hooks 
+#hooks.field_filter.append(new_fld_hook)
 
 def myRevHtml(reviewer, _old):
     span = bool_to_str(config["tag"])
@@ -129,6 +88,8 @@ def myRevBottomHTML(reviewer, _old):
 
 def edit(txt, extra, context, field, fullname):
     ctrl = bool_to_str(config["ctrl_click"])
+    
+    #Encode field to escape special characters.
     field = base64.b64encode(field.encode('utf-8')).decode('ascii')
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
         config['tag'], field, txt, config['tag'])
@@ -144,7 +105,8 @@ def saveField(note, fld, val):
         txt = mw.col.tags.canonify(mw.col.tags.split(tagsTxt))
         field = note.tags
     else:
-        # https://github.com/dae/anki/blob/47eab46f05c8cc169393c785f4c3f49cf1d7cca8/aqt/editor.py#L257-L263
+        #From older version aqt.editor.py.
+        #TODO: update the code
         txt = urllib.parse.unquote(val)
         txt = unicodedata.normalize("NFC", txt)
         txt = Editor.mungeHTML(None, txt)
@@ -184,12 +146,16 @@ def myLinkHandler(reviewer, url, _old):
         else:
             tooltip(ERROR_MSG%fld)
 
+    #Reset timer from Speed Focus Mode add-on.
     elif url.startswith("EFDRC!speedfocus#"):
         reviewer.bottom.web.eval("""
             clearTimeout(autoAnswerTimeout);
             clearTimeout(autoAlertTimeout);
             clearTimeout(autoAgainTimeout);
         """)
+    
+    #Replace reviewer field html if it is different from real field value.
+    #For example, clozes, mathjax, audio.
     elif url.startswith("EFDRC!focuson#"):
         fld = url.replace("EFDRC!focuson#", "")
         decoded_fld = base64.b64decode(fld, validate=True).decode('utf-8')
@@ -212,16 +178,20 @@ def myLinkHandler(reviewer, url, _old):
             reviewer._showQuestion()
         elif reviewer.state == "answer":
             reviewer._showAnswer()
+    
+    #Catch ctrl key presses from bottom.web.
     elif url == "EFDRC!ctrldown":
         reviewer.web.eval("EFDRC.ctrldown()")
     elif url == "EFDRC!ctrlup":
         reviewer.web.eval("EFDRC.ctrlup()")
+
     elif url == "EFDRC!paste":
-        #use processMime function a little modified in anki source!
+        #From aqt.editor.Editor._onPaste, doPaste.
         mime = mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
         html, internal = editorwv._processMime(mime)
         html = editorwv.editor._pastePreFilter(html, internal)
         reviewer.web.eval("pasteHTML(%s, %s);"% (json.dumps(html), json.dumps(internal)))
+    
     elif url.startswith("EFDRC!debug#"):
         fld = url.replace("EFDRC!debug#", "")
         showText(fld)

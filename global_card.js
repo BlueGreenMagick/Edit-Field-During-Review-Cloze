@@ -41,6 +41,8 @@ EFDRC.b64DecodeUnicode = function(str) {
 }
 
 EFDRC.removeSpan = function(el){
+    //removes all span code because depending on the note type
+    //pressing backspace can wrap the text in span and apply different styling.
     var elems = el.getElementsByTagName("span");
     for(var x = 0; x < elems.length; x++){
         var span = elems[x];
@@ -67,7 +69,7 @@ EFDRC.handlePaste = function(e){
         }
         if(to_send){
             e.preventDefault();
-            pycmd("EFDRC!paste");
+            pycmd("EFDRC!paste"); //python code accesses clipboard
             break;
         }
     }
@@ -102,6 +104,7 @@ EFDRC.addListeners = function(e, fld){
     }
 
     e.addEventListener('focus', function(event){
+        //TODO: May want to combine this
         pycmd("EFDRC!focuson#" + fld);
         pycmd("EFDRC!speedfocus#");
     })
@@ -125,7 +128,7 @@ EFDRC.addListeners = function(e, fld){
 
 
     e.addEventListener('keydown',function(event){
-        //slightly faster
+        //Slightly faster.
         var ctrlKey = event.ctrlKey||event.metaKey
         var shiftKey = event.shiftKey;
         var altKey = event.altKey;
@@ -144,8 +147,8 @@ EFDRC.addListeners = function(e, fld){
             }
         }
 
-
         var specials_noctrl = {
+            //shift, alt, key, command, has arg?
             "strikethrough": [true, true, "Digit5", "strikeThrough", false],
             "fontcolor": [false, false, "F7", "foreColor", true]
         };
@@ -170,8 +173,7 @@ EFDRC.addListeners = function(e, fld){
         };
 
         if(ctrlKey){
-
-            //cloze deletion, onCloze from /aqt/editor.py
+            //cloze deletion, onCloze from aqt.editor
             if(event.code == "KeyC" && shiftKey){
                 var highest = 0;
                 var val = el.innerHTML;
@@ -186,6 +188,8 @@ EFDRC.addListeners = function(e, fld){
                 var highest = Math.max(1, highest);
                 EFDRC.wrapInternal("{\{c" + highest + "::", "}\}");
             }
+
+            //Special formatting that requires ctrl key.
             for(var x = 0; x < EFDRC.SPECIAL.length; x++){
                 var special = EFDRC.SPECIAL[x];
                 var keyData = specials_ctrl[special[0]];
@@ -203,6 +207,7 @@ EFDRC.addListeners = function(e, fld){
                 }
             }
         }else{
+            //Special formatting that doesn't require ctrl key
             for(var x = 0; x < EFDRC.SPECIAL.length; x++){
                 var special = EFDRC.SPECIAL[x];
                 var keyData = specials_noctrl[special[0]];

@@ -1,3 +1,8 @@
+/*
+    If focus in on bottom.web, ctrl key press is not catched by global_card.js
+    So this code catches ctrl key presses when focus in on bottom.web
+*/
+
 CTRL = "%(ctrl)s";
 
 if(typeof EFDRConctrlkey != "function" && CTRL){

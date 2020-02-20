@@ -6,6 +6,10 @@ from aqt.progress import ProgressManager
 from aqt.editor import Editor, EditorWebView
 from aqt.utils import showInfo, tooltip
 
+#necessary in order to use methods defined in Editor and EditorWebView
+#without setting up the UI
+
+
 myprogress = False
 
 class semiEditor(Editor):
@@ -28,10 +32,12 @@ def mystart(*args, **kwargs):
     if "parent" in kwargs:
         parent = kwargs["parent"]
     elif len(args) > 4:
-        parent = args[4]
+        parent = args[4] #position of 'parent' parameter
     else:
         parent = None
+    
     if parent == "EFDRCsemiedit":
+        #don't show progress window when pasting images while in review
         myprogress = True
         mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
         return
