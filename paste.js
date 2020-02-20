@@ -82,7 +82,7 @@
         "text-decoration-line": true,
     };
 
-    let isNightMode = function(): boolean {
+    let isNightMode = function() {
         return document.body.classList.contains("nightMode");
     };
 
