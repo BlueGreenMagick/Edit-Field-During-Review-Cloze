@@ -99,9 +99,10 @@ def saveField(note, fld, val):
         field = note[fld]
     if field == txt:
         return
-    config = mw.addonManager.getConfig(__name__)
+    
     if config['undo']:
         mw.checkpoint("Edit Field")
+        
     if fld == "Tags":
         note.tags = txt
     else:
