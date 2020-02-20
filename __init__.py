@@ -92,7 +92,7 @@ def saveField(note, fld, val):
         field = note.tags
     else:
         #aqt.editor.Editor.onBridgeCmd
-        txt = unicodedata.normalize("NFC", txt)
+        txt = unicodedata.normalize("NFC", val)
         txt = Editor.mungeHTML(None, txt)
         txt = txt.replace("\x00", "")
         txt = mw.col.media.escapeImages(txt, unescape=True)
@@ -102,7 +102,7 @@ def saveField(note, fld, val):
     
     if config['undo']:
         mw.checkpoint("Edit Field")
-        
+
     if fld == "Tags":
         note.tags = txt
     else:
