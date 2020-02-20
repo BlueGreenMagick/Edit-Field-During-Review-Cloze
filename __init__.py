@@ -5,7 +5,7 @@ import base64
 import unicodedata
 import urllib.parse
 import json
-import os
+from pathlib import Path
 
 from anki.hooks import addHook, wrap
 from anki.utils import htmlToTextLine
@@ -25,33 +25,20 @@ config = mw.addonManager.getConfig(__name__)
 ankiver_minor = int(ankiversion.split('.')[2])
 ankiver_major = ankiversion[0:3]
 
+#Get js files.
+def js_from_path(path):
+    return "<script>" + path.read_text() + "</script>"
+
+DIRPATH = Path(__file__).parents[0]
+
+CARDJS = js_from_path(DIRPATH / "card.js")
+GLOBALCARDJS = js_from_path(DIRPATH / "global_card.js")
+PASTEJS = js_from_path(DIRPATH / "paste.js")
+BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
+
+
 if config["process_paste"]:
     editorwv = semiEditorWebView()
-
-#get js files
-def wrap_script(txt):
-    return "<script>" + txt + "</script>"
-
-def abs_path(rel_path):
-    dir = os.path.dirname(__file__)
-    abs_file_path = os.path.join(dir, rel_path)
-    return abs_file_path
-
-with open(abs_path("card.js"), 'r') as f:
-    txt = f.read()
-    card_js = wrap_script(txt)
-
-with open(abs_path("global_card.js")) as f:
-    txt = f.read()
-    global_card_js = wrap_script(txt)
-
-with open(abs_path("paste.js"), 'r') as f:
-    txt = f.read()
-    paste_js = wrap_script(txt)
-
-with open(abs_path("bottom.js"), 'r') as f:
-    txt = f.read()
-    bottom_js = wrap_script(txt)
 
 def bool_to_str(b):
     if b:
@@ -73,16 +60,16 @@ def myRevHtml(reviewer, _old):
     rem_span = bool_to_str(config["remove_span"])
     special = json.dumps(config["special_formatting"])
 
-    js = global_card_js%({"span":span, "ctrl":ctrl, "paste": paste, "remove_span": rem_span, "special": special})
+    js = GLOBALCARDJS%({"span":span, "ctrl":ctrl, "paste": paste, "remove_span": rem_span, "special": special})
 
     if config["process_paste"]:
-        js += paste_js
+        js += PASTEJS
 
     return _old(reviewer) + js
 
 def myRevBottomHTML(reviewer, _old):
     ctrl = bool_to_str(config["ctrl_click"])
-    script = bottom_js%({"ctrl":ctrl})
+    script = BOTTOMJS%({"ctrl":ctrl})
 
     return _old(reviewer) + script
 
@@ -93,9 +80,9 @@ def edit(txt, extra, context, field, fullname):
     field = base64.b64encode(field.encode('utf-8')).decode('ascii')
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
         config['tag'], field, txt, config['tag'])
-    txt += card_js % ({"fld":field})
+    txt += CARDJS % ({"fld":field})
 
-    mw.reviewer.bottom.web.eval(bottom_js% ({"ctrl":ctrl}))
+    mw.reviewer.bottom.web.eval(BOTTOMJS% ({"ctrl":ctrl}))
     return txt
 
 
