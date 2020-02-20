@@ -3,7 +3,6 @@
 
 import base64
 import unicodedata
-import urllib.parse
 import json
 from pathlib import Path
 
@@ -92,9 +91,7 @@ def saveField(note, fld, val):
         txt = mw.col.tags.canonify(mw.col.tags.split(tagsTxt))
         field = note.tags
     else:
-        #From older version aqt.editor.py.
-        #TODO: update the code
-        txt = urllib.parse.unquote(val)
+        #aqt.editor.Editor.onBridgeCmd
         txt = unicodedata.normalize("NFC", txt)
         txt = Editor.mungeHTML(None, txt)
         txt = txt.replace("\x00", "")
