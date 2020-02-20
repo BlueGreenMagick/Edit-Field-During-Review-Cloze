@@ -1,7 +1,7 @@
+//updated last at 2020 Feb 20
+//from qt.ts.src.editor.ts
 (function(){
     "use strict";
-
-    //mostly from anki source qt/ts/src/editor.ts
 
     let parseHTML = function(str) {
     let tmp = document.implementation.createHTMLDocument();
@@ -39,12 +39,17 @@
         "H1",
         "H2",
         "H3",
+        "I",
         "LI",
         "UL",
         "OL",
         "BLOCKQUOTE",
         "CODE",
         "PRE",
+        "RP",
+        "RT",
+        "RUBY",
+        "STRONG",
         "TABLE",
         "DD",
         "DT",
@@ -55,6 +60,7 @@
         "RUBY",
         "RT",
         "RP",
+        "UL",
     ];
     for (const tag of TAGS_WITHOUT_ATTRS) {
         allowedTagsExtended[tag] = { attrs: [] };
@@ -75,7 +81,11 @@
         "font-style": true,
         "text-decoration-line": true,
     };
-    
+
+    let isNightMode = function(): boolean {
+        return document.body.classList.contains("nightMode");
+    };
+
     let filterExternalSpan = function(node) {
         // filter out attributes
         let toRemove = [];
@@ -97,6 +107,12 @@
             if (name === "background-color" && node.style[name] === "transparent") {
                 // google docs adds this unnecessarily
                 toRemove.push(name);
+            }
+            if (isNightMode()) {
+                // ignore coloured text in night mode for now
+                if (name === "background-color" || name == "color") {
+                    toRemove.push(name);
+                }
             }
         }
         for (let name of toRemove) {
