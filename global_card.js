@@ -232,7 +232,7 @@ if(EFDRC.CTRL){
     })
 
     window.addEventListener('keyup',function(event){
-        if(event.keyCode == "ControlLeft"){
+        if(event.code == "ControlLeft"){
             EFDRC.ctrlup();
         }    
     })
