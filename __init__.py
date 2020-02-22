@@ -15,9 +15,8 @@ from aqt.qt import QClipboard
 from aqt.reviewer import Reviewer
 from aqt.utils import showText, tooltip
 
+from .config import getUserOption
 from .semieditor import semiEditorWebView
-
-config = mw.addonManager.getConfig(__name__)
 
 ankiver_minor = int(ankiversion.split('.')[2])
 ankiver_major = ankiversion[0:3]
@@ -37,7 +36,7 @@ PASTEJS = js_from_path(DIRPATH / "paste.js")
 BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
 
 
-if config["process_paste"]:
+if getUserOption("process_paste", True):
     editorwv = semiEditorWebView()
 
 
@@ -58,35 +57,39 @@ def new_fld_hook(txt, field, filt, ctx):
 
 
 def myRevHtml(reviewer, _old):
-    span = bool_to_str(config["tag"])
-    ctrl = bool_to_str(config["ctrl_click"])
-    paste = bool_to_str(config["process_paste"])
-    rem_span = bool_to_str(config["remove_span"])
-    special = json.dumps(config["special_formatting"])
+    span = bool_to_str(getUserOption("tag", "div"))
+    ctrl = bool_to_str(getUserOption("ctrl_click", False))
+    paste = bool_to_str(getUserOption("process_paste", True))
+    rem_span = bool_to_str(getUserOption("remove_span", False))
+    special = json.dumps(getUserOption("special_formatting",
+                                       ["remove_formatting"],
+                                       ["fontcolor", "#00f"],
+                                       ["strikethrough"]
+                                       ))
 
     js = GLOBALCARDJS % ({"span": span, "ctrl": ctrl, "paste": paste,
                           "remove_span": rem_span, "special": special})
 
-    if config["process_paste"]:
+    if getUserOption("process_paste", True):
         js += PASTEJS
 
     return _old(reviewer) + js
 
 
 def myRevBottomHTML(reviewer, _old):
-    ctrl = bool_to_str(config["ctrl_click"])
+    ctrl = bool_to_str(getUserOption("ctrl_click", False))
     script = BOTTOMJS % ({"ctrl": ctrl})
 
     return _old(reviewer) + script
 
 
 def edit(txt, extra, context, field, fullname):
-    ctrl = bool_to_str(config["ctrl_click"])
+    ctrl = bool_to_str(getUserOption("ctrl_click", False))
 
     # Encode field to escape special characters.
     field = base64.b64encode(field.encode('utf-8')).decode('ascii')
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
-        config['tag'], field, txt, config['tag'])
+        getUserOption("tag", "div"), field, txt, getUserOption("tag", "div"))
     txt += CARDJS % ({"fld": field})
 
     mw.reviewer.bottom.web.eval(BOTTOMJS % ({"ctrl": ctrl}))
@@ -108,7 +111,7 @@ def saveField(note, fld, val):
     if field == txt:
         return
 
-    if config['undo']:
+    if getUserOption("undo", True):
         mw.checkpoint("Edit Field")
 
     if fld == "Tags":
