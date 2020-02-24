@@ -53,6 +53,9 @@ def new_fld_hook(txt, field, filt, ctx):
 #hooks.field_filter.append(new_fld_hook)
 
 def myRevHtml(reviewer, _old):
+    global config
+    config = mw.addonManager.getConfig(__name__)
+    
     span = bool_to_str(config["tag"])
     ctrl = bool_to_str(config["ctrl_click"])
     paste = bool_to_str(config["process_paste"])
