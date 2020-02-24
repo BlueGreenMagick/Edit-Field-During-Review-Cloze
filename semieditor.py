@@ -32,12 +32,12 @@ def mystart(*args, **kwargs):
     if "parent" in kwargs:
         parent = kwargs["parent"]
     elif len(args) > 4:
-        parent = args[4]  # position of 'parent' parameter
+        parent = args[4]  # Position of 'parent' parameter.
     else:
         parent = None
 
     if parent == "EFDRCsemiedit":
-        # don't show progress window when pasting images while in review
+        # Don't show progress window when pasting images while in review.
         myprogress = True
         mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
         return

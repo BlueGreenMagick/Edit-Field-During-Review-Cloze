@@ -22,9 +22,8 @@ config = mw.addonManager.getConfig(__name__)
 ankiver_minor = int(ankiversion.split('.')[2])
 ankiver_major = ankiversion[0:3]
 
+
 # Get js files.
-
-
 def js_from_path(path):
     return "<script>" + path.read_text() + "</script>"
 
@@ -47,14 +46,13 @@ def bool_to_str(b):
     else:
         return ""
 
+
 # Code for new style hooks.
-
-
 def new_fld_hook(txt, field, filt, ctx):
     if filt == "edit":
         return edit(txt, None, None, field, None)
 #from anki import hooks
-# hooks.field_filter.append(new_fld_hook)
+#hooks.field_filter.append(new_fld_hook)
 
 
 def myRevHtml(reviewer, _old):
