@@ -190,36 +190,46 @@ EFDRC.addListeners = function(e, fld){
             }
 
             //Special formatting that requires ctrl key.
-            for(var x = 0; x < EFDRC.SPECIAL.length; x++){
-                var special = EFDRC.SPECIAL[x];
-                var keyData = specials_ctrl[special[0]];
-                if(keyData){
-                    var s = keyData[0];
-                    var a = keyData[1];
-                    var c = keyData[2];
+            for(var special in specials_ctrl){
+                specialVal = specials_ctrl[special]
+                if(specialVal[4]){
+                    var enabled = EFDRC.SPECIAL[special][0]
+                    var parmVal = EFDRC.SPECIAL[special][1]
+                }else{
+                    var enabled = EFDRC.SPECIAL[special]
+                }
+                if(enabled){
+                    var s = specialVal[0];
+                    var a = specialVal[1];
+                    var c = specialVal[2];
                     if(shiftKey == s && altKey == a && codeKey == c){
-                        if(keyData[4]){
-                            document.execCommand(keyData[3], false, special[1]);
+                        if(specialVal[4]){
+                            document.execCommand(specialVal[3], false, parmVal);
                         }else{
-                            document.execCommand(keyData[3], false);
+                            document.execCommand(specialVal[3], false);
                         }
                     }
                 }
             }
         }else{
             //Special formatting that doesn't require ctrl key
-            for(var x = 0; x < EFDRC.SPECIAL.length; x++){
-                var special = EFDRC.SPECIAL[x];
-                var keyData = specials_noctrl[special[0]];
-                if(keyData){
-                    var s = keyData[0];
-                    var a = keyData[1];
-                    var c = keyData[2];
+            for(var special in specials_noctrl){
+                specialVal = specials_noctrl[special]
+                if(specialVal[4]){
+                    var enabled = EFDRC.SPECIAL[special][0]
+                    var parmVal = EFDRC.SPECIAL[special][1]
+                }else{
+                    var enabled = EFDRC.SPECIAL[special]
+                }
+                if(enabled){
+                    var s = specialVal[0];
+                    var a = specialVal[1];
+                    var c = specialVal[2];
                     if(shiftKey == s && altKey == a && codeKey == c){
-                        if(keyData[4]){
-                            document.execCommand(keyData[3], false, special[1]);
+                        if(specialVal[4]){
+                            document.execCommand(specialVal[3], false, parmVal);
                         }else{
-                            document.execCommand(keyData[3], false);
+                            document.execCommand(specialVal[3], false);
                         }
                     }
                 }

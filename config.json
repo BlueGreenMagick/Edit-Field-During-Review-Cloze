@@ -2,11 +2,25 @@
   "ctrl_click":false,
   "process_paste": true,
   "remove_span": false,
-  "special_formatting":[
-    ["remove_formatting"],
-    ["fontcolor", "#00f"],
-    ["strikethrough"]
-  ],
   "tag": "div",
-  "undo": true
+  "undo": true,
+  "z_special_formatting":{
+    "removeformat": true,
+    "strikethrough": true,
+    "fontcolor": [true, "#00f"],
+    "highlight": [false,"#00f"],
+    "subscript": false,
+    "superscript": false,
+    "formatpre": false,
+    "hyperlink": false,
+    "unhyperlink": false,
+    "unorderedlist": false,
+    "orderedlist": false,
+    "indent": false,
+    "outdent": false,
+    "justifyCenter": false,
+    "justifyLeft": false,
+    "justifyRight": false,
+    "justifyFull": false
+  }
 }
