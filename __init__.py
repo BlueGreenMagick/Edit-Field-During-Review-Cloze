@@ -89,8 +89,6 @@ def edit(txt, extra, context, field, fullname):
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
         config['tag'], field, txt, config['tag'])
     txt += CARDJS % ({"fld": field})
-
-    mw.reviewer.bottom.web.eval(BOTTOMJS % ({"ctrl": ctrl}))
     return txt
 
 
