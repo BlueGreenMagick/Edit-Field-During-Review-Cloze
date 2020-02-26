@@ -38,6 +38,46 @@ BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
 editorwv = semiEditorWebView()
 
 
+def config_make_valid():
+    global config
+
+    sfmt = config["z_special_formatting"]
+    default_sfmt = {
+        "removeformat": True,
+        "strikethrough": True,
+        "fontcolor": [True, "#00f"],
+        "highlight": [False, "#00f"],
+        "subscript": False,
+        "superscript": False,
+        "formatpre": False,
+        "hyperlink": False,
+        "unhyperlink": False,
+        "unorderedlist": False,
+        "orderedlist": False,
+        "indent": False,
+        "outdent": False,
+        "justifyCenter": False,
+        "justifyLeft": False,
+        "justifyRight": False,
+        "justifyFull": False
+    }
+
+    changed = False
+    for key in sfmt:
+        if key not in default_sfmt:
+            sfmt.pop(key)
+            changed = True
+
+    for key in default_sfmt:
+        if key not in sfmt:
+            sfmt[key] = default_sfmt[key]
+            changed = True
+
+    if changed:
+        mw.addonManager.writeConfig(__name__, config)
+        config = mw.addonManager.getConfig(__name__)
+
+
 def bool_to_str(b):
     if b:
         return "true"
@@ -50,13 +90,14 @@ def new_fld_hook(txt, field, filt, ctx):
     if filt == "edit":
         return edit(txt, None, None, field, None)
 #from anki import hooks
-#hooks.field_filter.append(new_fld_hook)
+# hooks.field_filter.append(new_fld_hook)
 
 
 def myRevHtml(reviewer, _old):
     global config
     config = mw.addonManager.getConfig(__name__)
-    
+    config_make_valid()
+
     span = bool_to_str(config["tag"])
     ctrl = bool_to_str(config["ctrl_click"])
     paste = bool_to_str(config["process_paste"])
