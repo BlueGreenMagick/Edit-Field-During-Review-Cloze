@@ -35,9 +35,7 @@ GLOBALCARDJS = js_from_path(DIRPATH / "global_card.js")
 PASTEJS = js_from_path(DIRPATH / "paste.js")
 BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
 
-
-if config["process_paste"]:
-    editorwv = semiEditorWebView()
+editorwv = semiEditorWebView()
 
 
 def bool_to_str(b):
