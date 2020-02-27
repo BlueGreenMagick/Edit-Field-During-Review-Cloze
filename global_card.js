@@ -104,9 +104,7 @@ EFDRC.addListeners = function(e, fld){
     }
 
     e.addEventListener('focus', function(event){
-        //TODO: May want to combine this
         pycmd("EFDRC!focuson#" + fld);
-        pycmd("EFDRC!speedfocus#");
     })
 
     e.addEventListener('blur',function(event){

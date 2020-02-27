@@ -180,14 +180,6 @@ def myLinkHandler(reviewer, url, _old):
         else:
             tooltip(ERROR_MSG % fld)
 
-    # Reset timer from Speed Focus Mode add-on.
-    elif url.startswith("EFDRC!speedfocus#"):
-        reviewer.bottom.web.eval("""
-            clearTimeout(autoAnswerTimeout);
-            clearTimeout(autoAlertTimeout);
-            clearTimeout(autoAgainTimeout);
-        """)
-
     # Replace reviewer field html if it is different from real field value.
     # For example, clozes, mathjax, audio.
     elif url.startswith("EFDRC!focuson#"):
@@ -207,6 +199,14 @@ def myLinkHandler(reviewer, url, _old):
             }
         }
         """ % (encoded_val, fld))
+
+        # Reset timer from Speed Focus Mode add-on.
+        reviewer.bottom.web.eval("""
+            clearTimeout(autoAnswerTimeout);
+            clearTimeout(autoAlertTimeout);
+            clearTimeout(autoAgainTimeout);
+        """)
+        
     elif url == "EFDRC!reload":
         if reviewer.state == "question":
             reviewer._showQuestion()
