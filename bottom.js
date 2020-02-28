@@ -8,13 +8,13 @@ CTRL = "%(ctrl)s";
 if(typeof EFDRConctrlkey != "function" && CTRL){
     window.EFDRConctrlkey = function(){
         window.addEventListener('keydown',function(event){
-            if(event.code == "ControlLeft"){
+            if(["ControlLeft", "MetaLeft"].includes(event.code)){
                 pycmd("EFDRC!ctrldown");
             }    
         })
 
         window.addEventListener('keyup',function(event){
-            if(event.code == "ControlLeft"){
+            if(["ControlLeft", "MetaLeft"].includes(event.code)){
                 pycmd("EFDRC!ctrlup");
             }    
         })        

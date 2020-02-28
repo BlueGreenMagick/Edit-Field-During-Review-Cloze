@@ -239,13 +239,13 @@ EFDRC.addListeners = function(e, fld){
 
 if(EFDRC.CTRL){
     window.addEventListener('keydown',function(event){
-        if(event.code == "ControlLeft"){
+        if(["ControlLeft", "MetaLeft"].includes(event.code)){
             EFDRC.ctrldown();
         }   
     })
 
     window.addEventListener('keyup',function(event){
-        if(event.code == "ControlLeft"){
+        if(["ControlLeft", "MetaLeft"].includes(event.code)){
             EFDRC.ctrlup();
         }    
     })
