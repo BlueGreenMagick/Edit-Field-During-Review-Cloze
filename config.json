@@ -1,5 +1,6 @@
 {
   "ctrl_click":false,
+  "outline": true,
   "process_paste": true,
   "remove_span": false,
   "tag": "div",

@@ -110,7 +110,12 @@ def myRevHtml(reviewer, _old):
     if config["process_paste"]:
         js += PASTEJS
 
-    return _old(reviewer) + js
+    if config["outline"]:
+        style = "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
+    else:
+        style = ""
+
+    return _old(reviewer) + js + style
 
 
 def myRevBottomHTML(reviewer, _old):
