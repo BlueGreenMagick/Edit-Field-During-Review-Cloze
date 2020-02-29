@@ -6,6 +6,9 @@ EFDRC.SPAN = "%(span)s"; //bool
 EFDRC.REMSPAN = "%(remove_span)s"; //bool
 EFDRC.SPECIAL = JSON.parse(`%(special)s`) //array of array
 
+EFDRC.currImg = null;
+EFDRC.boundingDiv = null;
+
 //wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts
 EFDRC.wrappedExceptForWhitespace = function(text, front, back) {
     var match = text.match(/^(\s*)([^]*?)(\s*)$/);
@@ -95,6 +98,27 @@ EFDRC.ctrlup = function(){
         }else{
             el.setAttribute("contenteditable", "false");
         }
+    }
+}
+
+EFDRC.selectImg = function(el){
+    EFDRC.currImg = el
+    var pos = el.getBoundingClientRect();
+    var overlayDiv = document.createElement("div");
+    overlayDiv.style.position = "absolute";
+    overlayDiv.style.outline = "10px solid blue"
+    //overlayDiv.style.zIndex = "9999"
+    overlayDiv.style.top = pos.top +"px";
+    overlayDiv.style.left = pos.left + "px";
+    overlayDiv.style.width = pos.right - pos.left + "px";
+    overlayDiv.style.height = pos.bottom - pos.top + "px";
+    document.body.appendChild(overlayDiv);
+}
+
+EFDRC.unselectImg = function(){
+    if(EFDRC.boundingDiv instanceof HTMLElement){
+        EFDRC.boundingDiv.parentElement.removeChild(EFDRC.boundingDiv);
+        EFDRC.boundingDiv = null;
     }
 }
 
@@ -235,6 +259,24 @@ EFDRC.addListeners = function(e, fld){
         }
 
     })
+
+    // Resize Images
+    e.addEventListener('click',function(event){
+        var el = event.currentTarget;
+        if(el.contentEditable != "true"){
+            return
+        }
+
+        var targetElm = event.target;
+        targetElm.setAttribute("id", "abc");
+        if(targetElm.tagName.toLowerCase() == "img"){
+            if(targetElm == EFDRC.currImg){
+                EFDRC.unselectImg(targetElm);
+            }else{
+                EFDRC.selectImg(targetElm);
+            }
+        }
+    },true);
 }
 
 if(EFDRC.CTRL){
