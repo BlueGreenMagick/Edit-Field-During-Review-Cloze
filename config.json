@@ -6,22 +6,22 @@
   "tag": "div",
   "undo": true,
   "z_special_formatting":{
-    "removeformat": true,
-    "strikethrough": true,
     "fontcolor": [true, "#00f"],
+    "formatpre": [false,"pre"],
     "highlight": [false,"#00f"],
-    "subscript": false,
-    "superscript": false,
-    "formatpre": false,
     "hyperlink": false,
-    "unhyperlink": false,
-    "unorderedlist": false,
-    "orderedlist": false,
     "indent": false,
-    "outdent": false,
     "justifyCenter": false,
+    "justifyFull": false,
     "justifyLeft": false,
     "justifyRight": false,
-    "justifyFull": false
+    "orderedlist": false,
+    "outdent": false,
+    "removeformat": true,
+    "strikethrough": true,
+    "subscript": false,
+    "superscript": false,
+    "unhyperlink": false,
+    "unorderedlist": false
   }
 }
