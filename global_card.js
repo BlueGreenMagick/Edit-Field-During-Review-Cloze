@@ -206,6 +206,7 @@ EFDRC.addListeners = function(e, fld){
                         }else{
                             document.execCommand(specialVal[3], false);
                         }
+                        event.preventDefault();
                     }
                 }
             }
@@ -229,6 +230,7 @@ EFDRC.addListeners = function(e, fld){
                         }else{
                             document.execCommand(specialVal[3], false);
                         }
+                        event.preventDefault();
                     }
                 }
             }
