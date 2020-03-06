@@ -157,7 +157,7 @@ EFDRC.addListeners = function(e, fld){
             "highlight": [true, false, "KeyB", "hiliteColor", true],
             "subscript": [false, false, "Equal", "subscript", false],
             "superscript": [true, false, "Equal", "superscript", false],
-            "formatpre": [false, false, "Period", "formatBlock", true],
+            "formatblock": [false, false, "Period", "formatBlock", true],
             "hyperlink": [true, false, "KeyH", "createLink", false],
             "unhyperlink": [true, true, "KeyH", "createLink", false],
             "unorderedlist": [false, false, "BracketLeft", "insertUnorderedList", false],
