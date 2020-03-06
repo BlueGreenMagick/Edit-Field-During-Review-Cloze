@@ -23,7 +23,7 @@ The below are additional formatting options you can add to the addon. Italic(Ctr
 - `"fontcolor"`: F7
 Note that this requires a hex color code as the second value in the array.
 - `"formatblock"`: Ctrl + .
-Note that this requires a html tag as the second value in the array. Example: `"pre"`.
+Note that this requires a html tag as the second value in the array. Example: `"pre"`. Note that 'pre' doesn't get removed by 'removeformat'.
 - `"highlight"`: Ctrl + Shift + B
 Note that this requires a hex color code as the second value in the array. Also, to use highlights, you have to set `remove_span` config to `false`. Example: `"#00f"`.
 - `"hyperlink"`: Ctrl + Shift + H
