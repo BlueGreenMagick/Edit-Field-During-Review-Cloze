@@ -63,11 +63,18 @@ def config_make_valid():
     }
 
     changed = False
+
+    # Remove wrong key.
+    key_to_pop = []
     for key in sfmt:
         if key not in default_sfmt:
-            sfmt.pop(key)
+            key_to_pop.append(key)
             changed = True
 
+    for key in key_to_pop:
+        sfmt.pop(key)
+
+    # Add keys on update / wrong deletion. 
     for key in default_sfmt:
         if key not in sfmt:
             sfmt[key] = default_sfmt[key]
