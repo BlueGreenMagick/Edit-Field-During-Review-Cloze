@@ -7,7 +7,7 @@
   "undo": true,
   "z_special_formatting":{
     "fontcolor": [true, "#00f"],
-    "formatpre": [false,"pre"],
+    "formatblock": [false,"pre"],
     "highlight": [false,"#00f"],
     "hyperlink": false,
     "indent": false,

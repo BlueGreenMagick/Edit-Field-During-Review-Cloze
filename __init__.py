@@ -49,7 +49,7 @@ def config_make_valid():
         "highlight": [False, "#00f"],
         "subscript": False,
         "superscript": False,
-        "formatpre": False,
+        "formatblock": [False, "pre"],
         "hyperlink": False,
         "unhyperlink": False,
         "unorderedlist": False,
