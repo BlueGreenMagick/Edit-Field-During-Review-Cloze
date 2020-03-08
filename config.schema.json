@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Edit Field During Review Cloze",
+  "properties": {
+    "ctrl_click": {
+      "type": "boolean",
+      "title": "Ctrl click",
+      "description": "If checked, to edit field, press ctrl while clicking.",
+      "default": false
+    },
+    "outline": {
+      "type": "boolean",
+      "title": "Outline",
+      "description": "If checked, add a blue outline around the field when it is in edit mode. ",
+      "default": true
+    },
+    "process_paste": {
+      "title": "Process paste",
+      "type": "boolean",
+      "description": "When pasting, save images locally, strip unnecessary html formatting, etc. Experimental and officially only support 2.1.19. Turn if off if you encounter errors regarding `editorwv` on paste.",
+      "default": true
+    },
+    "remove_span": {
+      "title": "Remove span",
+      "type": "boolean",
+      "description": "When editing on reviewer, will remove all span tags. If you rely on span tags, do not set this to true or they will all be deleted. Most users who don't need span tags are recommended to set it to true.",
+      "default": false
+    },
+    "undo": {
+      "title": "Undo",
+      "description": "Whether the last field edit should be undo-able.",
+      "type": "boolean",
+      "default": false
+    },
+    "tag": {
+      "title": "Tag",
+      "description": "Which html tag to use for editable field.",
+      "type": "string",
+      "default": "div"
+    },
+    "z_special_formatting": {
+      "type": "object",
+      "properties": {
+        "fontcolor": {
+          "type": "array",
+          "items": [
+            {"type": "boolean", "default": true},
+            {"type": "string", "default": "#00f", "pattern": "#[a-f0-9]{3}"}
+          ]
+        },
+        "formatpre": {
+          "type": "array",
+          "items": [
+            {"type": "boolean", "default": false},
+            {"type": "string", "default": "pre"}
+          ]
+        },
+        "highlight": {
+          "type": "array",
+          "items": [
+            {"type": "boolean", "default": false},
+            {"type": "string", "default": "#00f", "pattern": "#[a-f0-9]{3}"}
+          ]
+        },
+        "hyperlink": {"type": "boolean", "default": false},
+        "indent": {"type": "boolean", "default": false},
+        "justifyCenter": {"type": "boolean", "default": false},
+        "justifyFull": {"type": "boolean", "default": false},
+        "justifyLeft": {"type": "boolean", "default": false},
+        "justifyRight": {"type": "boolean", "default": false},
+        "orderedlist": {"type": "boolean", "default": false},
+        "outdent": {"type": "boolean", "default": false},
+        "removeformat": {"type": "boolean", "default": true},
+        "strikethrough": {"type": "boolean", "default": true},
+        "subscript": {"type": "boolean", "default": false},
+        "superscript": {"type": "boolean", "default": false},
+        "unhyperlink": {"type": "boolean", "default": false},
+        "unorderedlist": {"type": "boolean", "default": false}
+      }
+    }
+  }
+}
