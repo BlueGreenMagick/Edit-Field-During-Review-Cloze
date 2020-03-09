@@ -46,7 +46,11 @@
           "type": "array",
           "items": [
             {"type": "boolean", "default": true},
-            {"type": "string", "default": "#00f", "pattern": "#[a-f0-9]{3}"}
+            {
+              "type": "string", 
+              "default": "#00f", 
+              "pattern": "^(#([a-f0-9]{3}|[a-f0-9]{6}))|(rgb\\(\\d+, *\\d+, *\\d+\\))$"
+            }
           ]
         },
         "formatpre": {
@@ -60,7 +64,11 @@
           "type": "array",
           "items": [
             {"type": "boolean", "default": false},
-            {"type": "string", "default": "#00f", "pattern": "#[a-f0-9]{3}"}
+            {
+              "type": "string", 
+              "default": "#00f", 
+              "pattern": "^(#([a-f0-9]{3}|[a-f0-9]{6}))|(rgb\\(\\d+, *\\d+, *\\d+\\))$"
+            }
           ]
         },
         "hyperlink": {"type": "boolean", "default": false},
