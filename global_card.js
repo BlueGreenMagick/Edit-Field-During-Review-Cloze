@@ -6,6 +6,31 @@ EFDRC.SPAN = "%(span)s"; //bool
 EFDRC.REMSPAN = "%(remove_span)s"; //bool
 EFDRC.SPECIAL = JSON.parse(`%(special)s`) //array of array
 
+EFDRC.specials_noctrl = {
+    //shift, alt, key, command, has arg?
+    "strikethrough": [true, true, "Digit5", "strikeThrough", false],
+    "fontcolor": [false, false, "F7", "foreColor", true]
+};
+
+EFDRC.specials_ctrl = {
+    //shift, alt, key, command, has arg
+    "removeformat": [false, false, "KeyR", "removeFormat", false],
+    "highlight": [true, false, "KeyB", "hiliteColor", true],
+    "subscript": [false, false, "Equal", "subscript", false],
+    "superscript": [true, false, "Equal", "superscript", false],
+    "formatblock": [false, false, "Period", "formatBlock", true],
+    "hyperlink": [true, false, "KeyH", "createLink", false],
+    "unhyperlink": [true, true, "KeyH", "createLink", false],
+    "unorderedlist": [false, false, "BracketLeft", "insertUnorderedList", false],
+    "orderedlist": [false, false, "BracketRight", "insertOrderedList", false],
+    "indent": [true, false, "BracketRight", "indent", false],
+    "outdent": [true, false, "BracketLeft", "outdent", false],
+    "justifyCenter": [true, true, "KeyS", "justifyCenter", false],
+    "justifyLeft": [true, true, "KeyL", "justifyLeft", false],
+    "justifyRight": [true, true, "KeyR", "justifyRight", false],
+    "justifyFull": [true, true, "KeyB", "justifyFull", false],
+};
+
 //wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts
 EFDRC.wrappedExceptForWhitespace = function(text, front, back) {
     var match = text.match(/^(\s*)([^]*?)(\s*)$/);
@@ -145,30 +170,7 @@ EFDRC.addListeners = function(e, fld){
             }
         }
 
-        var specials_noctrl = {
-            //shift, alt, key, command, has arg?
-            "strikethrough": [true, true, "Digit5", "strikeThrough", false],
-            "fontcolor": [false, false, "F7", "foreColor", true]
-        };
 
-        var specials_ctrl = {
-            //shift, alt, key, command, has arg
-            "removeformat": [false, false, "KeyR", "removeFormat", false],
-            "highlight": [true, false, "KeyB", "hiliteColor", true],
-            "subscript": [false, false, "Equal", "subscript", false],
-            "superscript": [true, false, "Equal", "superscript", false],
-            "formatblock": [false, false, "Period", "formatBlock", true],
-            "hyperlink": [true, false, "KeyH", "createLink", false],
-            "unhyperlink": [true, true, "KeyH", "createLink", false],
-            "unorderedlist": [false, false, "BracketLeft", "insertUnorderedList", false],
-            "orderedlist": [false, false, "BracketRight", "insertOrderedList", false],
-            "indent": [true, false, "BracketRight", "indent", false],
-            "outdent": [true, false, "BracketLeft", "outdent", false],
-            "justifyCenter": [true, true, "KeyS", "justifyCenter", false],
-            "justifyLeft": [true, true, "KeyL", "justifyLeft", false],
-            "justifyRight": [true, true, "KeyR", "justifyRight", false],
-            "justifyFull": [true, true, "KeyB", "justifyFull", false],
-        };
 
         if(ctrlKey){
             //cloze deletion, onCloze from aqt.editor
@@ -188,8 +190,8 @@ EFDRC.addListeners = function(e, fld){
             }
 
             //Special formatting that requires ctrl key.
-            for(var special in specials_ctrl){
-                specialVal = specials_ctrl[special]
+            for(var special in EFDRC.specials_ctrl){
+                specialVal = EFDRC.specials_ctrl[special]
                 if(specialVal[4]){
                     var enabled = EFDRC.SPECIAL[special][0]
                     var parmVal = EFDRC.SPECIAL[special][1]
@@ -212,8 +214,8 @@ EFDRC.addListeners = function(e, fld){
             }
         }else{
             //Special formatting that doesn't require ctrl key
-            for(var special in specials_noctrl){
-                specialVal = specials_noctrl[special]
+            for(var special in EFDRC.specials_noctrl){
+                specialVal = EFDRC.specials_noctrl[special]
                 if(specialVal[4]){
                     var enabled = EFDRC.SPECIAL[special][0]
                     var parmVal = EFDRC.SPECIAL[special][1]
