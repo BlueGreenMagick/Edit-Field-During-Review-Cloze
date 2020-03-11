@@ -53,7 +53,7 @@
             }
           ]
         },
-        "formatpre": {
+        "formatblock": {
           "type": "array",
           "items": [
             {"type": "boolean", "default": false},
