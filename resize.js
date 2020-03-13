@@ -26,12 +26,23 @@ async function $resizeImage($img){
             minWidth: minWidth
         });
         $img.css("max-width", "100%%"); //%% because a single percent would make a python error during formatting of this file.
+        $img.dblclick(onDblClick);
         var $divUi = $img.parents("div[class^=ui-]");
         $divUi.attr("contentEditable", "false");
         $divUi.css("display", "inline-block");
     } else {
         console.log("Trying to apply resizable to image already resizable.");
     }
+}
+
+function onDblClick(){
+    var img = this;
+    var $img = $(img);
+    $img.css("width", "");
+    $img.css("height", "");
+    var $parents = $img.parents("div[class^=ui-]");
+    $parents.css("width", "");
+    $parents.css("height", "");
 }
 
 function $cleanResize($field){
