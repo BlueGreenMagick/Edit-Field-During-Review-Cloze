@@ -142,6 +142,9 @@ EFDRC.addListeners = function(e, fld){
             el.setAttribute("contenteditable", "false");
         }
         if(el.hasAttribute("data-EFDRCval")){
+            var $el = $(el).clone();
+            $cleanResize($el)
+            var el = $el[0];
             pycmd("EFDRC#" + el.getAttribute("data-EFDRCval") + "#" + el.getAttribute("data-EFDRCfield") + "#" + el.innerHTML);
             pycmd("EFDRC!reload");
         }else{

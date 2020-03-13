@@ -26,12 +26,17 @@ ankiver_major = ankiversion[0:3]
 # Get js files.
 def js_from_path(path):
     return "<script>" + path.read_text() + "</script>"
+def css_from_path(path):
+    return "<style>" + path.read_text() + "</style>"
 
 
 DIRPATH = Path(__file__).parents[0]
 
 CARDJS = js_from_path(DIRPATH / "card.js")
 GLOBALCARDJS = js_from_path(DIRPATH / "global_card.js")
+RESIZEJS = js_from_path(DIRPATH / "resize.js")
+JQUERYUIJS = js_from_path(DIRPATH / "jquery-ui.js")
+JQUERYUICSS = css_from_path(DIRPATH / "jquery-ui.css")
 PASTEJS = js_from_path(DIRPATH / "paste.js")
 BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
 
@@ -110,17 +115,24 @@ def myRevHtml(reviewer, _old):
     paste = bool_to_str(config["process_paste"])
     rem_span = bool_to_str(config["remove_span"])
     special = json.dumps(config["z_special_formatting"])
+    preserve_ratio = config["preserve_ratio"]
+    min_height = config["min-height"]
+    min_width = config["min-width"]
+    style = JQUERYUICSS
+    resizable_style = config["resizable-style"]
+    if resizable_style:
+        style += f"<style>.ui-wrapper {{   {resizable_style} }}</style>"
 
-    js = GLOBALCARDJS % ({"span": span, "ctrl": ctrl, "paste": paste,
+    js = JQUERYUIJS
+    js += GLOBALCARDJS % ({"span": span, "ctrl": ctrl, "paste": paste,
                           "remove_span": rem_span, "special": special})
+    js += RESIZEJS % ({"min_height": min_height, "min_width": min_width, "preserve_ratio": preserve_ratio, "resizable_style": resizable_style});
 
     if config["process_paste"]:
         js += PASTEJS
 
     if config["outline"]:
-        style = "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
-    else:
-        style = ""
+        style += "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
 
     return _old(reviewer) + js + style
 
@@ -208,6 +220,7 @@ def myLinkHandler(reviewer, url, _old):
             elem.setAttribute("data-EFDRCval", encoded_val);
             if(elem.innerHTML != val){
                 elem.innerHTML = val;
+                $(elem).find("img").each(resizeImage);
             }
         }
         """ % (encoded_val, fld))

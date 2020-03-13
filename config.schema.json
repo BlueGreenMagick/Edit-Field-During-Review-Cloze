@@ -9,6 +9,22 @@
       "description": "If 'true', ctrl+click on a field to edit.",
       "default": false
     },
+    "min-width": {
+      "type": "integer",
+      "title": "Minimal width of images (in pixel)",
+      "default": 10
+    },
+    "min-height": {
+      "type": "integer",
+      "title": "Minimal height of images (in pixel)",
+      "default": 10
+    },
+    "resizable-style": {
+      "type": "string",
+      "title": "Resizable style",
+      "description": "CSS style applied to images when they are resizable",
+      "default": "border:1px dashed black;"
+    },
     "outline": {
       "type": "boolean",
       "title": "Outline",
@@ -26,6 +42,13 @@
       "type": "boolean",
       "description": "When editing on reviewer, will remove all span tags. If you rely on span tags, do not set this to true or they will all be deleted. Most users who don't need span tags are recommended to set it to true.",
       "default": false
+    },
+    "preserve_ratio": {
+      "title": "Preserve ration",
+      "type": "string",
+      "description": "Whether to preserve original ratio, current ratio, or allow to resize freely both width and height independently",
+      "enum": ["current", "original", "freely"],
+      "default": "current"
     },
     "undo": {
       "title": "Undo",

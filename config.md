@@ -14,6 +14,11 @@
 
 - z_special_formatting: Shortcuts for special formattings. Possible choices are written below, and its corresponding shortcuts. Set `false` to `true` to enable each, and `true` to `false` to disable.
 
+- min-width, win-height: minimal width and height of images. It ensures that images can't be resized so smally that they can't be seen anymore
+
+- resizable-style: css style to apply to images to show that they are resizable. In particular, it allows showing their border.
+
+- preserve_ratio: It value can be: "current" (preserve the current ration. If image was resized, it will keep the new ratio), "original" (if image was resized, it'll take back original ratio). With any other value it'll resize freely.
 
 
 #### Special Formatting options
