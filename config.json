@@ -5,7 +5,7 @@
   "remove_span": false,
   "tag": "div",
   "undo": true,
-  "preserve_ratio": "current",
+  "preserve_ratio": true,
   "min-width": 10,
   "min-height": 10,
   "resizable-style": "border:1px dashed black;",

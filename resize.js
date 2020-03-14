@@ -12,19 +12,29 @@ async function $resizeImage($img){
     while (img.naturalWidth == 0 || img.naturalHeight == 0) {
         await new Promise(r => setTimeout(r, 1000));
     }
-    var preserve_ratio_in_resizable = false;
-    if (preserve_ratio == "current" || preserve_ratio == "original"){
-        preserve_ratio_in_resizable = true;
-    }
     if ($img.resizable("instance") == undefined ) {
-        $maybe_remove_a_dimension($img);
         var minHeight = ((min_height == null) ? 0: min_height)
         var minWidth = ((min_width == null) ? 0: min_width)
-        $img.resizable({
-            aspectRatio: preserve_ratio_in_resizable,
-            minHeight: minHeight,
-            minWidth: minWidth
-        });
+        if(preserve_ratio){
+            $img.resizable({
+                start: function(event, ui){
+                    if(event.originalEvent.target.classList.contains("ui-resizable-se")){
+                        $img.resizable( "option", "aspectRatio", true ).data('ui-resizable')._aspectRatio = true;
+                    }
+                },
+                stop: function(event, ui){
+                    $img.resizable( "option", "aspectRatio", false ).data('ui-resizable')._aspectRatio = false;
+                },
+                minHeight: minHeight,
+                minWidth: minWidth
+            });
+        }else{
+            $img.resizable({
+                aspectRatio: preserve_ratio,
+                minHeight: minHeight,
+                minWidth: minWidth
+            });
+        }
         $img.css("max-width", "100%%"); //%% because a single percent would make a python error during formatting of this file.
         $img.dblclick(onDblClick);
         var $divUi = $img.parents("div[class^=ui-]");
@@ -68,9 +78,4 @@ function $partialCleanResize($img){
     $maybe_remove_a_dimension($img);
 }
 
-function $maybe_remove_a_dimension($img){
-    if (preserve_ratio == "original"){
-        $img.css("width", "");
-    }
-}
 

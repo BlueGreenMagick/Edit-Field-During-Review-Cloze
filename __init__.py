@@ -115,7 +115,7 @@ def myRevHtml(reviewer, _old):
     paste = bool_to_str(config["process_paste"])
     rem_span = bool_to_str(config["remove_span"])
     special = json.dumps(config["z_special_formatting"])
-    preserve_ratio = config["preserve_ratio"]
+    preserve_ratio = bool_to_str(config["preserve_ratio"])
     min_height = config["min-height"]
     min_width = config["min-width"]
     style = JQUERYUICSS

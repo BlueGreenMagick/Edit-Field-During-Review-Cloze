@@ -45,10 +45,9 @@
     },
     "preserve_ratio": {
       "title": "Preserve ration",
-      "type": "string",
-      "description": "Whether to preserve original ratio, current ratio, or allow to resize freely both width and height independently",
-      "enum": ["current", "original", "freely"],
-      "default": "current"
+      "type": "boolean",
+      "description": "Whether to preserve ratio when using south-east corner to resize image",
+      "default": true
     },
     "undo": {
       "title": "Undo",
