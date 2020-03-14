@@ -1,6 +1,6 @@
 var preserve_ratio = "%(preserve_ratio)s"; // string
-var min_height = %(min_height)d;
-var min_width = %(min_width)d;
+var min_height = Number("%(min_height)d");
+var min_width = Number("%(min_width)d");
 var resizable_style = "%(resizable_style)s";
 
 function resizeImage(idx, img){
