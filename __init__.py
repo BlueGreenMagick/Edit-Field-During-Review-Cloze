@@ -126,7 +126,7 @@ def myRevHtml(reviewer, _old):
         css += JQUERYUICSS
         resizable_style = config["resizable-style"]
         if resizable_style:
-            css += f"<style>.ui-wrapper {{   {resizable_style} }}</style>"
+            css += "<style>.ui-wrapper{ %s }</style>" % resizable_style
         js += JQUERYUIJS
         js += RESIZEJS % ({"preserve_ratio": preserve_ratio, "resizable_style": resizable_style});
 
