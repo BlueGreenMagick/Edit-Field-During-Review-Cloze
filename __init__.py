@@ -36,7 +36,7 @@ CARDJS = js_from_path(DIRPATH / "card.js")
 GLOBALCARDJS = js_from_path(DIRPATH / "global_card.js")
 RESIZEJS = js_from_path(DIRPATH / "resize.js")
 JQUERYUIJS = js_from_path(DIRPATH / "jquery-ui.min.js")
-JQUERYUICSS = css_from_path(DIRPATH / "jquery-ui.min.css")
+RESIZECSS = css_from_path(DIRPATH / "resize.css")
 PASTEJS = js_from_path(DIRPATH / "paste.js")
 BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
 
@@ -123,7 +123,7 @@ def myRevHtml(reviewer, _old):
 
     if config["resize_image"]:
         preserve_ratio = bool_to_str(config["preserve_ratio"])
-        css += JQUERYUICSS
+        css += RESIZECSS
         resizable_style = config["resizable-style"]
         if resizable_style:
             css += "<style>.ui-wrapper{ %s }</style>" % resizable_style
