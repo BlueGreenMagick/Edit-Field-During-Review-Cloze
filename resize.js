@@ -1,15 +1,14 @@
 var preserve_ratio = "%(preserve_ratio)s"; // string
 var resizable_style = "%(resizable_style)s";
 
-function resizeImage(idx, img){
-    $resizeImage($(img));
-}
-
-async function $resizeImage($img){
-    var img = $img[0];
+async function resizeImage(idx, img){
+    
     while (img.naturalWidth == 0 || img.naturalHeight == 0) {
+        //wait for image to load
         await new Promise(r => setTimeout(r, 1000));
     }
+
+    var $img = $(img)
     if ($img.resizable("instance") == undefined ) {
         var minHeight = 15;
         var minWidth = 15;
@@ -33,6 +32,7 @@ async function $resizeImage($img){
                 minWidth: minWidth
             });
         }
+
         $img.css("max-width", "100%%"); //%% because a single percent would make a python error during formatting of this file.
         $img.dblclick(onDblClick);
         var $divUi = $img.parents("div[class^=ui-]");
@@ -66,14 +66,9 @@ function $cleanResize($field){
 }
 
 function partialCleanResize(idx, img){
-    $partialCleanResize($(img));
-}
-
-function $partialCleanResize($img){
     // Clean the style in the image. So that max height can be applied again correctly.
-    $img.removeClass();
+    $(img).removeClass();
     ["position", "max-width", "max-height", "margin", "resize", "position", "zoom", "display", "top", "left"].forEach(style => {$img.css(style, "");});
-    $maybe_remove_a_dimension($img);
 }
 
 
