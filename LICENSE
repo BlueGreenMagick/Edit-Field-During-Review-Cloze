@@ -1,5 +1,9 @@
 This software is licensed under GNU Affero General Public License version 3 or later.
 
+Part of the code are under a different license. jquery-ui.min.js is licensed under the MIT,
+and resize.css contains code from jquery ui that is licensed under the MIT. 
+Full license for jquery ui code can be found in jQuery_UI_license.txt 
+
 Copyright:
 (c) 2019 Damien Elmes
 (c) 2019 Nickolay <kelciour@gmail.com>
