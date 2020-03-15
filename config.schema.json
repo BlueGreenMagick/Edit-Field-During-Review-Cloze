@@ -33,6 +33,12 @@
       "description": "When editing on reviewer, will remove all span tags. If you rely on span tags, do not set this to true or they will all be deleted. Most users who don't need span tags are recommended to set it to true.",
       "default": false
     },
+    "resize_image": {
+      "title": "Resize Image",
+      "type": "boolean",
+      "description": "Allow image resizing in reviewer?",
+      "default": false
+    },
     "preserve_ratio": {
       "title": "Preserve ration",
       "type": "boolean",

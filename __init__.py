@@ -110,29 +110,33 @@ def myRevHtml(reviewer, _old):
     config = mw.addonManager.getConfig(__name__)
     config_make_valid()
 
+    js = ""
+    css = ""
+
     span = bool_to_str(config["tag"])
     ctrl = bool_to_str(config["ctrl_click"])
     paste = bool_to_str(config["process_paste"])
     rem_span = bool_to_str(config["remove_span"])
     special = json.dumps(config["z_special_formatting"])
-    preserve_ratio = bool_to_str(config["preserve_ratio"])
-    style = JQUERYUICSS
-    resizable_style = config["resizable-style"]
-    if resizable_style:
-        style += f"<style>.ui-wrapper {{   {resizable_style} }}</style>"
-
-    js = JQUERYUIJS
     js += GLOBALCARDJS % ({"span": span, "ctrl": ctrl, "paste": paste,
                           "remove_span": rem_span, "special": special})
-    js += RESIZEJS % ({"preserve_ratio": preserve_ratio, "resizable_style": resizable_style});
+
+    if config["resize_image"]:
+        preserve_ratio = bool_to_str(config["preserve_ratio"])
+        css += JQUERYUICSS
+        resizable_style = config["resizable-style"]
+        if resizable_style:
+            css += f"<style>.ui-wrapper {{   {resizable_style} }}</style>"
+        js += JQUERYUIJS
+        js += RESIZEJS % ({"preserve_ratio": preserve_ratio, "resizable_style": resizable_style});
 
     if config["process_paste"]:
         js += PASTEJS
 
     if config["outline"]:
-        style += "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
+        css += "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
 
-    return _old(reviewer) + js + style
+    return _old(reviewer) + js + css
 
 
 def myRevBottomHTML(reviewer, _old):

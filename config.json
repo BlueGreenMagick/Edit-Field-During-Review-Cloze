@@ -5,6 +5,7 @@
   "remove_span": false,
   "tag": "div",
   "undo": true,
+  "resize_image": true,
   "preserve_ratio": true,
   "resizable-style": "border:1px dashed black;",
   "z_special_formatting":{
