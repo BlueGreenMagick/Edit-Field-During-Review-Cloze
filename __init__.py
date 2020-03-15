@@ -35,8 +35,8 @@ DIRPATH = Path(__file__).parents[0]
 CARDJS = js_from_path(DIRPATH / "card.js")
 GLOBALCARDJS = js_from_path(DIRPATH / "global_card.js")
 RESIZEJS = js_from_path(DIRPATH / "resize.js")
-JQUERYUIJS = js_from_path(DIRPATH / "jquery-ui.js")
-JQUERYUICSS = css_from_path(DIRPATH / "jquery-ui.css")
+JQUERYUIJS = js_from_path(DIRPATH / "jquery-ui.min.js")
+JQUERYUICSS = css_from_path(DIRPATH / "jquery-ui.min.css")
 PASTEJS = js_from_path(DIRPATH / "paste.js")
 BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
 
