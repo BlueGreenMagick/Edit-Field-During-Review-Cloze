@@ -31,7 +31,6 @@ async function resizeImage(idx, img) {
             });
         }
 
-        $img.css("max-width", "100%%"); //%% because a single percent would make a python error during formatting of this file.
         $img.dblclick(onDblClick);
         var $divUi = $img.parents("div[class^=ui-]");
         $divUi.attr("contentEditable", "false");
