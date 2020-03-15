@@ -131,7 +131,6 @@ EFDRC.addListeners = function(e, fld){
     e.addEventListener('focus', function(event){
         pycmd("EFDRC!focuson#" + fld);
     })
-
     e.addEventListener('blur',function(event){
         var el = event.currentTarget;
         if(EFDRC.REMSPAN){
@@ -142,9 +141,7 @@ EFDRC.addListeners = function(e, fld){
             el.setAttribute("contenteditable", "false");
         }
         if(el.hasAttribute("data-EFDRCval")){
-            var $el = $(el).clone();
-            $cleanResize($el)
-            var el = $el[0];
+            cleanResize(el)
             pycmd("EFDRC#" + el.getAttribute("data-EFDRCval") + "#" + el.getAttribute("data-EFDRCfield") + "#" + el.innerHTML);
             pycmd("EFDRC!reload");
         }else{

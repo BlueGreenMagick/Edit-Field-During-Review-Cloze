@@ -51,20 +51,9 @@ function onDblClick() {
     $parents.css("height", "");
 }
 
-function $cleanResize($field) {
-    // clean everything related to resize, so that it can be saved and
-    // displayed properly in reviewer
-    var $divUi = $field.find("div[class^=ui-]");
-    $divUi.replaceWith(
-        function () {
-            return $(this).contents();
-        }
-    );
-    $field.find("img").each(partialCleanResize);
-}
-
-function partialCleanResize(idx, img) {
-    // Clean the style in the image. So that max height can be applied again correctly.
-    $(img).removeClass();
-    ["position", "max-width", "max-height", "margin", "resize", "position", "zoom", "display", "top", "left"].forEach(style => { $(img).css(style, ""); });
+function cleanResize(field) {
+    resizables = field.querySelectorAll(".ui-resizable");
+    for(var x = 0; x < resizables.length; x++){
+        $(resizables[x]).resizable("destroy");
+    }
 }
