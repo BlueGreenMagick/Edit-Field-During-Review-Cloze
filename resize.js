@@ -1,5 +1,4 @@
-var preserve_ratio = "%(preserve_ratio)s"; // string
-var resizable_style = "%(resizable_style)s";
+var preserve_ratio = "%(preserve_ratio)s";
 
 async function resizeImage(idx, img) {
 
@@ -24,6 +23,10 @@ async function resizeImage(idx, img) {
             },
             stop: function (event, ui) {
                 $img.resizable("option", "aspectRatio", false).data('ui-resizable')._aspectRatio = false;
+            },
+            classes: {
+                //remove unneeded classes
+                "ui-resizable-se": ""
             },
             minHeight: 15,
             minWidth: 15

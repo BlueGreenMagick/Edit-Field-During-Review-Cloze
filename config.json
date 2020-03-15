@@ -6,7 +6,6 @@
   "tag": "div",
   "undo": true,
   "preserve_ratio": true,
-  "resizable-style": "border:1px dashed black;",
   "resize_image": true,
   "z_special_formatting":{
     "fontcolor": [true, "#00f"],

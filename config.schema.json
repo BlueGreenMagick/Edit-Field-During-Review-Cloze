@@ -27,12 +27,6 @@
       "description": "When editing on reviewer, will remove all span tags. If you rely on span tags, do not set this to true or they will all be deleted. Most users who don't need span tags are recommended to set it to true.",
       "default": false
     },
-    "resizable-style": {
-      "title": "Resizable style",
-      "type": "string",
-      "description": "CSS style applied to images when they are resizable",
-      "default": "border:1px dashed black;"
-    },
     "resize_image": {
       "title": "Resize Image",
       "type": "boolean",

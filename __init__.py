@@ -124,11 +124,8 @@ def myRevHtml(reviewer, _old):
     if config["resize_image"]:
         preserve_ratio = bool_to_str(config["preserve_ratio"])
         css += RESIZECSS
-        resizable_style = config["resizable-style"]
-        if resizable_style:
-            css += "<style>.ui-wrapper{ %s }</style>" % resizable_style
         js += JQUERYUIJS
-        js += RESIZEJS % ({"preserve_ratio": preserve_ratio, "resizable_style": resizable_style});
+        js += RESIZEJS % ({"preserve_ratio": preserve_ratio});
 
     if config["process_paste"]:
         js += PASTEJS
