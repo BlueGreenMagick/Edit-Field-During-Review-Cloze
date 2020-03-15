@@ -65,5 +65,5 @@ function $cleanResize($field) {
 function partialCleanResize(idx, img) {
     // Clean the style in the image. So that max height can be applied again correctly.
     $(img).removeClass();
-    ["position", "max-width", "max-height", "margin", "resize", "position", "zoom", "display", "top", "left"].forEach(style => { $img.css(style, ""); });
+    ["position", "max-width", "max-height", "margin", "resize", "position", "zoom", "display", "top", "left"].forEach(style => { $(img).css(style, ""); });
 }
