@@ -10,26 +10,24 @@ async function resizeImage(idx, img) {
 
     var $img = $(img);
     if ($img.resizable("instance") == undefined) {
-        if (preserve_ratio) {
-            $img.resizable({
-                start: function (event, ui) {
-                    if (event.originalEvent.target.classList.contains("ui-resizable-se")) {
-                        $img.resizable("option", "aspectRatio", true).data('ui-resizable')._aspectRatio = true;
-                    }
-                },
-                stop: function (event, ui) {
-                    $img.resizable("option", "aspectRatio", false).data('ui-resizable')._aspectRatio = false;
-                },
-                minHeight: 15,
-                minWidth: 15
-            });
-        } else {
-            $img.resizable({
-                aspectRatio: preserve_ratio,
-                minHeight: 15,
-                minWidth: 15
-            });
-        }
+        $img.resizable({
+            start: function (event, ui) {
+                //passing maxWidth to resizable doesn't work because
+                //it only takes in pixel values
+                ui.element.css("max-width", window.getComputedStyle(img).maxWidth);
+                ui.element.css("max-height", window.getComputedStyle(img).maxHeight);
+
+                if (preserve_ratio && event.originalEvent.target.classList.contains("ui-resizable-se")) {
+                    //preserve ratio when using corner point to resize
+                    $img.resizable("option", "aspectRatio", true).data('ui-resizable')._aspectRatio = true;
+                }
+            },
+            stop: function (event, ui) {
+                $img.resizable("option", "aspectRatio", false).data('ui-resizable')._aspectRatio = false;
+            },
+            minHeight: 15,
+            minWidth: 15
+        });
 
         $img.dblclick(onDblClick);
         var $divUi = $img.parents("div[class^=ui-]");
