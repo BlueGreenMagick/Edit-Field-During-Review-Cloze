@@ -22,7 +22,7 @@
 	width: auto;
 	bottom: -5px;
 	left: 0;
-	right: 4px;
+	right: 6px;
 }
 .ui-resizable-e {
 	cursor: e-resize;
@@ -30,7 +30,7 @@
 	height: auto;
 	right: -5px;
 	top: 0;
-	bottom: 4px;
+	bottom: 6px;
 }
 .ui-resizable-se {
 	background: #66b3da;
