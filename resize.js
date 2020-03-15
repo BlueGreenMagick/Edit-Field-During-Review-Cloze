@@ -1,6 +1,4 @@
 var preserve_ratio = "%(preserve_ratio)s"; // string
-var min_height = Number("%(min_height)d");
-var min_width = Number("%(min_width)d");
 var resizable_style = "%(resizable_style)s";
 
 function resizeImage(idx, img){
@@ -13,8 +11,8 @@ async function $resizeImage($img){
         await new Promise(r => setTimeout(r, 1000));
     }
     if ($img.resizable("instance") == undefined ) {
-        var minHeight = ((min_height == null) ? 0: min_height)
-        var minWidth = ((min_width == null) ? 0: min_width)
+        var minHeight = 15;
+        var minWidth = 15;
         if(preserve_ratio){
             $img.resizable({
                 start: function(event, ui){

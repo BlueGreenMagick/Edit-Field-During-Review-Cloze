@@ -116,8 +116,6 @@ def myRevHtml(reviewer, _old):
     rem_span = bool_to_str(config["remove_span"])
     special = json.dumps(config["z_special_formatting"])
     preserve_ratio = bool_to_str(config["preserve_ratio"])
-    min_height = config["min-height"]
-    min_width = config["min-width"]
     style = JQUERYUICSS
     resizable_style = config["resizable-style"]
     if resizable_style:
@@ -126,7 +124,7 @@ def myRevHtml(reviewer, _old):
     js = JQUERYUIJS
     js += GLOBALCARDJS % ({"span": span, "ctrl": ctrl, "paste": paste,
                           "remove_span": rem_span, "special": special})
-    js += RESIZEJS % ({"min_height": min_height, "min_width": min_width, "preserve_ratio": preserve_ratio, "resizable_style": resizable_style});
+    js += RESIZEJS % ({"preserve_ratio": preserve_ratio, "resizable_style": resizable_style});
 
     if config["process_paste"]:
         js += PASTEJS

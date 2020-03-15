@@ -6,8 +6,6 @@
   "tag": "div",
   "undo": true,
   "preserve_ratio": true,
-  "min-width": 10,
-  "min-height": 10,
   "resizable-style": "border:1px dashed black;",
   "z_special_formatting":{
     "fontcolor": [true, "#00f"],
