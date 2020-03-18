@@ -1,4 +1,5 @@
 var preserve_ratio = "%(preserve_ratio)s";
+var resizeImageMode = "%(resize_state)s";
 var priorImgs = [];
 
 function savePriorImg(img) {
@@ -87,9 +88,17 @@ function cleanResize(field) {
         $(resizables[x]).resizable("destroy");
     }
     var imgs = field.querySelectorAll("[data-EFDRCImgId]");
+    console.log(imgs)
     for (var x = 0; x < imgs.length; x++) {
         restorePriorImg(imgs[x]);
     }
     priorImgs = [];
 }
 
+function maybeResize(){
+    if(resizeImageMode){
+        $(document.activeElement).find("img").each(resizeImage);
+    }else{
+        cleanResize(document.activeElement);
+    }
+}

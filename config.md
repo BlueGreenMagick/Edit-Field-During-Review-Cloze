@@ -6,7 +6,7 @@
 
 - process_paste: When pasting, save images locally, strip unnecessary HTML formatting, etc. Experimental and officially only support 2.1.19. Set it to `false` if you encounter errors regarding `editorwv` on paste.  Default: `true`.
 
-- resize_image_default_state: Whether image resizing mode is toggled by default. You can press Alt (Opt on macOS) to toggle image resizing mode. Default: `true`. 
+- resize_image_default_state: Whether image resizing mode is toggled by default. You can press `Alt + S` (`Opt + S` on macOS) to toggle image resizing mode. Default: `true`. 
 
 - resize_image_preserve_ratio: Whether resizing with south-east corner should preserve image ratio. Default: `true`. 
 

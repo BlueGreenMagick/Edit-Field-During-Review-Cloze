@@ -122,9 +122,10 @@ def myRevHtml(reviewer, _old):
                           "remove_span": rem_span, "special": special})
 
     preserve_ratio = bool_to_str(config["resize_image_preserve_ratio"])
+    resize_state = bool_to_str(config["resize_image_default_state"])
     css += RESIZECSS
     js += JQUERYUIJS
-    js += RESIZEJS % ({"preserve_ratio": preserve_ratio});
+    js += RESIZEJS % ({"preserve_ratio": preserve_ratio, "resize_state": resize_state});
 
     if config["process_paste"]:
         js += PASTEJS
@@ -218,7 +219,7 @@ def myLinkHandler(reviewer, url, _old):
             elem.setAttribute("data-EFDRCval", encoded_val);
             if(elem.innerHTML != val){
                 elem.innerHTML = val;
-                $(elem).find("img").each(resizeImage);
+                maybeResize();
             }
         }
         """ % (encoded_val, fld))

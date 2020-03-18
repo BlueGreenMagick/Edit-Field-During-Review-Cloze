@@ -30,7 +30,7 @@
     "resize_image_default_state": {
       "title": "Resize Image Default State",
       "type": "boolean",
-      "description": "Whether image resizing mode should be turned on by default. \n You can toggle the image resizing mode by pressing Alt.",
+      "description": "Whether image resizing mode should be turned on by default. \n You can toggle the image resizing mode by pressing Alt + S.",
       "default": true
     },
     "resize_image_preserve_ratio": {

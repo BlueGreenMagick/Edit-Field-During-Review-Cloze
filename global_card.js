@@ -170,7 +170,14 @@ EFDRC.addListeners = function(e, fld){
             }
         }
 
-
+        if(event.code == "KeyS" && event.altKey 
+        && !event.shiftKey && !event.ctrlKey && !event.metaKey){
+            //image resizer
+            resizeImageMode = !resizeImageMode;
+            maybeResize()
+            event.preventDefault();
+            event.stopPropagation();
+        }
 
         if(ctrlKey){
             //cloze deletion, onCloze from aqt.editor
