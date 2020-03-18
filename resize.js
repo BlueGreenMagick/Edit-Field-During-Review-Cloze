@@ -63,7 +63,7 @@ async function resizeImage(idx, img) {
         });
 
         $img.dblclick(onDblClick);
-        var $divUi = $img.parents("div[class=ui-resizable]");
+        var $divUi = $img.parents("div[class=ui-wrapper]");
         $divUi.attr("contentEditable", "false");
         $divUi.attr("readonly", "true");
         $divUi.css("display", "inline-block");
