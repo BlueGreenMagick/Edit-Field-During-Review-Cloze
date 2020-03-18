@@ -1,14 +1,14 @@
-var preserve_ratio = "%(preserve_ratio)s";
-var resizeImageMode = "%(resize_state)s";
-var priorImgs = [];
+EFDRC.preserve_ratio = "%(preserve_ratio)s";
+EFDRC.resizeImageMode = "%(resize_state)s";
+EFDRC.priorImgs = [];
 
-function savePriorImg(img) {
-    var id = priorImgs.length;
+EFDRC.savePriorImg = function(img) {
+    var id = EFDRC.priorImgs.length;
     img.setAttribute("data-EFDRCImgId", id);
-    priorImgs.push(img.cloneNode());
+    EFDRC.priorImgs.push(img.cloneNode());
 }
 
-function restorePriorImg(img) {
+EFDRC.restorePriorImg = function(img) {
     /* 
     only save changes to width and height
     resizable img is guranteed to have the data-EFDRCImgId attribute.
@@ -19,7 +19,7 @@ function restorePriorImg(img) {
 
     //apply stored style
     var id = img.getAttribute("data-EFDRCImgId");
-    var priorImg = priorImgs[id];
+    var priorImg = EFDRC.priorImgs[id];
     priorImg.style.width = width;
     priorImg.style.height = height;
 
@@ -27,14 +27,14 @@ function restorePriorImg(img) {
 
 }
 
-async function resizeImage(idx, img) {
+EFDRC.resizeImage = async function(idx, img) {
 
     while (!img.complete) {
         //wait for image to load
         await new Promise(r => setTimeout(r, 20));
     }
 
-    savePriorImg(img);
+    EFDRC.savePriorImg(img);
 
     var $img = $(img);
     if ($img.resizable("instance") == undefined) {
@@ -45,7 +45,7 @@ async function resizeImage(idx, img) {
                 ui.element.css("max-width", window.getComputedStyle(img).maxWidth);
                 ui.element.css("max-height", window.getComputedStyle(img).maxHeight);
 
-                if (preserve_ratio && event.originalEvent.target.classList.contains("ui-resizable-se")) {
+                if (EFDRC.preserve_ratio && event.originalEvent.target.classList.contains("ui-resizable-se")) {
                     //preserve ratio when using corner point to resize
                     $img.resizable("option", "aspectRatio", true).data('ui-resizable')._aspectRatio = true;
                 }
@@ -63,7 +63,7 @@ async function resizeImage(idx, img) {
             minWidth: 15
         });
 
-        $img.dblclick(onDblClick);
+        $img.dblclick(EFDRC.onDblClick);
         var $divUi = $img.parents("div[class=ui-wrapper]");
         $divUi.attr("contentEditable", "false");
         $divUi.css("display", "inline-block");
@@ -72,7 +72,7 @@ async function resizeImage(idx, img) {
     }
 }
 
-function onDblClick() {
+EFDRC.onDblClick = function() {
     var img = this;
     var $img = $(img);
     $img.css("width", "");
@@ -82,23 +82,22 @@ function onDblClick() {
     $parents.css("height", "");
 }
 
-function cleanResize(field) {
+EFDRC.cleanResize = function(field) {
     var resizables = field.querySelectorAll(".ui-resizable");
     for (var x = 0; x < resizables.length; x++) {
         $(resizables[x]).resizable("destroy");
     }
     var imgs = field.querySelectorAll("[data-EFDRCImgId]");
-    console.log(imgs)
     for (var x = 0; x < imgs.length; x++) {
-        restorePriorImg(imgs[x]);
+        EFDRC.restorePriorImg(imgs[x]);
     }
-    priorImgs = [];
+    EFDRC.priorImgs = [];
 }
 
-function maybeResize(){
-    if(resizeImageMode){
-        $(document.activeElement).find("img").each(resizeImage);
+EFDRC.maybeResizeOrClean = function(){
+    if(EFDRC.resizeImageMode){
+        $(document.activeElement).find("img").each(EFDRC.resizeImage);
     }else{
-        cleanResize(document.activeElement);
+        EFDRC.cleanResize(document.activeElement);
     }
 }

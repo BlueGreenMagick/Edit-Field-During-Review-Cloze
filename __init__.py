@@ -219,7 +219,7 @@ def myLinkHandler(reviewer, url, _old):
             elem.setAttribute("data-EFDRCval", encoded_val);
             if(elem.innerHTML != val){
                 elem.innerHTML = val;
-                maybeResize();
+                EFDRC.maybeResizeOrClean();
             }
         }
         """ % (encoded_val, fld))

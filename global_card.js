@@ -141,7 +141,7 @@ EFDRC.addListeners = function(e, fld){
             el.setAttribute("contenteditable", "false");
         }
         if(el.hasAttribute("data-EFDRCval")){
-            cleanResize(el)
+            EFDRC.cleanResize(el)
             pycmd("EFDRC#" + el.getAttribute("data-EFDRCval") + "#" + el.getAttribute("data-EFDRCfield") + "#" + el.innerHTML);
             pycmd("EFDRC!reload");
         }else{
@@ -173,8 +173,8 @@ EFDRC.addListeners = function(e, fld){
         if(event.code == "KeyS" && event.altKey 
         && !event.shiftKey && !event.ctrlKey && !event.metaKey){
             //image resizer
-            resizeImageMode = !resizeImageMode;
-            maybeResize()
+            EFDRC.resizeImageMode = !EFDRC.resizeImageMode;
+            EFDRC.maybeResizeOrClean()
             event.preventDefault();
             event.stopPropagation();
         }
