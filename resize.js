@@ -42,9 +42,15 @@ EFDRC.resizeImage = async function(idx, img) {
             start: function (event, ui) {
                 //passing maxWidth to resizable doesn't work because
                 //it only takes in pixel values
-                ui.element.css("max-width", window.getComputedStyle(img).maxWidth);
-                ui.element.css("max-height", window.getComputedStyle(img).maxHeight);
-
+                computedStyle = window.getComputedStyle(img);
+                ui.element.css("max-width", computedStyle.maxWidth);
+                ui.element.css("max-height", computedStyle.maxHeight);
+                if(parseFloat(computedStyle.minWidth)){ // not 0
+                    ui.element.css("min-width", computedStyle.minWidth);
+                }
+                if(parseFloat(computedStyle.minHeight)){ 
+                    ui.element.css("min-height", computedStyle.minHeight);
+                }
                 if (EFDRC.preserve_ratio && event.originalEvent.target.classList.contains("ui-resizable-se")) {
                     //preserve ratio when using corner point to resize
                     $img.resizable("option", "aspectRatio", true).data('ui-resizable')._aspectRatio = true;
