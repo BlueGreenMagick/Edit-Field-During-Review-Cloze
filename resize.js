@@ -66,6 +66,8 @@ async function resizeImage(idx, img) {
                 //remove unneeded classes
                 "ui-resizable-se": ""
             },
+            //TODO: if user set minHeight is bigger than 15px,
+            //there may be bugs
             minHeight: 15,
             minWidth: 15
         });
