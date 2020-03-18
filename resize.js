@@ -39,6 +39,7 @@ EFDRC.resizeImage = async function(idx, img) {
 
     var $img = $(img);
     if ($img.resizable("instance") == undefined) {
+        // just in case?
         $img.resizable({
             start: function (event, ui) {
                 //passing maxWidth to resizable doesn't work because
@@ -64,8 +65,6 @@ EFDRC.resizeImage = async function(idx, img) {
                 //remove unneeded classes
                 "ui-resizable-se": ""
             },
-            //TODO: if user set minHeight is bigger than 15px,
-            //there may be bugs
             minHeight: 15,
             minWidth: 15
         });
@@ -74,8 +73,6 @@ EFDRC.resizeImage = async function(idx, img) {
         var $divUi = $img.parents("div[class=ui-wrapper]");
         $divUi.attr("contentEditable", "false");
         $divUi.css("display", "inline-block");
-    } else {
-        console.log("Trying to apply resizable to image already resizable.");
     }
 }
 
@@ -95,7 +92,6 @@ EFDRC.cleanResize = function(field) {
         $(resizables[x]).resizable("destroy");
     }
     var imgs = field.querySelectorAll("[data-EFDRCImgId]");
-    console.log(imgs)
     for (var x = 0; x < imgs.length; x++) {
         EFDRC.restorePriorImg(imgs[x]);
     }
@@ -104,6 +100,7 @@ EFDRC.cleanResize = function(field) {
 
 EFDRC.maybeResizeOrClean = function(focus){
     if(focus){
+        // Called from __init__.py on field focus. Else undefined.
         EFDRC.resizeImageMode = EFDRC.DEFAULTRESIZE;
     }
     if(EFDRC.resizeImageMode){
