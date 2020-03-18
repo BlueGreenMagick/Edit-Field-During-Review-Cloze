@@ -1,13 +1,13 @@
 var preserve_ratio = "%(preserve_ratio)s";
-var priorImgs = []
+var priorImgs = [];
 
-function savePriorImg(img){
+function savePriorImg(img) {
     var id = priorImgs.length;
     img.setAttribute("data-EFDRCImgId", id);
     priorImgs.push(img.cloneNode());
 }
 
-function restorePriorImg(img){
+function restorePriorImg(img) {
     /* 
     only save changes to width and height
     resizable img is guranteed to have the data-EFDRCImgId attribute.
@@ -33,7 +33,7 @@ async function resizeImage(idx, img) {
         await new Promise(r => setTimeout(r, 20));
     }
 
-    savePriorImg(img)
+    savePriorImg(img);
 
     var $img = $(img);
     if ($img.resizable("instance") == undefined) {
@@ -65,7 +65,6 @@ async function resizeImage(idx, img) {
         $img.dblclick(onDblClick);
         var $divUi = $img.parents("div[class=ui-wrapper]");
         $divUi.attr("contentEditable", "false");
-        $divUi.attr("readonly", "true");
         $divUi.css("display", "inline-block");
     } else {
         console.log("Trying to apply resizable to image already resizable.");
@@ -84,11 +83,11 @@ function onDblClick() {
 
 function cleanResize(field) {
     var resizables = field.querySelectorAll(".ui-resizable");
-    for(var x = 0; x < resizables.length; x++){
+    for (var x = 0; x < resizables.length; x++) {
         $(resizables[x]).resizable("destroy");
     }
-    var imgs = field.querySelectorAll("[data-EFDRCImgId]")
-    for(var x = 0; x < imgs.length; x++){
+    var imgs = field.querySelectorAll("[data-EFDRCImgId]");
+    for (var x = 0; x < imgs.length; x++) {
         restorePriorImg(imgs[x]);
     }
     priorImgs = [];
