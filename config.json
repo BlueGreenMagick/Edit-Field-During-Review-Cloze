@@ -5,8 +5,8 @@
   "remove_span": false,
   "tag": "div",
   "undo": true,
-  "preserve_ratio": true,
-  "resize_image": true,
+  "resize_image_alt": true,
+  "resize_image_preserve_ratio": true,
   "z_special_formatting":{
     "fontcolor": [true, "#00f"],
     "formatblock": [false,"pre"],

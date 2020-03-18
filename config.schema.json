@@ -27,14 +27,14 @@
       "description": "When editing on reviewer, will remove all span tags. If you rely on span tags, do not set this to true or they will all be deleted. Most users who don't need span tags are recommended to set it to true.",
       "default": false
     },
-    "resize_image": {
-      "title": "Resize Image",
+    "resize_image_default_state": {
+      "title": "Resize Image Default State",
       "type": "boolean",
-      "description": "Allow image resizing in reviewer?",
-      "default": false
+      "description": "Whether image resizing mode should be turned on by default. \n You can toggle the image resizing mode by pressing Alt.",
+      "default": true
     },
-    "preserve_ratio": {
-      "title": "Preserve ration",
+    "resize_image_preserve_ratio": {
+      "title": "Preserve ratio",
       "type": "boolean",
       "description": "Whether to preserve ratio when using south-east corner to resize image",
       "default": true

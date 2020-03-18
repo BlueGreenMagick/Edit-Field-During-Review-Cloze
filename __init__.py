@@ -121,11 +121,10 @@ def myRevHtml(reviewer, _old):
     js += GLOBALCARDJS % ({"span": span, "ctrl": ctrl, "paste": paste,
                           "remove_span": rem_span, "special": special})
 
-    if config["resize_image"]:
-        preserve_ratio = bool_to_str(config["preserve_ratio"])
-        css += RESIZECSS
-        js += JQUERYUIJS
-        js += RESIZEJS % ({"preserve_ratio": preserve_ratio});
+    preserve_ratio = bool_to_str(config["resize_image_preserve_ratio"])
+    css += RESIZECSS
+    js += JQUERYUIJS
+    js += RESIZEJS % ({"preserve_ratio": preserve_ratio});
 
     if config["process_paste"]:
         js += PASTEJS
