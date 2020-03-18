@@ -219,9 +219,9 @@ def myLinkHandler(reviewer, url, _old):
             elem.setAttribute("data-EFDRCval", encoded_val);
             if(elem.innerHTML != val){
                 elem.innerHTML = val;
-                EFDRC.maybeResizeOrClean();
             }
         }
+        EFDRC.maybeResizeOrClean();
         """ % (encoded_val, fld))
 
         # Reset timer from Speed Focus Mode add-on.
