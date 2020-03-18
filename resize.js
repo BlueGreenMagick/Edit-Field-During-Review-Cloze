@@ -1,39 +1,29 @@
 var preserve_ratio = "%(preserve_ratio)s";
-var priorAttr = []
+var priorImgs = []
 
-function savePriorAttr(img){
-    var id = priorAttr.length;
-    var storedStyle = {};
-    var styleMap = img.attributeStyleMap;
-    for(var [par, val] of styleMap.entries()){
-        if(par != "width" && par != "height"){
-            storedStyle[par] = img.attributeStyleMap.get(par);
-        }
-    }
+function savePriorImg(img){
+    var id = priorImgs.length;
     img.setAttribute("data-EFDRCImgId", id);
-    priorAttr.push(storedStyle);
+    priorImgs.push(img.cloneNode());
 }
 
-function restorePriorAttr(img){
-    // resizable img is guranteed to have the data-EFDRCImgId attribute.
-    // if img wasadded during review, resizable isn't applied to it.
-
-    //remove existing styles
-    var styleMap = img.attributeStyleMap;
-    for(var [par, val] of styleMap.entries()){
-        if(par != "width" && par != "height"){
-            img.attributeStyleMap.delete(par);
-        }
-    }
+function restorePriorImg(img){
+    /* 
+    only save changes to width and height
+    resizable img is guranteed to have the data-EFDRCImgId attribute.
+    if img was added during review, resizable isn't applied to it. 
+    */
+    var width = img.style.width;
+    var height = img.style.height;
 
     //apply stored style
     var id = img.getAttribute("data-EFDRCImgId");
-    var savedStyleMap = priorAttr[id];
-    for(var par in savedStyleMap){
-        img.attributeStyleMap.set(par, savedStyleMap[par]);
-    }
-    img.removeAttribute("data-EFDRCImgId")
-    priorAttr[id] = null;
+    var priorImg = priorImgs[id];
+    priorImg.style.width = width;
+    priorImg.style.height = height;
+
+    img.parentNode.replaceChild(priorImg, img);
+
 }
 
 async function resizeImage(idx, img) {
@@ -43,7 +33,7 @@ async function resizeImage(idx, img) {
         await new Promise(r => setTimeout(r, 20));
     }
 
-    savePriorAttr(img)
+    savePriorImg(img)
 
     var $img = $(img);
     if ($img.resizable("instance") == undefined) {
@@ -99,8 +89,8 @@ function cleanResize(field) {
     }
     var imgs = field.querySelectorAll("[data-EFDRCImgId]")
     for(var x = 0; x < imgs.length; x++){
-        restorePriorAttr(imgs[x]);
+        restorePriorImg(imgs[x]);
     }
-    priorAttr = [];
+    priorImgs = [];
 }
 
