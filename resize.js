@@ -1,5 +1,6 @@
 EFDRC.preserve_ratio = "%(preserve_ratio)s";
-EFDRC.resizeImageMode = "%(resize_state)s";
+EFDRC.DEFAULTRESIZE = "%(resize_state)s";
+EFDRC.resizeImageMode = EFDRC.DEFAULTRESIZE;
 EFDRC.priorImgs = [];
 
 EFDRC.savePriorImg = function(img) {
@@ -101,7 +102,10 @@ EFDRC.cleanResize = function(field) {
     EFDRC.priorImgs = [];
 }
 
-EFDRC.maybeResizeOrClean = function(){
+EFDRC.maybeResizeOrClean = function(focus){
+    if(focus){
+        EFDRC.resizeImageMode = EFDRC.DEFAULTRESIZE;
+    }
     if(EFDRC.resizeImageMode){
         $(document.activeElement).find("img").each(EFDRC.resizeImage);
     }else{

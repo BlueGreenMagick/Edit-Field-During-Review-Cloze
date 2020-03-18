@@ -221,8 +221,8 @@ def myLinkHandler(reviewer, url, _old):
                 elem.innerHTML = val;
             }
         }
-        EFDRC.maybeResizeOrClean();
-        """ % (encoded_val, fld))
+        EFDRC.maybeResizeOrClean(true);
+        """ % (encoded_val, fld,))
 
         # Reset timer from Speed Focus Mode add-on.
         reviewer.bottom.web.eval("""
