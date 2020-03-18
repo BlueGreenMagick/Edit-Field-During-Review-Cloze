@@ -4,8 +4,8 @@ EFDRC.priorImgs = [];
 
 EFDRC.savePriorImg = function(img) {
     var id = EFDRC.priorImgs.length;
-    img.setAttribute("data-EFDRCImgId", id);
     EFDRC.priorImgs.push(img.cloneNode());
+    img.setAttribute("data-EFDRCImgId", id);
 }
 
 EFDRC.restorePriorImg = function(img) {
@@ -94,6 +94,7 @@ EFDRC.cleanResize = function(field) {
         $(resizables[x]).resizable("destroy");
     }
     var imgs = field.querySelectorAll("[data-EFDRCImgId]");
+    console.log(imgs)
     for (var x = 0; x < imgs.length; x++) {
         EFDRC.restorePriorImg(imgs[x]);
     }
