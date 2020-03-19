@@ -1,0 +1,43 @@
+.ui-wrapper{
+	outline: 3px solid #66b3da;
+	overflow: visible !important;
+}
+.ui-resizable {
+	position: relative;
+}
+.ui-resizable-handle {
+	position: absolute;
+	font-size: 0.1px;
+	display: block;
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.ui-resizable-disabled .ui-resizable-handle,
+.ui-resizable-autohide .ui-resizable-handle {
+	display: none;
+}
+.ui-resizable-s {
+	cursor: s-resize;
+	height: 10px;
+	width: auto;
+	bottom: -5px;
+	left: 0;
+	right: 6px;
+}
+.ui-resizable-e {
+	cursor: e-resize;
+	width: 10px;
+	height: auto;
+	right: -5px;
+	top: 0;
+	bottom: 6px;
+}
+.ui-resizable-se {
+	background: #66b3da;
+	cursor: se-resize;
+	width: 11px;
+	height: 11px;
+	right: -7px;
+	bottom: -7px;
+}
+

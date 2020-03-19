@@ -26,12 +26,17 @@ ankiver_major = ankiversion[0:3]
 # Get js files.
 def js_from_path(path):
     return "<script>" + path.read_text() + "</script>"
+def css_from_path(path):
+    return "<style>" + path.read_text() + "</style>"
 
 
 DIRPATH = Path(__file__).parents[0]
 
 CARDJS = js_from_path(DIRPATH / "card.js")
 GLOBALCARDJS = js_from_path(DIRPATH / "global_card.js")
+RESIZEJS = js_from_path(DIRPATH / "resize.js")
+JQUERYUIJS = js_from_path(DIRPATH / "jquery-ui.min.js")
+RESIZECSS = css_from_path(DIRPATH / "resize.css")
 PASTEJS = js_from_path(DIRPATH / "paste.js")
 BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
 
@@ -105,24 +110,30 @@ def myRevHtml(reviewer, _old):
     config = mw.addonManager.getConfig(__name__)
     config_make_valid()
 
+    js = ""
+    css = ""
+
     span = bool_to_str(config["tag"])
     ctrl = bool_to_str(config["ctrl_click"])
     paste = bool_to_str(config["process_paste"])
     rem_span = bool_to_str(config["remove_span"])
     special = json.dumps(config["z_special_formatting"])
-
-    js = GLOBALCARDJS % ({"span": span, "ctrl": ctrl, "paste": paste,
+    js += GLOBALCARDJS % ({"span": span, "ctrl": ctrl, "paste": paste,
                           "remove_span": rem_span, "special": special})
+
+    preserve_ratio = bool_to_str(config["resize_image_preserve_ratio"])
+    resize_state = bool_to_str(config["resize_image_default_state"])
+    css += RESIZECSS
+    js += JQUERYUIJS
+    js += RESIZEJS % ({"preserve_ratio": preserve_ratio, "resize_state": resize_state});
 
     if config["process_paste"]:
         js += PASTEJS
 
     if config["outline"]:
-        style = "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
-    else:
-        style = ""
+        css += "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
 
-    return _old(reviewer) + js + style
+    return _old(reviewer) + js + css
 
 
 def myRevBottomHTML(reviewer, _old):
@@ -210,7 +221,8 @@ def myLinkHandler(reviewer, url, _old):
                 elem.innerHTML = val;
             }
         }
-        """ % (encoded_val, fld))
+        EFDRC.maybeResizeOrClean(true);
+        """ % (encoded_val, fld,))
 
         # Reset timer from Speed Focus Mode add-on.
         reviewer.bottom.web.eval("""

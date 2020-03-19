@@ -131,7 +131,6 @@ EFDRC.addListeners = function(e, fld){
     e.addEventListener('focus', function(event){
         pycmd("EFDRC!focuson#" + fld);
     })
-
     e.addEventListener('blur',function(event){
         var el = event.currentTarget;
         if(EFDRC.REMSPAN){
@@ -142,6 +141,7 @@ EFDRC.addListeners = function(e, fld){
             el.setAttribute("contenteditable", "false");
         }
         if(el.hasAttribute("data-EFDRCval")){
+            EFDRC.cleanResize(el)
             pycmd("EFDRC#" + el.getAttribute("data-EFDRCval") + "#" + el.getAttribute("data-EFDRCfield") + "#" + el.innerHTML);
             pycmd("EFDRC!reload");
         }else{
@@ -170,7 +170,14 @@ EFDRC.addListeners = function(e, fld){
             }
         }
 
-
+        if(event.code == "KeyS" && event.altKey 
+        && !event.shiftKey && !event.ctrlKey && !event.metaKey){
+            //image resizer
+            EFDRC.resizeImageMode = !EFDRC.resizeImageMode;
+            EFDRC.maybeResizeOrClean()
+            event.preventDefault();
+            event.stopPropagation();
+        }
 
         if(ctrlKey){
             //cloze deletion, onCloze from aqt.editor

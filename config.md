@@ -6,6 +6,10 @@
 
 - process_paste: When pasting, save images locally, strip unnecessary HTML formatting, etc. Experimental and officially only support 2.1.19. Set it to `false` if you encounter errors regarding `editorwv` on paste.  Default: `true`.
 
+- resize_image_default_state: Whether image resizing mode is toggled by default. You can press `Alt + S` (`Opt + S` on macOS) to toggle image resizing mode. Default: `true`. 
+
+- resize_image_preserve_ratio: Whether resizing with south-east corner should preserve image ratio. Default: `true`. 
+
 - remove_span: When editing on reviewer, will remove all span tags. If you rely on span tags, do not set this to true or they will all be deleted. Most users who don't need span tags are recommended to set it to `true`. Default: `false`.
 
 - tag: Which HTML tag to use for editable field. Default: `div`.
@@ -13,7 +17,6 @@
 - undo: Whether the last field edit should be undo-able. Default: `true`.
 
 - z_special_formatting: Shortcuts for special formattings. Possible choices are written below, and its corresponding shortcuts. Set `false` to `true` to enable each, and `true` to `false` to disable.
-
 
 
 #### Special Formatting options
