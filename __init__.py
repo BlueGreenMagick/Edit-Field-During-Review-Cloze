@@ -9,10 +9,10 @@ from pathlib import Path
 from anki import version as ankiversion
 from anki.hooks import addHook, wrap
 from anki.utils import htmlToTextLine
-from aqt import mw
+from aqt import gui_hooks, mw
 from aqt.editor import Editor
 from aqt.qt import QClipboard
-from aqt.reviewer import Reviewer
+from aqt.reviewer import Reviewer, ReviewerBottomBar
 from aqt.utils import showText, tooltip
 
 from .semieditor import semiEditorWebView
@@ -148,11 +148,12 @@ def myRevHtml(reviewer, _old):
     return _old(reviewer) + js + css
 
 
-def myRevBottomHTML(reviewer, _old):
+def myRevBottomHTML(web_content, context):
+    if not isinstance(context, ReviewerBottomBar):
+        return
     ctrl = bool_to_str(config["ctrl_click"])
     script = BOTTOMJS % ({"ctrl": ctrl})
-
-    return _old(reviewer) + script
+    web_content.head += script
 
 
 def edit(txt, extra, context, field, fullname):
@@ -276,7 +277,7 @@ def myLinkHandler(reviewer, url, _old):
         return _old(reviewer, url)
 
 
-Reviewer._bottomHTML = wrap(Reviewer._bottomHTML, myRevBottomHTML, "around")
+gui_hooks.webview_will_set_content.append(myRevBottomHTML)
 Reviewer.revHtml = wrap(Reviewer.revHtml, myRevHtml, "around")
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
 addHook('fmod_edit', edit)
