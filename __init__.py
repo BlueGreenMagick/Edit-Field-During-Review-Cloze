@@ -46,6 +46,18 @@ editorwv = semiEditorWebView()
 def config_make_valid():
     global config
 
+    changed = False
+
+    # Once a boolean, Now a number.
+    resize_conf = config["resize_image_preserve_ratio"]
+    if isinstance(resize_conf, bool):
+        if resize_conf:
+            config["resize_image_preserve_ratio"] = 1
+        else:
+            config["resize_image_preserve_ratio"] = 0
+        changed = True
+
+
     sfmt = config["z_special_formatting"]
     default_sfmt = {
         "removeformat": True,
@@ -66,8 +78,6 @@ def config_make_valid():
         "justifyRight": False,
         "justifyFull": False
     }
-
-    changed = False
 
     # Remove wrong key.
     key_to_pop = []
@@ -121,7 +131,7 @@ def myRevHtml(reviewer, _old):
     js += GLOBALCARDJS % ({"span": span, "ctrl": ctrl, "paste": paste,
                           "remove_span": rem_span, "special": special})
 
-    preserve_ratio = bool_to_str(config["resize_image_preserve_ratio"])
+    preserve_ratio = config["resize_image_preserve_ratio"]
     resize_state = bool_to_str(config["resize_image_default_state"])
     css += RESIZECSS
     js += JQUERYUIJS

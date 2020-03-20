@@ -6,7 +6,7 @@
   "tag": "div",
   "undo": true,
   "resize_image_default_state": true,
-  "resize_image_preserve_ratio": true,
+  "resize_image_preserve_ratio": 2,
   "z_special_formatting":{
     "fontcolor": [true, "#00f"],
     "formatblock": [false,"pre"],
