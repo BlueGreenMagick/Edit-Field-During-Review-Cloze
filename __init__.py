@@ -116,7 +116,9 @@ def new_fld_hook(txt, field, filt, ctx):
 # hooks.field_filter.append(new_fld_hook)
 
 
-def myRevHtml(reviewer, _old):
+def myRevHtml(web_content, reviewer):
+    if not isinstance(reviewer, Reviewer):
+        return
     global config
     config = mw.addonManager.getConfig(__name__)
     config_make_valid()
@@ -145,7 +147,7 @@ def myRevHtml(reviewer, _old):
     if config["outline"]:
         css += "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
 
-    return _old(reviewer) + js + css
+    web_content.head += js + css
 
 
 def myRevBottomHTML(web_content, context):
@@ -288,5 +290,5 @@ def myLinkHandler(handled, url, reviewer):
 
 gui_hooks.webview_will_set_content.append(myRevBottomHTML)
 gui_hooks.webview_did_receive_js_message.append(myLinkHandler)
-Reviewer.revHtml = wrap(Reviewer.revHtml, myRevHtml, "around")
+gui_hooks.webview_will_set_content.append(myRevHtml)
 addHook('fmod_edit', edit)
