@@ -38,7 +38,6 @@ DIRPATH = Path(__file__).parents[0]
 CARDJS = js_from_path(DIRPATH / "card.js")
 GLOBALCARDJS = js_from_path(DIRPATH / "global_card.js")
 RESIZEJS = js_from_path(DIRPATH / "resize.js")
-JQUERYUIJS = js_from_path(DIRPATH / "jquery-ui.min.js")
 RESIZECSS = css_from_path(DIRPATH / "resize.css")
 BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
 
@@ -137,7 +136,7 @@ def myRevHtml(web_content, reviewer):
     preserve_ratio = config["resize_image_preserve_ratio"]
     resize_state = bool_to_str(config["resize_image_default_state"])
     css += RESIZECSS
-    js += JQUERYUIJS
+    web_content.js.append("jquery-ui.js")
     js += RESIZEJS % ({"preserve_ratio": preserve_ratio,
                        "resize_state": resize_state})
 
