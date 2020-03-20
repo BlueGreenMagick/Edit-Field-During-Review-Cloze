@@ -121,12 +121,14 @@ def myRevHtml(web_content, reviewer):
     css = ""
 
     span = bool_to_str(config["tag"])
-    ctrl = bool_to_str(config["ctrl_click"])
+    ctrl = config["ctrl_click"]
     paste = bool_to_str(config["process_paste"])
     rem_span = bool_to_str(config["remove_span"])
     special = json.dumps(config["z_special_formatting"])
-    js += GLOBALCARDJS % ({"span": span, "ctrl": ctrl, "paste": paste,
+    js += GLOBALCARDJS % ({"span": span, "paste": paste,
                            "remove_span": rem_span, "special": special})
+    if ctrl:
+        web_content.js.append(f"/_addons/{addon_package}/global_card_ctrl.js")
 
     preserve_ratio = config["resize_image_preserve_ratio"]
     resize_state = bool_to_str(config["resize_image_default_state"])

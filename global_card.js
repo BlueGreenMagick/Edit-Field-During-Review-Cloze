@@ -1,6 +1,5 @@
 window.EFDRC = {}
 
-EFDRC.CTRL = "%(ctrl)s"; //bool
 EFDRC.PASTE = "%(paste)s"; //bool
 EFDRC.SPAN = "%(span)s"; //bool
 EFDRC.REMSPAN = "%(remove_span)s"; //bool
@@ -245,19 +244,5 @@ EFDRC.addListeners = function(e, fld){
             }
         }
 
-    })
-}
-
-if(EFDRC.CTRL){
-    window.addEventListener('keydown',function(event){
-        if(["ControlLeft", "MetaLeft"].includes(event.code)){
-            EFDRC.ctrldown();
-        }   
-    })
-
-    window.addEventListener('keyup',function(event){
-        if(["ControlLeft", "MetaLeft"].includes(event.code)){
-            EFDRC.ctrlup();
-        }    
     })
 }
