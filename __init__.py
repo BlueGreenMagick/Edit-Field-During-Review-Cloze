@@ -33,7 +33,6 @@ def js_from_path(path):
 DIRPATH = Path(__file__).parents[0]
 
 CARDJS = js_from_path(DIRPATH / "card.js")
-GLOBALCARDJS = js_from_path(DIRPATH / "global_card.js")
 RESIZEJS = js_from_path(DIRPATH / "resize.js")
 
 editorwv = semiEditorWebView()
@@ -125,10 +124,17 @@ def myRevHtml(web_content, reviewer):
     paste = bool_to_str(config["process_paste"])
     rem_span = bool_to_str(config["remove_span"])
     special = json.dumps(config["z_special_formatting"])
-    js += GLOBALCARDJS % ({"span": span, "paste": paste,
-                           "remove_span": rem_span, "special": special})
+    web_content.js.append(f"/_addons/{addon_package}/global_card.js")
     if ctrl:
         web_content.js.append(f"/_addons/{addon_package}/global_card_ctrl.js")
+
+    js += f"""<script>
+EFDRC.PASTE = "{paste}"; //bool
+EFDRC.SPAN = "{span}"; //bool
+EFDRC.REMSPAN = "{rem_span}"; //bool
+EFDRC.SPECIAL = JSON.parse(`{special}`) //array of array
+</script>
+    """
 
     preserve_ratio = config["resize_image_preserve_ratio"]
     resize_state = bool_to_str(config["resize_image_default_state"])
@@ -201,6 +207,7 @@ def saveThenRefreshFld(reviewer, note, fld, new_val):
 def myLinkHandler(handled, url, reviewer):
     if not isinstance(reviewer, Reviewer):
         return handled
+
     if url.startswith("EFDRC#"):
         ERROR_MSG = "ERROR - Edit Field During Review Cloze\nSomething unexpected occured. The edit may not have been saved. %s"
         enc_val, fld, new_val = url.replace("EFDRC#", "").split("#", 2)
@@ -224,6 +231,7 @@ def myLinkHandler(handled, url, reviewer):
         decoded_fld = base64.b64decode(fld, validate=True).decode('utf-8')
         val = reviewer.card.note()[decoded_fld]
         encoded_val = base64.b64encode(val.encode('utf-8')).decode('ascii')
+        print(f"encoded_val: «{encoded_val}»")
         reviewer.web.eval("""
         var encoded_val = "%s";
         var val = EFDRC.b64DecodeUnicode(encoded_val);
