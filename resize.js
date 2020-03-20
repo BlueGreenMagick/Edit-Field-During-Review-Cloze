@@ -67,6 +67,8 @@ EFDRC.resizeImage = async function (idx, img) {
                 computedStyle = window.getComputedStyle(img);
                 ui.element.css("max-width", computedStyle.maxWidth);
                 ui.element.css("max-height", computedStyle.maxHeight);
+                $img.css("max-width", "100%%"); // escape percentage because string formatter
+                $img.css("max-height", "100%%");
                 if (parseFloat(computedStyle.minWidth)) { // not 0
                     ui.element.css("min-width", computedStyle.minWidth);
                 }
