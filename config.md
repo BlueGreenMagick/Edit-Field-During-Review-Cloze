@@ -8,7 +8,7 @@
 
 - resize_image_default_state: Whether image resizing mode is toggled by default. You can press `Alt + S` (`Opt + S` on macOS) to toggle image resizing mode. Default: `true`. 
 
-- resize_image_preserve_ratio: `0`: Don't preserve ratio, `1`: Only preserve ratio when using corner to resize, `2`: Always preserve ratio. Mode `2` is recommended for those also using smartphones to review Anki cards. Default: `2`.
+- resize_image_preserve_ratio: `0`: Don't preserve ratio, `1`: Only preserve ratio when using corner to resize, `2`: Always preserve ratio. If you change aspect ratio, the ratio may change again in AnkiDroid or AnkiMobile as the width shrink to fit the small screen size. Default: `2`.
 
 - remove_span: When editing on reviewer, will remove all span tags. If you rely on span tags, do not set this to true or they will all be deleted. Most users who don't need span tags are recommended to set it to `true`. Default: `false`.
 
