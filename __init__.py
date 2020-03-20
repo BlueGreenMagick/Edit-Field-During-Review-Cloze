@@ -33,7 +33,6 @@ def js_from_path(path):
 DIRPATH = Path(__file__).parents[0]
 
 CARDJS = js_from_path(DIRPATH / "card.js")
-RESIZEJS = js_from_path(DIRPATH / "resize.js")
 
 editorwv = semiEditorWebView()
 
@@ -140,8 +139,13 @@ EFDRC.SPECIAL = JSON.parse(`{special}`) //array of array
     resize_state = bool_to_str(config["resize_image_default_state"])
     web_content.css.append(f"/_addons/{addon_package}/resize.css")
     web_content.js.append("jquery-ui.js")
-    js += RESIZEJS % ({"preserve_ratio": preserve_ratio,
-                       "resize_state": resize_state})
+    js += f"""<script>
+EFDRC.preserve_ratio = parseInt("{preserve_ratio}");
+EFDRC.DEFAULTRESIZE = "{resize_state}";
+EFDRC.resizeImageMode = EFDRC.DEFAULTRESIZE;
+</script>
+    """
+    web_content.js.append(f"/_addons/{addon_package}/resize.js")
 
     if config["process_paste"]:
         web_content.js.append(f"/_addons/{addon_package}/paste.js")
