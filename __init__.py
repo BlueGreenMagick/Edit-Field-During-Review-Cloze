@@ -23,8 +23,9 @@ ankiver_minor = int(ankiversion.split('.')[2])
 ankiver_major = ankiversion[0:3]
 addon_package = mw.addonManager.addonFromModule(__name__)
 
-
 # Get js files.
+
+
 def js_from_path(path):
     return "<script>" + path.read_text() + "</script>"
 
@@ -34,7 +35,6 @@ DIRPATH = Path(__file__).parents[0]
 CARDJS = js_from_path(DIRPATH / "card.js")
 GLOBALCARDJS = js_from_path(DIRPATH / "global_card.js")
 RESIZEJS = js_from_path(DIRPATH / "resize.js")
-BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
 
 editorwv = semiEditorWebView()
 
@@ -144,12 +144,12 @@ def myRevHtml(web_content, reviewer):
     web_content.head += js + css
 
 
-def myRevBottomHTML(web_content, context):
-    if not isinstance(context, ReviewerBottomBar):
+def myRevBottomHTML(web_content, reviewer_bottom_bar):
+    if not isinstance(reviewer_bottom_bar, ReviewerBottomBar):
         return
-    ctrl = bool_to_str(config["ctrl_click"])
-    script = BOTTOMJS % ({"ctrl": ctrl})
-    web_content.head += script
+    ctrl = config["ctrl_click"]
+    if ctrl:
+        web_content.js.append(f"/_addons/{addon_package}/bottom.js")
 
 
 def edit(txt, extra, context, field, fullname):

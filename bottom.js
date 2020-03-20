@@ -3,9 +3,7 @@
     So this code catches ctrl key presses when focus in on bottom.web
 */
 
-CTRL = "%(ctrl)s";
-
-if(typeof EFDRConctrlkey != "function" && CTRL){
+if(typeof EFDRConctrlkey != "function"){
     window.EFDRConctrlkey = function(){
         window.addEventListener('keydown',function(event){
             if(["ControlLeft", "MetaLeft"].includes(event.code)){
