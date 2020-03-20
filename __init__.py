@@ -200,7 +200,9 @@ def saveThenRefreshFld(reviewer, note, fld, new_val):
         reviewer.card.render_output(reload=True)
 
 
-def myLinkHandler(reviewer, url, _old):
+def myLinkHandler(handled, url, reviewer):
+    if not isinstance(reviewer, Reviewer):
+        return handled
     if url.startswith("EFDRC#"):
         ERROR_MSG = "ERROR - Edit Field During Review Cloze\nSomething unexpected occured. The edit may not have been saved. %s"
         enc_val, fld, new_val = url.replace("EFDRC#", "").split("#", 2)
@@ -215,6 +217,7 @@ def myLinkHandler(reviewer, url, _old):
             saveThenRefreshFld(reviewer, note, fld, new_val)
         else:
             tooltip(ERROR_MSG % fld)
+        return (True, None)
 
     # Replace reviewer field html if it is different from real field value.
     # For example, clozes, mathjax, audio.
@@ -249,18 +252,22 @@ def myLinkHandler(reviewer, url, _old):
                 clearTimeout(autoAgainTimeout);
             }
         """)
+        return (True, None)
 
     elif url == "EFDRC!reload":
         if reviewer.state == "question":
             reviewer._showQuestion()
         elif reviewer.state == "answer":
             reviewer._showAnswer()
+        return (True, None)
 
     # Catch ctrl key presses from bottom.web.
     elif url == "EFDRC!ctrldown":
         reviewer.web.eval("EFDRC.ctrldown()")
+        return (True, None)
     elif url == "EFDRC!ctrlup":
         reviewer.web.eval("EFDRC.ctrlup()")
+        return (True, None)
 
     elif url == "EFDRC!paste":
         # From aqt.editor.Editor._onPaste, doPaste.
@@ -269,15 +276,17 @@ def myLinkHandler(reviewer, url, _old):
         html = editorwv.editor._pastePreFilter(html, internal)
         reviewer.web.eval("pasteHTML(%s, %s);" %
                           (json.dumps(html), json.dumps(internal)))
+        return (True, None)
 
     elif url.startswith("EFDRC!debug#"):
         fld = url.replace("EFDRC!debug#", "")
         showText(fld)
+        return (True, None)
     else:
-        return _old(reviewer, url)
+        return handled
 
 
 gui_hooks.webview_will_set_content.append(myRevBottomHTML)
+gui_hooks.webview_did_receive_js_message.append(myLinkHandler)
 Reviewer.revHtml = wrap(Reviewer.revHtml, myRevHtml, "around")
-Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
 addHook('fmod_edit', edit)
