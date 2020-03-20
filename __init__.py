@@ -29,16 +29,11 @@ def js_from_path(path):
     return "<script>" + path.read_text() + "</script>"
 
 
-def css_from_path(path):
-    return "<style>" + path.read_text() + "</style>"
-
-
 DIRPATH = Path(__file__).parents[0]
 
 CARDJS = js_from_path(DIRPATH / "card.js")
 GLOBALCARDJS = js_from_path(DIRPATH / "global_card.js")
 RESIZEJS = js_from_path(DIRPATH / "resize.js")
-RESIZECSS = css_from_path(DIRPATH / "resize.css")
 BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
 
 editorwv = semiEditorWebView()
@@ -135,7 +130,7 @@ def myRevHtml(web_content, reviewer):
 
     preserve_ratio = config["resize_image_preserve_ratio"]
     resize_state = bool_to_str(config["resize_image_default_state"])
-    css += RESIZECSS
+    web_content.css.append(f"/_addons/{addon_package}/resize.css")
     web_content.js.append("jquery-ui.js")
     js += RESIZEJS % ({"preserve_ratio": preserve_ratio,
                        "resize_state": resize_state})
