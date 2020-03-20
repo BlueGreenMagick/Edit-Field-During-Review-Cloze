@@ -26,6 +26,8 @@ ankiver_major = ankiversion[0:3]
 # Get js files.
 def js_from_path(path):
     return "<script>" + path.read_text() + "</script>"
+
+
 def css_from_path(path):
     return "<style>" + path.read_text() + "</style>"
 
@@ -56,7 +58,6 @@ def config_make_valid():
         else:
             config["resize_image_preserve_ratio"] = 0
         changed = True
-
 
     sfmt = config["z_special_formatting"]
     default_sfmt = {
@@ -89,7 +90,7 @@ def config_make_valid():
     for key in key_to_pop:
         sfmt.pop(key)
 
-    # Add keys on update / wrong deletion. 
+    # Add keys on update / wrong deletion.
     for key in default_sfmt:
         if key not in sfmt:
             sfmt[key] = default_sfmt[key]
@@ -129,13 +130,14 @@ def myRevHtml(reviewer, _old):
     rem_span = bool_to_str(config["remove_span"])
     special = json.dumps(config["z_special_formatting"])
     js += GLOBALCARDJS % ({"span": span, "ctrl": ctrl, "paste": paste,
-                          "remove_span": rem_span, "special": special})
+                           "remove_span": rem_span, "special": special})
 
     preserve_ratio = config["resize_image_preserve_ratio"]
     resize_state = bool_to_str(config["resize_image_default_state"])
     css += RESIZECSS
     js += JQUERYUIJS
-    js += RESIZEJS % ({"preserve_ratio": preserve_ratio, "resize_state": resize_state});
+    js += RESIZEJS % ({"preserve_ratio": preserve_ratio,
+                       "resize_state": resize_state})
 
     if config["process_paste"]:
         js += PASTEJS
@@ -246,7 +248,7 @@ def myLinkHandler(reviewer, url, _old):
                 clearTimeout(autoAgainTimeout);
             }
         """)
-        
+
     elif url == "EFDRC!reload":
         if reviewer.state == "question":
             reviewer._showQuestion()
