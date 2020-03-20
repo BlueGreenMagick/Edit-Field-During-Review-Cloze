@@ -38,14 +38,17 @@ EFDRC.ratioShouldBePreserved = function (event) {
     }
 }
 
-EFDRC.maybeRemoveHeight = function (img) {
-    $img = $(img)
+EFDRC.maybeRemoveHeight = function (img, $img, ui) {
     if (!img.naturalHeight) { return; }
     var originalRatio = img.naturalWidth / img.naturalHeight;
     var currentRatio = $img.width() / $img.height();
-    if (Math.abs(originalRatio - currentRatio) < 0.01) {
+    if (Math.abs(originalRatio - currentRatio) < 0.01 || EFDRC.preserve_ratio == 2) {
         $img.css("height", "");
+        if(ui){
+            ui.element.css("height", $img.height());
+        }
     }
+
 }
 
 EFDRC.resizeImage = async function (idx, img) {
@@ -61,7 +64,7 @@ EFDRC.resizeImage = async function (idx, img) {
     if ($img.resizable("instance") == undefined) { // just in case?
         var aspRatio = (EFDRC.preserve_ratio == 2);
         var computedStyle = window.getComputedStyle(img);
-        
+
         $img.resizable({
             start: function (event, ui) {
                 if (EFDRC.ratioShouldBePreserved(event)) {
@@ -74,7 +77,6 @@ EFDRC.resizeImage = async function (idx, img) {
                 EFDRC.maybeRemoveHeight(img, $img, ui); // this might not be working
             },
             resize: function (event, ui) {
-                //I'm not sure if this is working, but too tired to care
                 if (EFDRC.ratioShouldBePreserved(event)) {
                     EFDRC.maybeRemoveHeight(img, $img, ui);
                 }
@@ -126,7 +128,7 @@ EFDRC.cleanResize = function (field) {
     }
     var imgs = field.querySelectorAll("[data-EFDRCImgId]");
     for (var x = 0; x < imgs.length; x++) {
-        EFDRC.maybeRemoveHeight(imgs[x])
+        EFDRC.maybeRemoveHeight(imgs[x], $(imgs[x]))
         EFDRC.restorePriorImg(imgs[x]);
     }
     EFDRC.priorImgs = [];
