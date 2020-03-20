@@ -21,6 +21,7 @@ config = mw.addonManager.getConfig(__name__)
 
 ankiver_minor = int(ankiversion.split('.')[2])
 ankiver_major = ankiversion[0:3]
+addon_package = mw.addonManager.addonFromModule(__name__)
 
 
 # Get js files.
@@ -39,7 +40,6 @@ GLOBALCARDJS = js_from_path(DIRPATH / "global_card.js")
 RESIZEJS = js_from_path(DIRPATH / "resize.js")
 JQUERYUIJS = js_from_path(DIRPATH / "jquery-ui.min.js")
 RESIZECSS = css_from_path(DIRPATH / "resize.css")
-PASTEJS = js_from_path(DIRPATH / "paste.js")
 BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
 
 editorwv = semiEditorWebView()
@@ -142,7 +142,7 @@ def myRevHtml(web_content, reviewer):
                        "resize_state": resize_state})
 
     if config["process_paste"]:
-        js += PASTEJS
+        web_content.js.append(f"/_addons/{addon_package}/paste.js")
 
     if config["outline"]:
         css += "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
