@@ -60,21 +60,10 @@ EFDRC.resizeImage = async function (idx, img) {
     var $img = $(img);
     if ($img.resizable("instance") == undefined) { // just in case?
         var aspRatio = (EFDRC.preserve_ratio == 2);
+        var computedStyle = window.getComputedStyle(img);
+        
         $img.resizable({
             start: function (event, ui) {
-                //passing maxWidth to resizable doesn't work because
-                //it only takes in pixel values
-                computedStyle = window.getComputedStyle(img);
-                ui.element.css("max-width", computedStyle.maxWidth);
-                ui.element.css("max-height", computedStyle.maxHeight);
-                $img.css("max-width", "100%%"); // escape percentage because string formatter
-                $img.css("max-height", "100%%");
-                if (parseFloat(computedStyle.minWidth)) { // not 0
-                    ui.element.css("min-width", computedStyle.minWidth);
-                }
-                if (parseFloat(computedStyle.minHeight)) {
-                    ui.element.css("min-height", computedStyle.minHeight);
-                }
                 if (EFDRC.ratioShouldBePreserved(event)) {
                     //preserve ratio when using corner point to resize
                     $img.resizable("option", "aspectRatio", true).data('ui-resizable')._aspectRatio = true;
@@ -98,6 +87,20 @@ EFDRC.resizeImage = async function (idx, img) {
             minWidth: 15,
             aspectRatio: aspRatio
         });
+
+        //passing maxWidth to resizable doesn't work because
+        //it only takes in pixel values
+        var ui = $img.resizable("instance");
+        ui.element.css("max-width", computedStyle.maxWidth);
+        ui.element.css("max-height", computedStyle.maxHeight);
+        $img.css("max-width", "100%%"); // escape percentage because string formatter
+        $img.css("max-height", "100%%");
+        if (parseFloat(computedStyle.minWidth)) { // not 0
+            ui.element.css("min-width", computedStyle.minWidth);
+        }
+        if (parseFloat(computedStyle.minHeight)) {
+            ui.element.css("min-height", computedStyle.minHeight);
+        }
 
         $img.dblclick(EFDRC.onDblClick);
         var $divUi = $img.parents("div[class=ui-wrapper]");
