@@ -169,8 +169,7 @@ def edit(txt, extra, context, field, fullname):
 
     # Encode field to escape special characters.
     field = base64.b64encode(field.encode('utf-8')).decode('ascii')
-    txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
-        config['tag'], field, txt, config['tag'])
+    txt = f"""<{config['tag']} data-EFDRCfield="{field}" data-EFDRC="true">{txt}</{config['tag']}>"""
     txt += CARDJS % ({"fld": field})
     return txt
 
@@ -236,31 +235,31 @@ def myLinkHandler(handled, url, reviewer):
         val = reviewer.card.note()[decoded_fld]
         encoded_val = base64.b64encode(val.encode('utf-8')).decode('ascii')
         print(f"encoded_val: «{encoded_val}»")
-        reviewer.web.eval("""
-        var encoded_val = "%s";
+        reviewer.web.eval(f"""
+        var encoded_val = "{encoded_val}";
         var val = EFDRC.b64DecodeUnicode(encoded_val);
-        var elems = document.querySelectorAll("[data-EFDRCfield='%s']")
-        for(var e = 0; e < elems.length; e++){
+        var elems = document.querySelectorAll("[data-EFDRCfield='{fld}']")
+        for(var e = 0; e < elems.length; e++){{
             var elem = elems[e];
             elem.setAttribute("data-EFDRCval", encoded_val);
-            if(elem.innerHTML != val){
+            if(elem.innerHTML != val){{
                 elem.innerHTML = val;
-            }
-        }
+            }}
+        }}
         EFDRC.maybeResizeOrClean(true);
-        """ % (encoded_val, fld,))
+        """)
 
         # Reset timer from Speed Focus Mode add-on.
         reviewer.bottom.web.eval("""
-            if (typeof autoAnswerTimeout !== 'undefined') {
+            if (typeof autoAnswerTimeout !== 'undefined') {{
                 clearTimeout(autoAnswerTimeout);
-            }
-            if (typeof autoAlertTimeout !== 'undefined') {
+            }}
+            if (typeof autoAlertTimeout !== 'undefined') {{
                 clearTimeout(autoAlertTimeout);
-            }
-            if (typeof autoAgainTimeout !== 'undefined') {
+            }}
+            if (typeof autoAgainTimeout !== 'undefined') {{
                 clearTimeout(autoAgainTimeout);
-            }
+            }}
         """)
         return (True, None)
 
@@ -284,8 +283,8 @@ def myLinkHandler(handled, url, reviewer):
         mime = mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
         html, internal = editorwv._processMime(mime)
         html = editorwv.editor._pastePreFilter(html, internal)
-        reviewer.web.eval("pasteHTML(%s, %s);" %
-                          (json.dumps(html), json.dumps(internal)))
+        reviewer.web.eval(
+            f"pasteHTML({json.dumps(html)}, {json.dumps(internal)});")
         return (True, None)
 
     elif url.startswith("EFDRC!debug#"):
