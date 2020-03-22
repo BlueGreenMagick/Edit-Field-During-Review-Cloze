@@ -129,9 +129,36 @@ EFDRC.addListeners = function(e, fld){
     }
 
     e.addEventListener('focus', function(event){
+        if(typeof showTooltip == "function" && typeof showTooltip2 == "undefined"){
+            // Disable Popup Dictionary addon tooltip on double mouse click.
+            // Using hotkey should still work however.
+            showTooltip2 = showTooltip;
+            showTooltip = function(event, tooltip, element){
+                EFDRC.tooltip = {
+                    ev: event,
+                    tt: tooltip,
+                    el: element
+                };
+            }; 
+            showTooltip.hide = function(){};
+            invokeTooltipAtSelectedElm2 = invokeTooltipAtSelectedElm;
+            invokeTooltipAtSelectedElm = function(){
+                invokeTooltipAtSelectedElm2();
+                showTooltip2(EFDRC.tooltip.ev, EFDRC.tooltip.tt, EFDRC.tooltip.el);
+            }
+        }
+        
         pycmd("EFDRC!focuson#" + fld);
     })
     e.addEventListener('blur',function(event){
+        if(typeof showTooltip2 == "function"){
+            // Restore Popup Dictionary 
+            showTooltip = showTooltip2;
+            delete showTooltip2;
+            invokeTooltipAtSelectedElm = invokeTooltipAtSelectedElm2;
+            delete invokeTooltipAtSelectedElm2;
+        }
+        
         var el = event.currentTarget;
         if(EFDRC.REMSPAN){
             EFDRC.removeSpan(el);
