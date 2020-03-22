@@ -8,6 +8,7 @@ from pathlib import Path
 
 from anki import version as ankiversion
 from anki.hooks import addHook, wrap
+from anki import hooks
 from anki.utils import htmlToTextLine
 from aqt import mw
 from aqt.editor import Editor
@@ -152,8 +153,16 @@ def myRevBottomHTML(reviewer, _old):
 
     return _old(reviewer) + script
 
+def edit_everywhere(field_text, node):
+    return edit(field_text, node.field_name)
 
-def edit(txt, extra, context, field, fullname):
+def edit_one(txt, extra, context, field, fullname):
+    if not config["apply everywhere"]:
+        return edit(txt, field)
+    else:
+        return txt
+
+def edit(txt, field):
     ctrl = bool_to_str(config["ctrl_click"])
 
     # Encode field to escape special characters.
@@ -277,4 +286,6 @@ def myLinkHandler(reviewer, url, _old):
 Reviewer._bottomHTML = wrap(Reviewer._bottomHTML, myRevBottomHTML, "around")
 Reviewer.revHtml = wrap(Reviewer.revHtml, myRevHtml, "around")
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
-addHook('fmod_edit', edit)
+addHook('fmod_edit', edit_one)
+if config["apply everywhere"]:
+    hooks.template_filter_all_fields.append(edit_everywhere)

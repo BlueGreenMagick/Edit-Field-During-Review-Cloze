@@ -3,6 +3,11 @@
   "type": "object",
   "title": "Edit Field During Review Cloze",
   "properties": {
+    "apply everywhere": {
+      "type": "boolean",
+      "description": "If set to `true`, all fields are editable.",
+      "default": false
+    },
     "ctrl_click": {
       "type": "boolean",
       "title": "Ctrl click",

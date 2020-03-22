@@ -1,4 +1,5 @@
 {
+  "apply everywhere": false,
   "ctrl_click":false,
   "outline": true,
   "process_paste": true,

@@ -1,5 +1,7 @@
 ## Config Options
 
+- apply everywhere: If set to `true`, all fields are editable.
+
 - ctrl_click: If set to `true`, ctrl+click on a field to edit. Default: `false`.
 
 - outline: If set to `true`, add a blue outline around the field when it is in edit mode. Default, `true`.
