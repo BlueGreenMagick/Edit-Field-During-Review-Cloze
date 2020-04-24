@@ -15,7 +15,7 @@ from aqt.utils import showText, tooltip
 from .semieditor import semiEditorWebView
 from .config import config_make_valid
 
-
+ERROR_MSG = "ERROR - Edit Field During Review Cloze\n{}"
 config = mw.addonManager.getConfig(__name__)
 
 ankiver_minor = int(ankiversion.split('.')[2])
@@ -150,19 +150,19 @@ def saveThenRefreshFld(reviewer, note, fld, new_val):
 
 def myLinkHandler(reviewer, url, _old):
     if url.startswith("EFDRC#"):
-        ERROR_MSG = "ERROR - Edit Field During Review Cloze\nSomething unexpected occured. The edit may not have been saved. %s"
+        errmsg = "Something unexpected occured. The edit may not have been saved. Field: {}"
         enc_val, fld, new_val = url.replace("EFDRC#", "").split("#", 2)
         note = reviewer.card.note()
         fld = base64.b64decode(fld, validate=True).decode('utf-8')
         if fld not in note:
-            tooltip(ERROR_MSG % fld)
+            tooltip(ERROR_MSG.format(errmsg.format(fld)))
         orig_val = get_value(note, fld)
         orig_enc_val = base64.b64encode(
             orig_val.encode('utf-8')).decode('ascii')
         if enc_val == orig_enc_val:  # enc_val may be the val of prev reviewed card.
             saveThenRefreshFld(reviewer, note, fld, new_val)
         else:
-            tooltip(ERROR_MSG % fld)
+            tooltip(ERROR_MSG.format(errmsg.format(fld)))
 
     # Replace reviewer field html if it is different from real field value.
     # For example, clozes, mathjax, audio.
@@ -172,8 +172,7 @@ def myLinkHandler(reviewer, url, _old):
         try:
             val = get_value(reviewer.card.note(), decoded_fld)
         except KeyError as e:
-            ERROR_MSG = f"ERROR - Edit Field During Review Cloze\n{e.message}"
-            tooltip(ERROR_MSG)
+            tooltip(ERROR_MSG.format(e.message))
             return
         encoded_val = base64.b64encode(val.encode('utf-8')).decode('ascii')
         reviewer.web.eval("""
