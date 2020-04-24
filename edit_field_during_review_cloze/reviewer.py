@@ -194,19 +194,21 @@ def myLinkHandler(reviewer, url, _old):
         encoded_val = base64.b64encode(val.encode("utf-8")).decode("ascii")
         reviewer.web.eval(
         """
-        var encoded_val = "%s";
-        var nid = %d;
-        var val = EFDRC.b64DecodeUnicode(encoded_val);
-        var elems = document.querySelectorAll("[data-EFDRCfield='%s']")
-        for(var e = 0; e < elems.length; e++){
-            var elem = elems[e];
-            elem.setAttribute("data-EFDRCval", encoded_val);
-            elem.setAttribute("data-EFDRCnid", nid);
-            if(elem.innerHTML != val){
-                elem.innerHTML = val;
+        (function(){
+            var encoded_val = "%s";
+            var nid = %d;
+            var val = EFDRC.b64DecodeUnicode(encoded_val);
+            var elems = document.querySelectorAll("[data-EFDRCfield='%s']")
+            for(var e = 0; e < elems.length; e++){
+                var elem = elems[e];
+                elem.setAttribute("data-EFDRCval", encoded_val);
+                elem.setAttribute("data-EFDRCnid", nid);
+                if(elem.innerHTML != val){
+                    elem.innerHTML = val;
+                }
             }
-        }
-        EFDRC.maybeResizeOrClean(true);
+            EFDRC.maybeResizeOrClean(true);
+        })()
         """
             % (encoded_val, note.id, fld)
         )
