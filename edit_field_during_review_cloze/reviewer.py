@@ -131,6 +131,14 @@ def saveField(note, fld, val):
         note[fld] = txt
     note.flush()
 
+def get_value(note, fld):
+    if fld == "Tags":
+        return note.tags
+    if fld in note:
+        return note[fld]
+    else:
+        raise KeyError(f"Field {fld} not found in note. Please check your note type.")
+
 
 def saveThenRefreshFld(reviewer, note, fld, new_val):
     saveField(note, fld, new_val)
@@ -148,7 +156,7 @@ def myLinkHandler(reviewer, url, _old):
         fld = base64.b64decode(fld, validate=True).decode('utf-8')
         if fld not in note:
             tooltip(ERROR_MSG % fld)
-        orig_val = note[fld]
+        orig_val = get_value(note, fld)
         orig_enc_val = base64.b64encode(
             orig_val.encode('utf-8')).decode('ascii')
         if enc_val == orig_enc_val:  # enc_val may be the val of prev reviewed card.
@@ -161,7 +169,12 @@ def myLinkHandler(reviewer, url, _old):
     elif url.startswith("EFDRC!focuson#"):
         fld = url.replace("EFDRC!focuson#", "")
         decoded_fld = base64.b64decode(fld, validate=True).decode('utf-8')
-        val = reviewer.card.note()[decoded_fld]
+        try:
+            val = get_value(reviewer.card.note(), decoded_fld)
+        except KeyError as e:
+            ERROR_MSG = f"ERROR - Edit Field During Review Cloze\n{e.message}"
+            tooltip(ERROR_MSG)
+            return
         encoded_val = base64.b64encode(val.encode('utf-8')).decode('ascii')
         reviewer.web.eval("""
         var encoded_val = "%s";
