@@ -18,7 +18,7 @@ from .config import config_make_valid
 ERROR_MSG = "ERROR - Edit Field During Review Cloze\n{}"
 config = mw.addonManager.getConfig(__name__)
 
-ankiver_minor = int(ankiversion.split('.')[2])
+ankiver_minor = int(ankiversion.split(".")[2])
 ankiver_major = ankiversion[0:3]
 
 editorwv = semiEditorWebView()
@@ -27,6 +27,8 @@ editorwv = semiEditorWebView()
 # Get js files.
 def js_from_path(path):
     return "<script>" + path.read_text() + "</script>"
+
+
 def css_from_path(path):
     return "<style>" + path.read_text() + "</style>"
 
@@ -54,7 +56,9 @@ def bool_to_str(b):
 def new_fld_hook(txt, field, filt, ctx):
     if filt == "edit":
         return edit(txt, None, None, field, None)
-#from anki import hooks
+
+
+# from anki import hooks
 # hooks.field_filter.append(new_fld_hook)
 
 
@@ -71,14 +75,21 @@ def myRevHtml(reviewer, _old):
     paste = bool_to_str(config["process_paste"])
     rem_span = bool_to_str(config["remove_span"])
     special = json.dumps(config["z_special_formatting"])
-    js += GLOBALCARDJS % ({"span": span, "ctrl": ctrl, "paste": paste,
-                          "remove_span": rem_span, "special": special})
+    js += GLOBALCARDJS % (
+        {
+            "span": span,
+            "ctrl": ctrl,
+            "paste": paste,
+            "remove_span": rem_span,
+            "special": special,
+        }
+    )
 
     preserve_ratio = config["resize_image_preserve_ratio"]
     resize_state = bool_to_str(config["resize_image_default_state"])
     css += RESIZECSS
     js += JQUERYUIJS
-    js += RESIZEJS % ({"preserve_ratio": preserve_ratio, "resize_state": resize_state});
+    js += RESIZEJS % ({"preserve_ratio": preserve_ratio, "resize_state": resize_state})
 
     if config["process_paste"]:
         js += PASTEJS
@@ -100,9 +111,13 @@ def edit(txt, extra, context, field, fullname):
     ctrl = bool_to_str(config["ctrl_click"])
 
     # Encode field to escape special characters.
-    field = base64.b64encode(field.encode('utf-8')).decode('ascii')
+    field = base64.b64encode(field.encode("utf-8")).decode("ascii")
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
-        config['tag'], field, txt, config['tag'])
+        config["tag"],
+        field,
+        txt,
+        config["tag"],
+    )
     txt += CARDJS % ({"fld": field})
     return txt
 
@@ -122,7 +137,7 @@ def saveField(note, fld, val):
     if field == txt:
         return
 
-    if config['undo']:
+    if config["undo"]:
         mw.checkpoint("Edit Field")
 
     if fld == "Tags":
@@ -130,6 +145,7 @@ def saveField(note, fld, val):
     else:
         note[fld] = txt
     note.flush()
+
 
 def get_value(note, fld):
     if fld == "Tags":
@@ -150,15 +166,16 @@ def saveThenRefreshFld(reviewer, note, fld, new_val):
 
 def myLinkHandler(reviewer, url, _old):
     if url.startswith("EFDRC#"):
-        errmsg = "Something unexpected occured. The edit may not have been saved. Field: {}"
+        errmsg = (
+            "Something unexpected occured. The edit may not have been saved. Field: {}"
+        )
         enc_val, fld, new_val = url.replace("EFDRC#", "").split("#", 2)
         note = reviewer.card.note()
-        fld = base64.b64decode(fld, validate=True).decode('utf-8')
+        fld = base64.b64decode(fld, validate=True).decode("utf-8")
         if fld not in note:
             tooltip(ERROR_MSG.format(errmsg.format(fld)))
         orig_val = get_value(note, fld)
-        orig_enc_val = base64.b64encode(
-            orig_val.encode('utf-8')).decode('ascii')
+        orig_enc_val = base64.b64encode(orig_val.encode("utf-8")).decode("ascii")
         if enc_val == orig_enc_val:  # enc_val may be the val of prev reviewed card.
             saveThenRefreshFld(reviewer, note, fld, new_val)
         else:
@@ -168,14 +185,15 @@ def myLinkHandler(reviewer, url, _old):
     # For example, clozes, mathjax, audio.
     elif url.startswith("EFDRC!focuson#"):
         fld = url.replace("EFDRC!focuson#", "")
-        decoded_fld = base64.b64decode(fld, validate=True).decode('utf-8')
+        decoded_fld = base64.b64decode(fld, validate=True).decode("utf-8")
         try:
             val = get_value(reviewer.card.note(), decoded_fld)
         except KeyError as e:
             tooltip(ERROR_MSG.format(e.message))
             return
-        encoded_val = base64.b64encode(val.encode('utf-8')).decode('ascii')
-        reviewer.web.eval("""
+        encoded_val = base64.b64encode(val.encode("utf-8")).decode("ascii")
+        reviewer.web.eval(
+            """
         var encoded_val = "%s";
         var val = EFDRC.b64DecodeUnicode(encoded_val);
         var elems = document.querySelectorAll("[data-EFDRCfield='%s']")
@@ -187,10 +205,13 @@ def myLinkHandler(reviewer, url, _old):
             }
         }
         EFDRC.maybeResizeOrClean(true);
-        """ % (encoded_val, fld,))
+        """
+            % (encoded_val, fld,)
+        )
 
         # Reset timer from Speed Focus Mode add-on.
-        reviewer.bottom.web.eval("""
+        reviewer.bottom.web.eval(
+            """
             if (typeof autoAnswerTimeout !== 'undefined') {
                 clearTimeout(autoAnswerTimeout);
             }
@@ -200,8 +221,9 @@ def myLinkHandler(reviewer, url, _old):
             if (typeof autoAgainTimeout !== 'undefined') {
                 clearTimeout(autoAgainTimeout);
             }
-        """)
-        
+        """
+        )
+
     elif url == "EFDRC!reload":
         if reviewer.state == "question":
             reviewer._showQuestion()
@@ -219,8 +241,9 @@ def myLinkHandler(reviewer, url, _old):
         mime = mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
         html, internal = editorwv._processMime(mime)
         html = editorwv.editor._pastePreFilter(html, internal)
-        reviewer.web.eval("pasteHTML(%s, %s);" %
-                          (json.dumps(html), json.dumps(internal)))
+        reviewer.web.eval(
+            "pasteHTML(%s, %s);" % (json.dumps(html), json.dumps(internal))
+        )
 
     elif url.startswith("EFDRC!debug#"):
         fld = url.replace("EFDRC!debug#", "")
@@ -232,4 +255,4 @@ def myLinkHandler(reviewer, url, _old):
 Reviewer._bottomHTML = wrap(Reviewer._bottomHTML, myRevBottomHTML, "around")
 Reviewer.revHtml = wrap(Reviewer.revHtml, myRevHtml, "around")
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
-addHook('fmod_edit', edit)
+addHook("fmod_edit", edit)

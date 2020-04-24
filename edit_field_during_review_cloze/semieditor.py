@@ -13,14 +13,12 @@ myprogress = False
 
 
 class semiEditor(Editor):
-
     def __init__(self):
         self.mw = mw
         self.parentWindow = "EFDRCsemiedit"
 
 
 class semiEditorWebView(EditorWebView):
-
     def __init__(self):
         self.mw = mw
         self.editor = semiEditor()

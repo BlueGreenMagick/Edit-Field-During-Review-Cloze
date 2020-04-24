@@ -13,7 +13,6 @@ def config_make_valid(config):
             config["resize_image_preserve_ratio"] = 0
         changed = True
 
-
     sfmt = config["z_special_formatting"]
     default_sfmt = {
         "removeformat": True,
@@ -32,7 +31,7 @@ def config_make_valid(config):
         "justifyCenter": False,
         "justifyLeft": False,
         "justifyRight": False,
-        "justifyFull": False
+        "justifyFull": False,
     }
 
     # Remove wrong key.
@@ -45,7 +44,7 @@ def config_make_valid(config):
     for key in key_to_pop:
         sfmt.pop(key)
 
-    # Add keys on update / wrong deletion. 
+    # Add keys on update / wrong deletion.
     for key in default_sfmt:
         if key not in sfmt:
             sfmt[key] = default_sfmt[key]
@@ -53,5 +52,5 @@ def config_make_valid(config):
 
     if changed:
         mw.addonManager.writeConfig(__name__, config)
-    
+
     return config
