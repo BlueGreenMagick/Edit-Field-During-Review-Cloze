@@ -31,14 +31,15 @@ def css_from_path(path):
 
 
 DIRPATH = Path(__file__).parents[0]
+WEBPATH = DIRPATH / "web"
 
-CARDJS = js_from_path(DIRPATH / "card.js")
-GLOBALCARDJS = js_from_path(DIRPATH / "global_card.js")
-RESIZEJS = js_from_path(DIRPATH / "resize.js")
-JQUERYUIJS = js_from_path(DIRPATH / "jquery-ui.min.js")
-RESIZECSS = css_from_path(DIRPATH / "resize.css")
-PASTEJS = js_from_path(DIRPATH / "paste.js")
-BOTTOMJS = js_from_path(DIRPATH / "bottom.js")
+CARDJS = js_from_path(WEBPATH / "card.js")
+GLOBALCARDJS = js_from_path(WEBPATH / "global_card.js")
+RESIZEJS = js_from_path(WEBPATH / "resize.js")
+JQUERYUIJS = js_from_path(WEBPATH / "jquery-ui.min.js")
+RESIZECSS = css_from_path(WEBPATH / "resize.css")
+PASTEJS = js_from_path(WEBPATH / "paste.js")
+BOTTOMJS = js_from_path(WEBPATH / "bottom.js")
 
 editorwv = semiEditorWebView()
 
