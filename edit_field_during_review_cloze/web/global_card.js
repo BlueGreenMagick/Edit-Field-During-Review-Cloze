@@ -167,9 +167,9 @@ EFDRC.addListeners = function(e, fld){
             el.removeAttribute("data-EFDRCnotctrl");
             el.setAttribute("contenteditable", "false");
         }
-        if(el.hasAttribute("data-EFDRCval")){
+        if(el.hasAttribute("data-EFDRCnid")){
             EFDRC.cleanResize(el)
-            pycmd("EFDRC#" + el.getAttribute("data-EFDRCval") + "#" + el.getAttribute("data-EFDRCfield") + "#" + el.innerHTML);
+            pycmd("EFDRC#" + el.getAttribute("data-EFDRCnid") + "#" + el.getAttribute("data-EFDRCfield") + "#" + el.innerHTML);
             pycmd("EFDRC!reload");
         }else{
             pycmd("EFDRC!reload");

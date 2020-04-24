@@ -147,6 +147,14 @@ def saveField(note, fld, val):
     note.flush()
 
 
+def saveThenRefreshFld(reviewer, note, fld, new_val):
+    saveField(note, fld, new_val)
+    if ankiver_major == "2.1" and ankiver_minor < 20:
+        reviewer.card._getQA(reload=True)
+    else:
+        reviewer.card.render_output(reload=True)
+
+
 def get_value(note, fld):
     if fld == "Tags":
         return note.tags
@@ -156,57 +164,51 @@ def get_value(note, fld):
         raise KeyError(f"Field {fld} not found in note. Please check your note type.")
 
 
-def saveThenRefreshFld(reviewer, note, fld, new_val):
-    saveField(note, fld, new_val)
-    if ankiver_major == "2.1" and ankiver_minor < 20:
-        reviewer.card._getQA(reload=True)
-    else:
-        reviewer.card.render_output(reload=True)
-
-
 def myLinkHandler(reviewer, url, _old):
     if url.startswith("EFDRC#"):
-        errmsg = (
-            "Something unexpected occured. The edit may not have been saved. Field: {}"
-        )
-        enc_val, fld, new_val = url.replace("EFDRC#", "").split("#", 2)
+        errmsg = "Something unexpected occured. The edit may not have been saved."
+        nid, fld, new_val = url.replace("EFDRC#", "").split("#", 2)
+        nid = int(nid)
         note = reviewer.card.note()
+        if note.id != nid:
+            # nid may be note id of previous reviewed card
+            tooltip(ERROR_MSG.format(errmsg))
+            return
         fld = base64.b64decode(fld, validate=True).decode("utf-8")
         if fld not in note:
-            tooltip(ERROR_MSG.format(errmsg.format(fld)))
-        orig_val = get_value(note, fld)
-        orig_enc_val = base64.b64encode(orig_val.encode("utf-8")).decode("ascii")
-        if enc_val == orig_enc_val:  # enc_val may be the val of prev reviewed card.
-            saveThenRefreshFld(reviewer, note, fld, new_val)
-        else:
-            tooltip(ERROR_MSG.format(errmsg.format(fld)))
+            tooltip(ERROR_MSG.format(errmsg))
+            return
+        saveThenRefreshFld(reviewer, note, fld, new_val)
 
     # Replace reviewer field html if it is different from real field value.
     # For example, clozes, mathjax, audio.
     elif url.startswith("EFDRC!focuson#"):
         fld = url.replace("EFDRC!focuson#", "")
         decoded_fld = base64.b64decode(fld, validate=True).decode("utf-8")
+        note = reviewer.card.note()
         try:
-            val = get_value(reviewer.card.note(), decoded_fld)
+            val = get_value(note, decoded_fld)
         except KeyError as e:
             tooltip(ERROR_MSG.format(e.message))
             return
         encoded_val = base64.b64encode(val.encode("utf-8")).decode("ascii")
         reviewer.web.eval(
-            """
+        """
         var encoded_val = "%s";
+        var nid = %d;
         var val = EFDRC.b64DecodeUnicode(encoded_val);
         var elems = document.querySelectorAll("[data-EFDRCfield='%s']")
         for(var e = 0; e < elems.length; e++){
             var elem = elems[e];
             elem.setAttribute("data-EFDRCval", encoded_val);
+            elem.setAttribute("data-EFDRCnid", nid);
             if(elem.innerHTML != val){
                 elem.innerHTML = val;
             }
         }
         EFDRC.maybeResizeOrClean(true);
         """
-            % (encoded_val, fld,)
+            % (encoded_val, note.id, fld)
         )
 
         # Reset timer from Speed Focus Mode add-on.
