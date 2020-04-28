@@ -101,10 +101,7 @@ def myRevHtml(reviewer, _old):
 
 
 def myRevBottomHTML(reviewer, _old):
-    ctrl = bool_to_str(config["ctrl_click"])
-    script = BOTTOMJS % ({"ctrl": ctrl})
-
-    return _old(reviewer) + script
+    return _old(reviewer) + BOTTOMJS
 
 
 def edit(txt, extra, context, field, fullname):
@@ -193,7 +190,7 @@ def myLinkHandler(reviewer, url, _old):
             return
         encoded_val = base64.b64encode(val.encode("utf-8")).decode("ascii")
         reviewer.web.eval(
-        """
+            """
         (function(){
             var encoded_val = "%s";
             var nid = %d;

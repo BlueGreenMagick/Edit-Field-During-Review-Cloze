@@ -101,24 +101,30 @@ EFDRC.handlePaste = function (e) {
 }
 
 EFDRC.ctrldown = function () {
-    els = document.querySelectorAll("[data-EFDRC='true']");
-    for (var e = 0; e < els.length; e++) {
-        var el = els[e];
-        el.setAttribute("contenteditable", "true");
-        if (el.hasAttribute("data-EFDRCnotctrl")) {
-            el.removeAttribute("data-EFDRCnotctrl");
+    EFDRC.ctrlLinkEnable();
+    if (EFDRC.CTRL) {
+        els = document.querySelectorAll("[data-EFDRC='true']");
+        for (var e = 0; e < els.length; e++) {
+            var el = els[e];
+            el.setAttribute("contenteditable", "true");
+            if (el.hasAttribute("data-EFDRCnotctrl")) {
+                el.removeAttribute("data-EFDRCnotctrl");
+            }
         }
     }
 }
 
 EFDRC.ctrlup = function () {
-    var els = document.querySelectorAll("[data-EFDRC='true']");
-    for (var e = 0; e < els.length; e++) {
-        var el = els[e];
-        if (el == document.activeElement) {
-            el.setAttribute("data-EFDRCnotctrl", "true");
-        } else {
-            el.setAttribute("contenteditable", "false");
+    EFDRC.ctrlLinkDisable();
+    if (EFDRC.CTRL) {
+        var els = document.querySelectorAll("[data-EFDRC='true']");
+        for (var e = 0; e < els.length; e++) {
+            var el = els[e];
+            if (el == document.activeElement) {
+                el.setAttribute("data-EFDRCnotctrl", "true");
+            } else {
+                el.setAttribute("contenteditable", "false");
+            }
         }
     }
 }
@@ -294,18 +300,12 @@ EFDRC.ctrlLinkDisable = function () {
 
 window.addEventListener('keydown', function (event) {
     if (["ControlLeft", "MetaLeft"].includes(event.code)) {
-        EFDRC.ctrlLinkEnable();
-        if (EFDRC.CTRL) {
-            EFDRC.ctrldown();
-        }
+        EFDRC.ctrldown();
     }
 })
 
 window.addEventListener('keyup', function (event) {
     if (["ControlLeft", "MetaLeft"].includes(event.code)) {
-        EFDRC.ctrlLinkDisable();
-        if (EFDRC.CTRL) {
-            EFDRC.ctrlup();
-        }
+        EFDRC.ctrlup();
     }
 })

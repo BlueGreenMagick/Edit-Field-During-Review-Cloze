@@ -3,21 +3,19 @@
     So this code catches ctrl key presses when focus in on bottom.web
 */
 
-CTRL = "%(ctrl)s";
-
-if(typeof EFDRConctrlkey != "function" && CTRL){
-    window.EFDRConctrlkey = function(){
-        window.addEventListener('keydown',function(event){
-            if(["ControlLeft", "MetaLeft"].includes(event.code)){
+if (typeof EFDRConctrlkey != "function") {
+    window.EFDRConctrlkey = function () {
+        window.addEventListener('keydown', function (event) {
+            if (["ControlLeft", "MetaLeft"].includes(event.code)) {
                 pycmd("EFDRC!ctrldown");
-            }    
+            }
         })
 
-        window.addEventListener('keyup',function(event){
-            if(["ControlLeft", "MetaLeft"].includes(event.code)){
+        window.addEventListener('keyup', function (event) {
+            if (["ControlLeft", "MetaLeft"].includes(event.code)) {
                 pycmd("EFDRC!ctrlup");
-            }    
-        })        
+            }
+        })
     }
     EFDRConctrlkey()
 }
