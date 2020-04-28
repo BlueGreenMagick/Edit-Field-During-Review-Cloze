@@ -201,7 +201,6 @@ def myLinkHandler(reviewer, url, _old):
             var elems = document.querySelectorAll("[data-EFDRCfield='%s']")
             for(var e = 0; e < elems.length; e++){
                 var elem = elems[e];
-                elem.setAttribute("data-EFDRCval", encoded_val);
                 elem.setAttribute("data-EFDRCnid", nid);
                 if(elem.innerHTML != val){
                     elem.innerHTML = val;
