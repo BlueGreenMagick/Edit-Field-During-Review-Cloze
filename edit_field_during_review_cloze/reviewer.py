@@ -153,10 +153,18 @@ def saveThenRefreshFld(reviewer, note, fld, new_val):
 
 
 def get_value(note, fld):
+    check_fld_is_valid(note, fld)
     if fld == "Tags":
-        return note.tags
+        return note.stringTags().strip(" ")
     if fld in note:
         return note[fld]
+
+
+def check_fld_is_valid(note, fld):
+    if fld in note:
+        return True
+    elif fld == "Tags":
+        return True
     else:
         raise KeyError(f"Field {fld} not found in note. Please check your note type.")
 
@@ -172,8 +180,10 @@ def myLinkHandler(reviewer, url, _old):
             tooltip(ERROR_MSG.format(errmsg))
             return
         fld = base64.b64decode(fld, validate=True).decode("utf-8")
-        if fld not in note:
-            tooltip(ERROR_MSG.format(errmsg))
+        try:
+            check_fld_is_valid(note, fld)
+        except KeyError as e:
+            tooltip(ERROR_MSG.format(e.message))
             return
         saveThenRefreshFld(reviewer, note, fld, new_val)
 
