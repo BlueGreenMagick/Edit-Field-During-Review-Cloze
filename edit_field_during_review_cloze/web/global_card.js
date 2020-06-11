@@ -129,6 +129,11 @@ EFDRC.ctrlup = function () {
     }
 }
 
+EFDRC.placeholder = function(e){
+    fld_name = EFDRC.b64DecodeUnicode(e.getAttribute("data-EFDRCfield"))
+    e.setAttribute("data-placeholder", fld_name)
+}
+
 EFDRC.addListeners = function (e, fld) {
     if (EFDRC.PASTE) {
         e.addEventListener('paste', EFDRC.handlePaste);

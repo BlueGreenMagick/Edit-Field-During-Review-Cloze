@@ -97,6 +97,11 @@ def myRevHtml(reviewer, _old):
     if config["outline"]:
         css += "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
 
+    # placeholder style
+    if config["ctrl_click"]:
+        css += "<style>[data-efdrc='true'][contenteditable='true'][data-placeholder]:empty:before {content: attr(data-placeholder);color: #888;font-style: italic;}</style>"
+
+
     return _old(reviewer) + js + css
 
 

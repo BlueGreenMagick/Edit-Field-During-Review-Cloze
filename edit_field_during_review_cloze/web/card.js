@@ -6,6 +6,9 @@
     for(var e = 0; e < els.length; e++){
         var el = els[e];
         EFDRC.addListeners(el, FLD);
+        if(EFDRC.CTRL){
+            EFDRC.placeholder(el)
+        }
     }
 
     if(!EFDRC.CTRL){
