@@ -227,28 +227,30 @@ EFDRC.addListeners = function (e, fld) {
                 }
                 var highest = Math.max(1, highest);
                 EFDRC.wrapInternal("{\{c" + highest + "::", "}\}");
-            }
+                event.preventDefault();
+            }else{
 
-            //Special formatting that requires ctrl key.
-            for (var special in EFDRC.specials_ctrl) {
-                specialVal = EFDRC.specials_ctrl[special]
-                if (specialVal[4]) {
-                    var enabled = EFDRC.SPECIAL[special][0]
-                    var parmVal = EFDRC.SPECIAL[special][1]
-                } else {
-                    var enabled = EFDRC.SPECIAL[special]
-                }
-                if (enabled) {
-                    var s = specialVal[0];
-                    var a = specialVal[1];
-                    var c = specialVal[2];
-                    if (shiftKey == s && altKey == a && codeKey == c) {
-                        if (specialVal[4]) {
-                            document.execCommand(specialVal[3], false, parmVal);
-                        } else {
-                            document.execCommand(specialVal[3], false);
+                //Special formatting that requires ctrl key.
+                for (var special in EFDRC.specials_ctrl) {
+                    specialVal = EFDRC.specials_ctrl[special]
+                    if (specialVal[4]) {
+                        var enabled = EFDRC.SPECIAL[special][0]
+                        var parmVal = EFDRC.SPECIAL[special][1]
+                    } else {
+                        var enabled = EFDRC.SPECIAL[special]
+                    }
+                    if (enabled) {
+                        var s = specialVal[0];
+                        var a = specialVal[1];
+                        var c = specialVal[2];
+                        if (shiftKey == s && altKey == a && codeKey == c) {
+                            if (specialVal[4]) {
+                                document.execCommand(specialVal[3], false, parmVal);
+                            } else {
+                                document.execCommand(specialVal[3], false);
+                            }
+                            event.preventDefault();
                         }
-                        event.preventDefault();
                     }
                 }
             }
