@@ -132,9 +132,12 @@ def saveField(note, fld, val):
     else:
         # aqt.editor.Editor.onBridgeCmd
         txt = unicodedata.normalize("NFC", val)
-        txt = Editor.mungeHTML(None, txt)
-        txt = txt.replace("\x00", "")
-        txt = mw.col.media.escapeImages(txt, unescape=True)
+        if ankiver_major == "2.1" and ankiver_minor < 31:
+            txt = Editor.mungeHTML(None, txt)
+            txt = txt.replace("\x00", "")
+            txt = mw.col.media.escapeImages(txt, unescape=True)
+        else:
+            txt = Editor.mungeHTML(editorwv.editor, txt)
         field = note[fld]
     if field == txt:
         return
