@@ -2,11 +2,13 @@ import base64
 import json
 import unicodedata
 from pathlib import Path
+from typing import Any, Optional
 
 from anki import version as ankiversion
 from anki.hooks import addHook, wrap
 from anki.utils import htmlToTextLine
-from aqt import mw
+import aqt
+from aqt import mw, gui_hooks
 from aqt.editor import Editor
 from aqt.qt import QClipboard
 from aqt.reviewer import Reviewer
@@ -62,7 +64,7 @@ def new_fld_hook(txt, field, filt, ctx):
 # hooks.field_filter.append(new_fld_hook)
 
 
-def myRevHtml(reviewer, _old):
+def myRevHtml():
     global config
     config = mw.addonManager.getConfig(__name__)
     config = config_make_valid(config)
@@ -89,7 +91,8 @@ def myRevHtml(reviewer, _old):
     resize_state = bool_to_str(config["resize_image_default_state"])
     css += RESIZECSS
     js += JQUERYUIJS
-    js += RESIZEJS % ({"preserve_ratio": preserve_ratio, "resize_state": resize_state})
+    js += RESIZEJS % ({"preserve_ratio": preserve_ratio,
+                       "resize_state": resize_state})
 
     if config["process_paste"]:
         js += PASTEJS
@@ -101,12 +104,11 @@ def myRevHtml(reviewer, _old):
     if config["ctrl_click"]:
         css += "<style>[data-efdrc='true'][contenteditable='true'][data-placeholder]:empty:before {content: attr(data-placeholder);color: #888;font-style: italic;}</style>"
 
+    return js + css
 
-    return _old(reviewer) + js + css
 
-
-def myRevBottomHTML(reviewer, _old):
-    return _old(reviewer) + BOTTOMJS
+def myRevBottomHTML():
+    return BOTTOMJS
 
 
 def edit(txt, extra, context, field, fullname):
@@ -174,7 +176,8 @@ def check_fld_is_valid(note, fld):
     elif fld == "Tags":
         return True
     else:
-        raise KeyError(f"Field {fld} not found in note. Please check your note type.")
+        raise KeyError(
+            f"Field {fld} not found in note. Please check your note type.")
 
 
 def myLinkHandler(reviewer, url, _old):
@@ -270,7 +273,13 @@ def myLinkHandler(reviewer, url, _old):
         return _old(reviewer, url)
 
 
-Reviewer._bottomHTML = wrap(Reviewer._bottomHTML, myRevBottomHTML, "around")
-Reviewer.revHtml = wrap(Reviewer.revHtml, myRevHtml, "around")
+def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]):
+    if isinstance(context, aqt.reviewer.Reviewer):
+        web_content.body += myRevHtml()
+    elif isinstance(context, aqt.reviewer.ReviewerBottomBar):
+        web_content.body += myRevBottomHTML()
+
+
+gui_hooks.webview_will_set_content.append(on_webview)
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
 addHook("fmod_edit", edit)
