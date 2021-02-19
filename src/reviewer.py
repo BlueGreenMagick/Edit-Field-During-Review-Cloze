@@ -26,13 +26,6 @@ ankiver_major = ankiversion[0:3]
 editorwv = semiEditorWebView()
 
 
-def bool_to_str(b):
-    if b:
-        return "true"
-    else:
-        return ""
-
-
 # Code for new style hooks.
 def new_fld_hook(txt, field, filt, ctx):
     if filt == "edit":
@@ -63,8 +56,6 @@ def myRevHtml():
 
 
 def edit(txt, extra, context, field, fullname):
-    ctrl = bool_to_str(config["ctrl_click"])
-
     # Encode field to escape special characters.
     field = base64.b64encode(field.encode("utf-8")).decode("ascii")
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
