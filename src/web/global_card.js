@@ -1,14 +1,5 @@
-
+/* global EFDRC */
 (function () {
-  const EFDRC = {}
-  window.EFDRC = EFDRC
-
-  EFDRC.CTRL = '%(ctrl)s' // bool
-  EFDRC.PASTE = '%(paste)s' // bool
-  EFDRC.SPAN = '%(span)s' // bool
-  EFDRC.REMSPAN = '%(remove_span)s' // bool
-  EFDRC.SPECIAL = JSON.parse('%(special)s') // array of array
-
   EFDRC.specials_noctrl = {
     // shift, alt, key, command, has arg?
     strikethrough: [true, true, 'Digit5', 'strikeThrough', false],
@@ -64,7 +55,7 @@
 
   EFDRC.b64DecodeUnicode = function (str) {
     return decodeURIComponent(window.atob(str).split('').map(function (c) {
-      return '%%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
     }).join(''))
   }
 

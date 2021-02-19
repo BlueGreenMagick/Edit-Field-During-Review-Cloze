@@ -1,8 +1,6 @@
 /* global $, EFDRC */
 
 (function () {
-  EFDRC.preserve_ratio = parseInt('%(preserve_ratio)d')
-  EFDRC.DEFAULTRESIZE = '%(resize_state)s'
   EFDRC.resizeImageMode = EFDRC.DEFAULTRESIZE
   EFDRC.priorImgs = []
 

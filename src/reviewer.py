@@ -69,34 +69,37 @@ def myRevHtml():
     config = mw.addonManager.getConfig(__name__)
     config = config_make_valid(config)
 
-    js = ""
-    css = ""
-
     span = bool_to_str(config["tag"])
     ctrl = bool_to_str(config["ctrl_click"])
     paste = bool_to_str(config["process_paste"])
     rem_span = bool_to_str(config["remove_span"])
     special = json.dumps(config["z_special_formatting"])
-    js += GLOBALCARDJS % (
-        {
-            "span": span,
-            "ctrl": ctrl,
-            "paste": paste,
-            "remove_span": rem_span,
-            "special": special,
-        }
-    )
-
-    preserve_ratio = config["resize_image_preserve_ratio"]
+    preserve_ratio = int(config["resize_image_preserve_ratio"])
     resize_state = bool_to_str(config["resize_image_default_state"])
-    css += RESIZECSS
+    script = "<script>"
+    script += "window.EFDRC = {};"
+    opts = {
+        "SPAN": span,
+        "CTRL": ctrl,
+        "PASTE": paste,
+        "REMSPAN": rem_span,
+        "DEFAULTRESIZE": resize_state
+    }
+    for opt in opts:
+        script += "EFDRC.{} = '{}';".format(opt, opts[opt])
+    script += "EFDRC.SPECIAL = JSON.parse('{}');".format(special)
+    script += "EFDRC.preserver_ratio = {};".format(preserve_ratio)
+    script += "</script>"
+
+    js = GLOBALCARDJS
     js += JQUERYUIJS
-    js += RESIZEJS % ({"preserve_ratio": preserve_ratio,
-                       "resize_state": resize_state})
+    js += RESIZEJS
 
     if config["process_paste"]:
         js += PASTEJS
 
+    css = ""
+    css += RESIZECSS
     if config["outline"]:
         css += "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
 
@@ -104,7 +107,9 @@ def myRevHtml():
     if config["ctrl_click"]:
         css += "<style>[data-efdrc='true'][contenteditable='true'][data-placeholder]:empty:before {content: attr(data-placeholder);color: #888;font-style: italic;}</style>"
 
-    return js + css
+    print(js + css + script)
+
+    return script + js + css
 
 
 def myRevBottomHTML():
@@ -280,6 +285,9 @@ def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]):
         web_content.body += myRevBottomHTML()
 
 
+mw.addonManager.setWebExports(__name__, "web/")
 gui_hooks.webview_will_set_content.append(on_webview)
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
 addHook("fmod_edit", edit)
+
+#gui_hooks.card_will_show.append(lambda t, c, k: print(t))
