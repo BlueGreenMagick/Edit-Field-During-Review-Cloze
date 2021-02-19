@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from anki import version as ankiversion
+from anki import hooks
 from anki.hooks import addHook, wrap
 from anki.utils import htmlToTextLine
 import aqt
@@ -34,16 +35,6 @@ class FldNotFoundError(Exception):
         return f"Field {self.fld} not found in note. Please check your note type."
 
 
-# Code for new style hooks.
-def new_fld_hook(txt, field, filt, ctx):
-    if filt == "edit":
-        return edit(txt, None, None, field, None)
-
-
-# from anki import hooks
-# hooks.field_filter.append(new_fld_hook)
-
-
 def myRevHtml():
     global config  # update config when reviewer is launched
     config = mw.addonManager.getConfig(__name__)
@@ -54,7 +45,9 @@ def myRevHtml():
     return f"<script>{js}</script>"
 
 
-def edit(txt, extra, context, field, fullname):
+def edit_filter(txt, field, filt, ctx):
+    if not filt == "edit":
+        return txt
     # Encode field to escape special characters.
     class_name = ""
     if config["outline"]:
@@ -212,6 +205,6 @@ def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]):
 mw.addonManager.setWebExports(__name__, r"web/.*")
 gui_hooks.webview_will_set_content.append(on_webview)
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
-addHook("fmod_edit", edit)
+hooks.field_filter.append(edit_filter)
 
 # gui_hooks.card_will_show.append(lambda t, c, k: print(t))
