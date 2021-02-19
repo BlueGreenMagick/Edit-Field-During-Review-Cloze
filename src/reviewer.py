@@ -85,10 +85,7 @@ def saveField(note, fld, val):
 
 def saveThenRefreshFld(reviewer, note, fld, new_val):
     saveField(note, fld, new_val)
-    if ankiver_major == "2.1" and ankiver_minor < 20:
-        reviewer.card._getQA(reload=True)
-    else:
-        reviewer.card.render_output(reload=True)
+    reviewer.card.render_output(reload=True)
 
 
 def get_value(note, fld):
