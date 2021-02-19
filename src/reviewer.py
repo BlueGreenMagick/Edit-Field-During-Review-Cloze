@@ -156,19 +156,7 @@ def myLinkHandler(reviewer, url, _old):
         )
 
         # Reset timer from Speed Focus Mode add-on.
-        reviewer.bottom.web.eval(
-            """
-            if (typeof autoAnswerTimeout !== 'undefined') {
-                clearTimeout(autoAnswerTimeout);
-            }
-            if (typeof autoAlertTimeout !== 'undefined') {
-                clearTimeout(autoAlertTimeout);
-            }
-            if (typeof autoAgainTimeout !== 'undefined') {
-                clearTimeout(autoAgainTimeout);
-            }
-        """
-        )
+        reviewer.bottom.web.eval("window.EFDRCResetTimer()")
 
     elif url == "EFDRC!reload":
         if reviewer.state == "question":
