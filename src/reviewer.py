@@ -37,6 +37,7 @@ def new_fld_hook(txt, field, filt, ctx):
 
 
 def myRevHtml():
+    global config  # update config when reviewer is launched
     config = mw.addonManager.getConfig(__name__)
     config_make_valid(config)
 
