@@ -67,18 +67,12 @@ def edit(txt, extra, context, field, fullname):
 
 def saveField(note, fld, val):
     if fld == "Tags":
-        tagsTxt = unicodedata.normalize("NFC", htmlToTextLine(val))
-        txt = mw.col.tags.canonify(mw.col.tags.split(tagsTxt))
+        # aqt.editor.Editor.saveTags
+        txt = mw.col.tags.split(val)
         field = note.tags
     else:
         # aqt.editor.Editor.onBridgeCmd
-        txt = unicodedata.normalize("NFC", val)
-        if ankiver_major == "2.1" and ankiver_minor < 31:
-            txt = Editor.mungeHTML(None, txt)
-            txt = txt.replace("\x00", "")
-            txt = mw.col.media.escapeImages(txt, unescape=True)
-        else:
-            txt = Editor.mungeHTML(editorwv.editor, txt)
+        txt = Editor.mungeHTML(editorwv.editor, val)
         field = note[fld]
     if field == txt:
         return
