@@ -68,22 +68,18 @@ def edit(txt, extra, context, field, fullname):
 def saveField(note, fld, val):
     if fld == "Tags":
         # aqt.editor.Editor.saveTags
-        txt = mw.col.tags.split(val)
-        field = note.tags
+        tags = mw.col.tags.split(val)
+        if note.tags == tags:
+            return
+        note.tags = tags
     else:
         # aqt.editor.Editor.onBridgeCmd
         txt = Editor.mungeHTML(editorwv.editor, val)
-        field = note[fld]
-    if field == txt:
-        return
-
+        if note[fld] == txt:
+            return
+        note[fld] = txt
     if config["undo"]:
         mw.checkpoint("Edit Field")
-
-    if fld == "Tags":
-        note.tags = txt
-    else:
-        note[fld] = txt
     note.flush()
 
 
