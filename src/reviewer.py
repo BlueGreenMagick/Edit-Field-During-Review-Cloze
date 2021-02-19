@@ -26,6 +26,14 @@ ankiver_major = ankiversion[0:3]
 editorwv = semiEditorWebView()
 
 
+class FldNotFoundError(Exception):
+    def __init__(self, fld):
+        self.fld = fld
+
+    def __str__(self) -> str:
+        return f"Field {self.fld} not found in note. Please check your note type."
+
+
 # Code for new style hooks.
 def new_fld_hook(txt, field, filt, ctx):
     if filt == "edit":
@@ -72,6 +80,8 @@ def saveField(note, fld, val):
         if note.tags == tags:
             return
         note.tags = tags
+    elif fld not in note:
+        raise FldNotFoundError(fld)
     else:
         # aqt.editor.Editor.onBridgeCmd
         txt = Editor.mungeHTML(editorwv.editor, val)
@@ -89,21 +99,11 @@ def saveThenRefreshFld(reviewer, note, fld, new_val):
 
 
 def get_value(note, fld):
-    check_fld_is_valid(note, fld)
     if fld == "Tags":
         return note.stringTags().strip(" ")
     if fld in note:
         return note[fld]
-
-
-def check_fld_is_valid(note, fld):
-    if fld in note:
-        return True
-    elif fld == "Tags":
-        return True
-    else:
-        raise KeyError(
-            f"Field {fld} not found in note. Please check your note type.")
+    raise FldNotFoundError(fld)
 
 
 def myLinkHandler(reviewer, url, _old):
@@ -118,11 +118,10 @@ def myLinkHandler(reviewer, url, _old):
             return
         fld = base64.b64decode(fld, validate=True).decode("utf-8")
         try:
-            check_fld_is_valid(note, fld)
-        except KeyError as e:
-            tooltip(ERROR_MSG.format(e.message))
+            saveThenRefreshFld(reviewer, note, fld, new_val)
+        except FldNotFoundError as e:
+            tooltip(ERROR_MSG.format(str(e)))
             return
-        saveThenRefreshFld(reviewer, note, fld, new_val)
 
     # Replace reviewer field html if it is different from real field value.
     # For example, clozes, mathjax, audio.
@@ -132,8 +131,8 @@ def myLinkHandler(reviewer, url, _old):
         note = reviewer.card.note()
         try:
             val = get_value(note, decoded_fld)
-        except KeyError as e:
-            tooltip(ERROR_MSG.format(e.message))
+        except FldNotFoundError as e:
+            tooltip(ERROR_MSG.format(str(e)))
             return
         encoded_val = base64.b64encode(val.encode("utf-8")).decode("ascii")
         reviewer.web.eval(
