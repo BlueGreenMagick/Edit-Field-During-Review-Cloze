@@ -93,17 +93,23 @@ def saveField(note, fld, val):
     note.flush()
 
 
-def saveThenRefreshFld(reviewer, note, fld, new_val):
-    saveField(note, fld, new_val)
-    reviewer.card.render_output(reload=True)
-
-
 def get_value(note, fld):
     if fld == "Tags":
         return note.stringTags().strip(" ")
     if fld in note:
         return note[fld]
     raise FldNotFoundError(fld)
+
+
+def reload_reviewer(reviewer: aqt.reviewer.Reviewer):
+    cid = reviewer.card.id
+    timerStarted = reviewer.card.timerStarted
+    reviewer.card = mw.col.getCard(cid)
+    reviewer.card.timerStarted = timerStarted
+    if reviewer.state == "question":
+        reviewer._showQuestion()
+    elif reviewer.state == "answer":
+        reviewer._showAnswer()
 
 
 def myLinkHandler(reviewer, url, _old):
@@ -118,7 +124,8 @@ def myLinkHandler(reviewer, url, _old):
             return
         fld = base64.b64decode(fld, validate=True).decode("utf-8")
         try:
-            saveThenRefreshFld(reviewer, note, fld, new_val)
+            saveField(note, fld, new_val)
+            reload_reviewer(reviewer)
         except FldNotFoundError as e:
             tooltip(ERROR_MSG.format(str(e)))
             return
@@ -159,12 +166,8 @@ def myLinkHandler(reviewer, url, _old):
         reviewer.bottom.web.eval("window.EFDRCResetTimer()")
 
     elif url == "EFDRC!reload":
-        if reviewer.state == "question":
-            reviewer._showQuestion()
-        elif reviewer.state == "answer":
-            reviewer._showAnswer()
-
-    # Catch ctrl key presses from bottom.web.
+        reload_reviewer(reviewer)
+        # Catch ctrl key presses from bottom.web.
     elif url == "EFDRC!ctrldown":
         reviewer.web.eval("EFDRC.ctrldown()")
     elif url == "EFDRC!ctrlup":
