@@ -212,7 +212,7 @@ def myLinkHandler(reviewer, url, _old):
         return _old(reviewer, url)
 
 
-def url_from_fname(file_name: str) -> None:
+def url_from_fname(file_name: str) -> str:
     addon_package = mw.addonManager.addonFromModule(__name__)
     return f"/_addons/{addon_package}/web/{file_name}"
 
