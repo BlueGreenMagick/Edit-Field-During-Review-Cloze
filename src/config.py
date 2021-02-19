@@ -1,7 +1,9 @@
+from typing import Dict
+
 from aqt import mw
 
 
-def config_make_valid(config):
+def config_make_valid(config: Dict):
     changed = False
 
     # Once a boolean, Now a number.
@@ -52,5 +54,3 @@ def config_make_valid(config):
 
     if changed:
         mw.addonManager.writeConfig(__name__, config)
-
-    return config

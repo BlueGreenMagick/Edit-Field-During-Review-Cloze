@@ -44,9 +44,8 @@ def new_fld_hook(txt, field, filt, ctx):
 
 
 def myRevHtml():
-    global config
     config = mw.addonManager.getConfig(__name__)
-    config = config_make_valid(config)
+    config_make_valid(config)
 
     # config should not have any single quote values
     js = "EFDRC.registerConfig('{}')".format(json.dumps(config))
