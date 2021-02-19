@@ -38,7 +38,6 @@ def css_from_path(path):
 DIRPATH = Path(__file__).parents[0]
 WEBPATH = DIRPATH / "web"
 
-CARDJS = js_from_path(WEBPATH / "card.js")
 GLOBALCARDJS = js_from_path(WEBPATH / "global_card.js")
 RESIZEJS = js_from_path(WEBPATH / "resize.js")
 JQUERYUIJS = js_from_path(WEBPATH / "jquery-ui.min.js")
@@ -127,7 +126,7 @@ def edit(txt, extra, context, field, fullname):
         txt,
         config["tag"],
     )
-    txt += CARDJS % ({"fld": field})
+    txt += "<script>EFDRC.serveCard('{}')</script>".format(field)
     return txt
 
 

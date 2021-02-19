@@ -297,6 +297,23 @@
     }
   }
 
+  EFDRC.serveCard = function (fld) { // fld: string
+    const els = document.querySelectorAll("[data-EFDRCfield='" + fld + "']")
+    for (let e = 0; e < els.length; e++) {
+      const el = els[e]
+      EFDRC.addListeners(el, fld)
+      if (EFDRC.CTRL) {
+        EFDRC.placeholder(el)
+      }
+    }
+
+    if (!EFDRC.CTRL) {
+      for (let e = 0; e < els.length; e++) {
+        els[e].setAttribute('contenteditable', 'true')
+      }
+    }
+  }
+
   window.addEventListener('keydown', function (event) {
     if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
       EFDRC.ctrldown()
