@@ -42,25 +42,21 @@ def myRevHtml():
 
     # config should not have any single quote values
     js = "EFDRC.registerConfig('{}')".format(json.dumps(config))
-    script = f"<script>{js}</script>"
-
-    css = ""
-    if config["outline"]:
-        css += "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
-
-    # placeholder style
-    if config["ctrl_click"]:
-        css += "<style>[data-efdrc='true'][contenteditable='true'][data-placeholder]:empty:before {content: attr(data-placeholder);color: #888;font-style: italic;}</style>"
-
-    return script + css
+    return f"<script>{js}</script>"
 
 
 def edit(txt, extra, context, field, fullname):
     # Encode field to escape special characters.
+    class_name = ""
+    if config["outline"]:
+        class_name += "EFDRC-outline "
+    if config["ctrl_click"]:
+        class_name += "EFDRC-ctrl "
     field = base64.b64encode(field.encode("utf-8")).decode("ascii")
-    txt = """<%s data-EFDRCfield="%s" data-EFDRC="true">%s</%s>""" % (
+    txt = """<%s data-EFDRCfield="%s" data-EFDRC="true" class="%s">%s</%s>""" % (
         config["tag"],
         field,
+        class_name,
         txt,
         config["tag"],
     )
@@ -229,7 +225,7 @@ def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]):
             js_contents.append("paste.js")
         for file_name in js_contents:
             web_content.js.append(url_from_fname(file_name))
-        web_content.css.append(url_from_fname("resize.css"))
+        web_content.css.append(url_from_fname("global_card.css"))
 
     elif isinstance(context, aqt.reviewer.ReviewerBottomBar):
         web_content.js.append(url_from_fname("bottom.js"))
