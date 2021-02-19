@@ -1,5 +1,7 @@
-/* global EFDRC */
 (function () {
+  window.EFDRC = {}
+  const EFDRC = window.EFDRC
+
   EFDRC.specials_noctrl = {
     // shift, alt, key, command, has arg?
     strikethrough: [true, true, 'Digit5', 'strikeThrough', false],
@@ -295,6 +297,23 @@
       const el = links[x]
       el.removeAttribute('contenteditable')
     }
+  }
+
+  EFDRC.registerConfig = function (confStr) {
+    const conf = JSON.parse(confStr)
+    console.log(conf)
+    if (conf.tag === 'span') {
+      EFDRC.SPAN = true
+    } else {
+      EFDRC.SPAN = false
+    }
+    EFDRC.SPAN = conf.tag
+    EFDRC.CTRL = conf.ctrl_click
+    EFDRC.PASTE = conf.process_paste
+    EFDRC.REMSPAN = conf.remove_span
+    EFDRC.DEFAULTRESIZE = conf.resize_image_default_state
+    EFDRC.SPECIAL = conf.z_special_formatting
+    EFDRC.preserve_ratio = conf.resize_image_preserve_ratio
   }
 
   EFDRC.serveCard = function (fld) { // fld: string

@@ -26,26 +26,6 @@ ankiver_major = ankiversion[0:3]
 editorwv = semiEditorWebView()
 
 
-# Get js files.
-def js_from_path(path):
-    return "<script>" + path.read_text() + "</script>"
-
-
-def css_from_path(path):
-    return "<style>" + path.read_text() + "</style>"
-
-
-DIRPATH = Path(__file__).parents[0]
-WEBPATH = DIRPATH / "web"
-
-GLOBALCARDJS = js_from_path(WEBPATH / "global_card.js")
-RESIZEJS = js_from_path(WEBPATH / "resize.js")
-JQUERYUIJS = js_from_path(WEBPATH / "jquery-ui.min.js")
-RESIZECSS = css_from_path(WEBPATH / "resize.css")
-PASTEJS = js_from_path(WEBPATH / "paste.js")
-BOTTOMJS = js_from_path(WEBPATH / "bottom.js")
-
-
 def bool_to_str(b):
     if b:
         return "true"
@@ -68,37 +48,11 @@ def myRevHtml():
     config = mw.addonManager.getConfig(__name__)
     config = config_make_valid(config)
 
-    span = bool_to_str(config["tag"])
-    ctrl = bool_to_str(config["ctrl_click"])
-    paste = bool_to_str(config["process_paste"])
-    rem_span = bool_to_str(config["remove_span"])
-    special = json.dumps(config["z_special_formatting"])
-    preserve_ratio = int(config["resize_image_preserve_ratio"])
-    resize_state = bool_to_str(config["resize_image_default_state"])
-    script = "<script>"
-    script += "window.EFDRC = {};"
-    opts = {
-        "SPAN": span,
-        "CTRL": ctrl,
-        "PASTE": paste,
-        "REMSPAN": rem_span,
-        "DEFAULTRESIZE": resize_state
-    }
-    for opt in opts:
-        script += "EFDRC.{} = '{}';".format(opt, opts[opt])
-    script += "EFDRC.SPECIAL = JSON.parse('{}');".format(special)
-    script += "EFDRC.preserver_ratio = {};".format(preserve_ratio)
-    script += "</script>"
-
-    js = GLOBALCARDJS
-    js += JQUERYUIJS
-    js += RESIZEJS
-
-    if config["process_paste"]:
-        js += PASTEJS
+    # config should not have any single quote values
+    js = "EFDRC.registerConfig('{}')".format(json.dumps(config))
+    script = f"<script>{js}</script>"
 
     css = ""
-    css += RESIZECSS
     if config["outline"]:
         css += "<style>[data-efdrc='true'][contenteditable='true']:focus{outline: 1px solid #308cc6;}</style>"
 
@@ -106,13 +60,7 @@ def myRevHtml():
     if config["ctrl_click"]:
         css += "<style>[data-efdrc='true'][contenteditable='true'][data-placeholder]:empty:before {content: attr(data-placeholder);color: #888;font-style: italic;}</style>"
 
-    print(js + css + script)
-
-    return script + js + css
-
-
-def myRevBottomHTML():
-    return BOTTOMJS
+    return script + css
 
 
 def edit(txt, extra, context, field, fullname):
@@ -277,16 +225,29 @@ def myLinkHandler(reviewer, url, _old):
         return _old(reviewer, url)
 
 
+def url_from_fname(file_name: str) -> None:
+    addon_package = mw.addonManager.addonFromModule(__name__)
+    return f"/_addons/{addon_package}/web/{file_name}"
+
+
 def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]):
+
     if isinstance(context, aqt.reviewer.Reviewer):
         web_content.body += myRevHtml()
+        js_contents = ["global_card.js", "resize.js", "jquery-ui.min.js"]
+        if config["process_paste"]:
+            js_contents.append("paste.js")
+        for file_name in js_contents:
+            web_content.js.append(url_from_fname(file_name))
+        web_content.css.append(url_from_fname("resize.css"))
+
     elif isinstance(context, aqt.reviewer.ReviewerBottomBar):
-        web_content.body += myRevBottomHTML()
+        web_content.js.append(url_from_fname("bottom.js"))
 
 
-mw.addonManager.setWebExports(__name__, "web/")
+mw.addonManager.setWebExports(__name__, r"web/.*")
 gui_hooks.webview_will_set_content.append(on_webview)
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
 addHook("fmod_edit", edit)
 
-#gui_hooks.card_will_show.append(lambda t, c, k: print(t))
+# gui_hooks.card_will_show.append(lambda t, c, k: print(t))
