@@ -4,13 +4,13 @@
   EFDRC.resizeImageMode = EFDRC.DEFAULTRESIZE
   EFDRC.priorImgs = []
 
-  EFDRC.savePriorImg = function (img) {
-    const id = EFDRC.priorImgs.length
-    EFDRC.priorImgs.push(img.cloneNode())
+  EFDRC.prototype.savePriorImg = function (img) {
+    const id = this.priorImgs.length
+    this.priorImgs.push(img.cloneNode())
     img.setAttribute('data-EFDRCImgId', id)
   }
 
-  EFDRC.restorePriorImg = function (img) {
+  EFDRC.prototype.restorePriorImg = function (img) {
     /*
         only save changes to width and height
         resizable img is guranteed to have the data-EFDRCImgId attribute.
@@ -21,28 +21,28 @@
 
     // apply stored style
     const id = img.getAttribute('data-EFDRCImgId')
-    const priorImg = EFDRC.priorImgs[id]
+    const priorImg = this.priorImgs[id]
     priorImg.style.width = width
     priorImg.style.height = height
 
     img.parentNode.replaceChild(priorImg, img)
   }
 
-  EFDRC.ratioShouldBePreserved = function (event) {
-    if (EFDRC.preserve_ratio === 1 && event.originalEvent.target.classList.contains('ui-resizable-se')) {
+  EFDRC.prototype.ratioShouldBePreserved = function (event) {
+    if (this.preserve_ratio === 1 && event.originalEvent.target.classList.contains('ui-resizable-se')) {
       return true
-    } else if (EFDRC.preserve_ratio === 2) {
+    } else if (this.preserve_ratio === 2) {
       return true
     } else {
       return false
     }
   }
 
-  EFDRC.maybeRemoveHeight = function (img, $img, ui) {
+  EFDRC.prototype.maybeRemoveHeight = function (img, $img, ui) {
     if (!img.naturalHeight) { return }
     const originalRatio = img.naturalWidth / img.naturalHeight
     const currentRatio = $img.width() / $img.height()
-    if (Math.abs(originalRatio - currentRatio) < 0.01 || EFDRC.preserve_ratio === 2) {
+    if (Math.abs(originalRatio - currentRatio) < 0.01 || this.preserve_ratio === 2) {
       $img.css('height', '')
       if (ui) {
         ui.element.css('height', $img.height())
@@ -50,33 +50,33 @@
     }
   }
 
-  EFDRC.resizeImage = async function (idx, img) {
+  EFDRC.prototype.resizeImage = async function (idx, img) {
     while (!img.complete) {
       // wait for image to load
       await new Promise(resolve => setTimeout(resolve, 20))
     }
 
-    EFDRC.savePriorImg(img)
+    this.savePriorImg(img)
 
     const $img = $(img)
     if ($img.resizable('instance') === undefined) { // just in case?
-      const aspRatio = (EFDRC.preserve_ratio === 2)
+      const aspRatio = (this.preserve_ratio === 2)
       const computedStyle = window.getComputedStyle(img)
 
       $img.resizable({
         start: function (event, ui) {
-          if (EFDRC.ratioShouldBePreserved(event)) {
+          if (this.ratioShouldBePreserved(event)) {
             // preserve ratio when using corner point to resize
             $img.resizable('option', 'aspectRatio', true).data('ui-resizable')._aspectRatio = true
           }
         },
         stop: function (event, ui) {
           $img.resizable('option', 'aspectRatio', false).data('ui-resizable')._aspectRatio = false
-          EFDRC.maybeRemoveHeight(img, $img, ui) // this might not be working
+          this.maybeRemoveHeight(img, $img, ui) // this might not be working
         },
         resize: function (event, ui) {
-          if (EFDRC.ratioShouldBePreserved(event)) {
-            EFDRC.maybeRemoveHeight(img, $img, ui)
+          if (this.ratioShouldBePreserved(event)) {
+            this.maybeRemoveHeight(img, $img, ui)
           }
         },
         classes: {
@@ -102,14 +102,14 @@
         ui.element.css('min-height', computedStyle.minHeight)
       }
 
-      $img.dblclick(EFDRC.onDblClick)
+      $img.dblclick(this.onDblClick)
       const $divUi = $img.parents('div[class=ui-wrapper]')
       $divUi.attr('contentEditable', 'false')
       $divUi.css('display', 'inline-block')
     }
   }
 
-  EFDRC.onDblClick = function () {
+  EFDRC.prototype.onDblClick = function () {
     const img = this
     const $img = $(img)
     $img.css('width', '')
@@ -119,28 +119,28 @@
     $parents.css('height', '')
   }
 
-  EFDRC.cleanResize = function (field) {
+  EFDRC.prototype.cleanResize = function (field) {
     const resizables = field.querySelectorAll('.ui-resizable')
     for (let x = 0; x < resizables.length; x++) {
       $(resizables[x]).resizable('destroy')
     }
     const imgs = field.querySelectorAll('[data-EFDRCImgId]')
     for (let x = 0; x < imgs.length; x++) {
-      EFDRC.maybeRemoveHeight(imgs[x], $(imgs[x]))
-      EFDRC.restorePriorImg(imgs[x])
+      this.maybeRemoveHeight(imgs[x], $(imgs[x]))
+      this.restorePriorImg(imgs[x])
     }
-    EFDRC.priorImgs = []
+    this.priorImgs = []
   }
 
-  EFDRC.maybeResizeOrClean = function (focus) {
+  EFDRC.prototype.maybeResizeOrClean = function (focus) {
     if (focus) {
       // Called from __init__.py on field focus. Else undefined.
-      EFDRC.resizeImageMode = EFDRC.DEFAULTRESIZE
+      this.resizeImageMode = this.DEFAULTRESIZE
     }
-    if (EFDRC.resizeImageMode) {
-      $(document.activeElement).find('img').each(EFDRC.resizeImage)
+    if (this.resizeImageMode) {
+      $(document.activeElement).find('img').each(this.resizeImage)
     } else {
-      EFDRC.cleanResize(document.activeElement)
+      this.cleanResize(document.activeElement)
     }
   }
 })()
