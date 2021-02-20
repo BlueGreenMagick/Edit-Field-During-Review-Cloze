@@ -171,7 +171,8 @@ def myLinkHandler(reviewer, url, _old):
         html, internal = editorwv._processMime(mime)
         html = editorwv.editor._pastePreFilter(html, internal)
         reviewer.web.eval(
-            "pasteHTML(%s, %s);" % (json.dumps(html), json.dumps(internal))
+            "EFDRC.pasteHTML(%s, %s);" % (
+                json.dumps(html), json.dumps(internal))
         )
 
     elif url.startswith("EFDRC!debug#"):

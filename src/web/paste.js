@@ -1,3 +1,4 @@
+/* global EFDRC */
 (function () {
   'use strict'
 
@@ -13,7 +14,7 @@
     document.execCommand('inserthtml', false, outHtml)
   }
 
-  window.pasteHTML = function (html, internal) {
+  EFDRC.pasteHTML = function (html, internal) {
     // import editor js in an invisible iframe
     // to prevent reviewer window from being modified
     const existingIframe = document.getElementById('EFDRC-iframe')
