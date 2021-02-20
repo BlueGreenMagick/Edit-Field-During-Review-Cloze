@@ -16,14 +16,14 @@ from aqt.reviewer import Reviewer
 from aqt.utils import showText, tooltip
 
 from .semieditor import semiEditorWebView
-from .config import config_make_valid
+from .config import ConfigManager, config_make_valid
 
 ERROR_MSG = "ERROR - Edit Field During Review Cloze\n{}"
-config = mw.addonManager.getConfig(__name__)
 
 ankiver_minor = int(ankiversion.split(".")[2])
 ankiver_major = ankiversion[0:3]
 
+conf = ConfigManager()
 editorwv = semiEditorWebView()
 
 
@@ -36,12 +36,11 @@ class FldNotFoundError(Exception):
 
 
 def myRevHtml():
-    global config  # update config when reviewer is launched
-    config = mw.addonManager.getConfig(__name__)
-    config_make_valid(config)
+    conf.load()  # update config when reviewer is launched
+    config_make_valid(conf)
 
     # config should not have any single quote values
-    js = "EFDRC.registerConfig('{}')".format(json.dumps(config))
+    js = "EFDRC.registerConfig('{}')".format(conf.to_json())
     return f"<script>{js}</script>"
 
 
@@ -50,17 +49,17 @@ def edit_filter(txt, field, filt, ctx):
         return txt
     # Encode field to escape special characters.
     class_name = ""
-    if config["outline"]:
+    if conf["outline"]:
         class_name += "EFDRC-outline "
-    if config["ctrl_click"]:
+    if conf["ctrl_click"]:
         class_name += "EFDRC-ctrl "
     field = base64.b64encode(field.encode("utf-8")).decode("ascii")
     txt = """<%s data-EFDRCfield="%s" data-EFDRC="true" class="%s">%s</%s>""" % (
-        config["tag"],
+        conf["tag"],
         field,
         class_name,
         txt,
-        config["tag"],
+        conf["tag"],
     )
     txt += "<script>EFDRC.serveCard('{}')</script>".format(field)
     return txt
@@ -81,7 +80,7 @@ def saveField(note, fld, val):
         if note[fld] == txt:
             return
         note[fld] = txt
-    if config["undo"]:
+    if conf["undo"]:
         mw.checkpoint("Edit Field")
     note.flush()
 
@@ -192,7 +191,7 @@ def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]):
     if isinstance(context, aqt.reviewer.Reviewer):
         web_content.body += myRevHtml()
         js_contents = ["global_card.js", "resize.js", "jquery-ui.min.js"]
-        if config["process_paste"]:
+        if conf["process_paste"]:
             js_contents.append("paste.js")
         for file_name in js_contents:
             web_content.js.append(url_from_fname(file_name))

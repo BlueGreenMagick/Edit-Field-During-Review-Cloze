@@ -1,21 +1,52 @@
-from typing import Dict
+import json
+import copy
+from typing import Any, Dict
 
 from aqt import mw
 
 
-def config_make_valid(config: Dict):
-    changed = False
+class ConfigManager:
+    def __init__(self):
+        self.load()
 
+    def load(self):
+        "Loads config from disk"
+        self.config = mw.addonManager.getConfig(__name__)
+        self.modified = False
+
+    def save(self, force: bool = False):
+        """ Writes its config data to disk. 
+            If `force` is `False`, config is only written to disk if it was modified since last load."""
+        if self.modified or force:
+            mw.addonManager.writeConfig(__name__, self.config)
+            self.modified = False
+
+    def to_json(self) -> str:
+        return json.dumps(self.config)
+
+    def __getitem__(self, key: str) -> Any:
+        "Returns a deep copy of the config. Modifying the returned object will not affect conf."
+        return copy.deepcopy(self.config[key])
+
+    def __setitem__(self, key: str, value: Any):
+        "This function only modifies the internal config data. Call conf.write() to actually write to disk"
+        self.config[key] = value
+        self.modified = True
+
+    def __iter__(self):
+        return iter(self.config)
+
+
+def config_make_valid(conf: ConfigManager):
     # Once a boolean, Now a number.
-    resize_conf = config["resize_image_preserve_ratio"]
+    resize_conf = conf["resize_image_preserve_ratio"]
     if isinstance(resize_conf, bool):
         if resize_conf:
-            config["resize_image_preserve_ratio"] = 1
+            conf["resize_image_preserve_ratio"] = 1
         else:
-            config["resize_image_preserve_ratio"] = 0
-        changed = True
+            conf["resize_image_preserve_ratio"] = 0
 
-    sfmt = config["z_special_formatting"]
+    sfmt = conf["z_special_formatting"]
     default_sfmt = {
         "removeformat": True,
         "strikethrough": True,
@@ -41,7 +72,6 @@ def config_make_valid(config: Dict):
     for key in sfmt:
         if key not in default_sfmt:
             key_to_pop.append(key)
-            changed = True
 
     for key in key_to_pop:
         sfmt.pop(key)
@@ -50,7 +80,6 @@ def config_make_valid(config: Dict):
     for key in default_sfmt:
         if key not in sfmt:
             sfmt[key] = default_sfmt[key]
-            changed = True
 
-    if changed:
-        mw.addonManager.writeConfig(__name__, config)
+    conf["z_special_formatting"] = sfmt
+    conf.save()
