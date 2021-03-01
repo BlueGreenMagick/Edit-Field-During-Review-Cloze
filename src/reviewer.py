@@ -1,18 +1,17 @@
 import base64
 import json
-import unicodedata
-from pathlib import Path
 from typing import Any, Optional
 
+import anki
 from anki import version as ankiversion
-from anki import hooks
-from anki.hooks import addHook, wrap
-from anki.utils import htmlToTextLine
+from anki.hooks import wrap
+from anki.template import TemplateRenderContext
+from anki.notes import Note
 import aqt
 from aqt import mw, gui_hooks
 from aqt.editor import Editor
 from aqt.qt import QClipboard
-from aqt.reviewer import Reviewer
+from aqt.reviewer import Reviewer, ReviewerBottomBar
 from aqt.utils import showText, tooltip
 
 from .semieditor import semiEditorWebView
@@ -28,14 +27,14 @@ editorwv = semiEditorWebView()
 
 
 class FldNotFoundError(Exception):
-    def __init__(self, fld):
+    def __init__(self, fld: str):
         self.fld = fld
 
     def __str__(self) -> str:
         return f"Field {self.fld} not found in note. Please check your note type."
 
 
-def myRevHtml():
+def myRevHtml() -> str:
     conf.load()  # update config when reviewer is launched
     config_make_valid(conf)
 
@@ -44,7 +43,7 @@ def myRevHtml():
     return f"<script>{js}</script>"
 
 
-def edit_filter(txt, field, filt, ctx):
+def edit_filter(txt: str, field: str, filt: str, ctx: TemplateRenderContext) -> str:
     if not filt == "edit":
         return txt
     # Encode field to escape special characters.
@@ -65,7 +64,7 @@ def edit_filter(txt, field, filt, ctx):
     return txt
 
 
-def saveField(note, fld, val):
+def saveField(note: Note, fld: str, val: str) -> None:
     if fld == "Tags":
         # aqt.editor.Editor.saveTags
         tags = mw.col.tags.split(val)
@@ -85,7 +84,7 @@ def saveField(note, fld, val):
     note.flush()
 
 
-def get_value(note, fld):
+def get_value(note: Note, fld: str) -> str:
     if fld == "Tags":
         return note.stringTags().strip(" ")
     if fld in note:
@@ -93,7 +92,7 @@ def get_value(note, fld):
     raise FldNotFoundError(fld)
 
 
-def reload_reviewer(reviewer: aqt.reviewer.Reviewer):
+def reload_reviewer(reviewer: Reviewer) -> None:
     cid = reviewer.card.id
     timerStarted = reviewer.card.timerStarted
     reviewer.card = mw.col.getCard(cid)
@@ -104,11 +103,11 @@ def reload_reviewer(reviewer: aqt.reviewer.Reviewer):
         reviewer._showAnswer()
 
 
-def myLinkHandler(reviewer, url, _old):
+def myLinkHandler(reviewer: Reviewer, url: str, _old: function) -> None:
     if url.startswith("EFDRC#"):
         errmsg = "Something unexpected occured. The edit may not have been saved."
-        nid, fld, new_val = url.replace("EFDRC#", "").split("#", 2)
-        nid = int(nid)
+        nidstr, fld, new_val = url.replace("EFDRC#", "").split("#", 2)
+        nid = int(nidstr)
         note = reviewer.card.note()
         if note.id != nid:
             # nid may be note id of previous reviewed card
@@ -187,9 +186,9 @@ def url_from_fname(file_name: str) -> str:
     return f"/_addons/{addon_package}/web/{file_name}"
 
 
-def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]):
+def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]) -> None:
 
-    if isinstance(context, aqt.reviewer.Reviewer):
+    if isinstance(context, Reviewer):
         web_content.body += myRevHtml()
         js_contents = ["global_card.js", "resize.js", "jquery-ui.min.js"]
         if conf["process_paste"]:
@@ -198,13 +197,13 @@ def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]):
             web_content.js.append(url_from_fname(file_name))
         web_content.css.append(url_from_fname("global_card.css"))
 
-    elif isinstance(context, aqt.reviewer.ReviewerBottomBar):
+    elif isinstance(context, ReviewerBottomBar):
         web_content.js.append(url_from_fname("bottom.js"))
 
 
 mw.addonManager.setWebExports(__name__, r"web/.*")
 gui_hooks.webview_will_set_content.append(on_webview)
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
-hooks.field_filter.append(edit_filter)
+anki.hooks.field_filter.append(edit_filter)
 
 # gui_hooks.card_will_show.append(lambda t, c, k: print(t))
