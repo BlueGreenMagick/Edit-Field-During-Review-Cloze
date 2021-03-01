@@ -1,6 +1,6 @@
 import base64
 import json
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 import anki
 from anki import version as ankiversion
@@ -103,7 +103,7 @@ def reload_reviewer(reviewer: Reviewer) -> None:
         reviewer._showAnswer()
 
 
-def myLinkHandler(reviewer: Reviewer, url: str, _old: function) -> None:
+def myLinkHandler(reviewer: Reviewer, url: str, _old: Callable) -> None:
     if url.startswith("EFDRC#"):
         errmsg = "Something unexpected occured. The edit may not have been saved."
         nidstr, fld, new_val = url.replace("EFDRC#", "").split("#", 2)

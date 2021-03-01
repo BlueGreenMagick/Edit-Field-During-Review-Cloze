@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from anki.hooks import wrap
 from aqt import mw
@@ -45,7 +45,7 @@ def mystart(*args: Any, **kwargs: Any) -> Optional[ProgressDialog]:
         return _old(*args, **kwargs)
 
 
-def myfinish(self: ProgressManager, _old: function) -> None:
+def myfinish(self: ProgressManager, _old: Callable) -> None:
     global myprogress
     if myprogress:
         myprogress = False
