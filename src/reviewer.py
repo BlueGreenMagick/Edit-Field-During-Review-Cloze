@@ -1,6 +1,6 @@
 import base64
 import json
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Tuple
 
 import anki
 from anki import version as ankiversion
@@ -103,35 +103,38 @@ def reload_reviewer(reviewer: Reviewer) -> None:
         reviewer._showAnswer()
 
 
-def myLinkHandler(reviewer: Reviewer, url: str, _old: Callable) -> None:
-    if url.startswith("EFDRC#"):
+def handle_pycmd_message(handled: Tuple[bool, Any], message: str, context: Any) -> Tuple[bool, Any]:
+    if not isinstance(context, Reviewer):
+        return handled
+    reviewer: Reviewer = context
+    if message.startswith("EFDRC#"):
         errmsg = "Something unexpected occured. The edit may not have been saved."
-        nidstr, fld, new_val = url.replace("EFDRC#", "").split("#", 2)
+        nidstr, fld, new_val = message.replace("EFDRC#", "").split("#", 2)
         nid = int(nidstr)
         note = reviewer.card.note()
         if note.id != nid:
             # nid may be note id of previous reviewed card
             tooltip(ERROR_MSG.format(errmsg))
-            return
+            return (True, None)
         fld = base64.b64decode(fld, validate=True).decode("utf-8")
         try:
             saveField(note, fld, new_val)
             reload_reviewer(reviewer)
         except FldNotFoundError as e:
             tooltip(ERROR_MSG.format(str(e)))
-            return
+            return (True, None)
 
     # Replace reviewer field html if it is different from real field value.
     # For example, clozes, mathjax, audio.
-    elif url.startswith("EFDRC!focuson#"):
-        fld = url.replace("EFDRC!focuson#", "")
+    elif message.startswith("EFDRC!focuson#"):
+        fld = message.replace("EFDRC!focuson#", "")
         decoded_fld = base64.b64decode(fld, validate=True).decode("utf-8")
         note = reviewer.card.note()
         try:
             val = get_value(note, decoded_fld)
         except FldNotFoundError as e:
             tooltip(ERROR_MSG.format(str(e)))
-            return
+            return (True, None)
         encoded_val = base64.b64encode(val.encode("utf-8")).decode("ascii")
         reviewer.web.eval(
             """
@@ -155,16 +158,20 @@ def myLinkHandler(reviewer: Reviewer, url: str, _old: Callable) -> None:
 
         # Reset timer from Speed Focus Mode add-on.
         reviewer.bottom.web.eval("window.EFDRCResetTimer()")
+        return (True, None)
 
-    elif url == "EFDRC!reload":
+    elif message == "EFDRC!reload":
         reload_reviewer(reviewer)
+        return (True, None)
         # Catch ctrl key presses from bottom.web.
-    elif url == "EFDRC!ctrldown":
+    elif message == "EFDRC!ctrldown":
         reviewer.web.eval("EFDRC.ctrldown()")
-    elif url == "EFDRC!ctrlup":
+        return (True, None)
+    elif message == "EFDRC!ctrlup":
         reviewer.web.eval("EFDRC.ctrlup()")
+        return (True, None)
 
-    elif url == "EFDRC!paste":
+    elif message == "EFDRC!paste":
         # From aqt.editor.Editor._onPaste, doPaste.
         mime = mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
         html, internal = editorwv._processMime(mime)
@@ -173,12 +180,13 @@ def myLinkHandler(reviewer: Reviewer, url: str, _old: Callable) -> None:
             "EFDRC.pasteHTML(%s, %s);" % (
                 json.dumps(html), json.dumps(internal))
         )
+        return (True, None)
 
-    elif url.startswith("EFDRC!debug#"):
-        fld = url.replace("EFDRC!debug#", "")
+    elif message.startswith("EFDRC!debug#"):
+        fld = message.replace("EFDRC!debug#", "")
         showText(fld)
-    else:
-        return _old(reviewer, url)
+        return (True, None)
+    return handled
 
 
 def url_from_fname(file_name: str) -> str:
@@ -203,7 +211,7 @@ def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]) -> N
 
 mw.addonManager.setWebExports(__name__, r"web/.*")
 gui_hooks.webview_will_set_content.append(on_webview)
-Reviewer._linkHandler = wrap(Reviewer._linkHandler, myLinkHandler, "around")
+gui_hooks.webview_did_receive_js_message.append(handle_pycmd_message)
 anki.hooks.field_filter.append(edit_filter)
 
 # gui_hooks.card_will_show.append(lambda t, c, k: print(t))
