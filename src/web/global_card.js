@@ -77,6 +77,9 @@
   }
 
   EFDRC.handlePaste = function (e) {
+    if (!EFDRC.PASTE) {
+      return
+    }
     const mimetype = ['text/html', 'image/', 'video/', 'audio/', 'application/']
     const paste = (e.clipboardData || window.clipboardData)
     for (let x = 0; x < paste.types.length; x++) {
@@ -130,134 +133,117 @@
     e.setAttribute('data-placeholder', fldName)
   }
 
-  EFDRC.addListeners = function (e, fld) {
-    if (EFDRC.PASTE) {
-      e.addEventListener('paste', EFDRC.handlePaste)
+  EFDRC.isInsideEfdrcDiv = function (el) {
+    const hardBreak = 100
+    let currentEl = el
+    let i = 0
+    while (currentEl instanceof window.Element && i < hardBreak) {
+      if (currentEl.hasAttribute('data-EFDRC')) {
+        return currentEl
+      }
+      currentEl = el.parentNode
+      i++
+    }
+  }
+
+  EFDRC.handleFocus = function (event, target) {
+    if (typeof window.showTooltip === 'function' && typeof window.showTooltip2 === 'undefined') {
+      // Disable Popup Dictionary addon tooltip on double mouse click.
+      // Using hotkey should still work however.
+      window.showTooltip2 = window.showTooltip
+      window.showTooltip = function (event, tooltip, element) {
+        EFDRC.tooltip = {
+          ev: event,
+          tt: tooltip,
+          el: element
+        }
+      }
+      window.showTooltip.hide = function () { }
+      window.invokeTooltipAtSelectedElm2 = window.invokeTooltipAtSelectedElm
+      window.invokeTooltipAtSelectedElm = function () {
+        window.invokeTooltipAtSelectedElm2()
+        window.showTooltip2(EFDRC.tooltip.ev, EFDRC.tooltip.tt, EFDRC.tooltip.el)
+      }
+    }
+    const fld = target.getAttribute('data-EFDRCfield')
+    window.pycmd('EFDRC!focuson#' + fld)
+  }
+
+  EFDRC.handleBlur = function (event, target) {
+    if (typeof showTooltip2 === 'function') {
+      // Restore Popup Dictionary
+      window.showTooltip = window.showTooltip2
+      delete window.showTooltip2
+      window.invokeTooltipAtSelectedElm = window.invokeTooltipAtSelectedElm2
+      delete window.invokeTooltipAtSelectedElm2
     }
 
-    e.addEventListener('focus', function (event) {
-      if (typeof window.showTooltip === 'function' && typeof window.showTooltip2 === 'undefined') {
-        // Disable Popup Dictionary addon tooltip on double mouse click.
-        // Using hotkey should still work however.
-        window.showTooltip2 = window.showTooltip
-        window.showTooltip = function (event, tooltip, element) {
-          EFDRC.tooltip = {
-            ev: event,
-            tt: tooltip,
-            el: element
-          }
-        }
-        window.showTooltip.hide = function () { }
-        window.invokeTooltipAtSelectedElm2 = window.invokeTooltipAtSelectedElm
-        window.invokeTooltipAtSelectedElm = function () {
-          window.invokeTooltipAtSelectedElm2()
-          window.showTooltip2(EFDRC.tooltip.ev, EFDRC.tooltip.tt, EFDRC.tooltip.el)
-        }
-      }
+    const el = target
+    if (EFDRC.REMSPAN) {
+      EFDRC.removeSpan(el)
+    }
+    if (el.hasAttribute('data-EFDRCnotctrl')) {
+      el.removeAttribute('data-EFDRCnotctrl')
+      el.setAttribute('contenteditable', 'false')
+    }
+    if (el.hasAttribute('data-EFDRCnid')) {
+      EFDRC.cleanResize(el)
+      window.pycmd('EFDRC#' + el.getAttribute('data-EFDRCnid') + '#' + el.getAttribute('data-EFDRCfield') + '#' + el.innerHTML)
+      window.pycmd('EFDRC!reload')
+    } else {
+      window.pycmd('EFDRC!reload')
+    }
+  }
 
-      window.pycmd('EFDRC!focuson#' + fld)
-    })
-    e.addEventListener('blur', function (event) {
-      if (typeof showTooltip2 === 'function') {
-        // Restore Popup Dictionary
-        window.showTooltip = window.showTooltip2
-        delete window.showTooltip2
-        window.invokeTooltipAtSelectedElm = window.invokeTooltipAtSelectedElm2
-        delete window.invokeTooltipAtSelectedElm2
-      }
-
-      const el = event.currentTarget
-      if (EFDRC.REMSPAN) {
-        EFDRC.removeSpan(el)
-      }
-      if (el.hasAttribute('data-EFDRCnotctrl')) {
-        el.removeAttribute('data-EFDRCnotctrl')
-        el.setAttribute('contenteditable', 'false')
-      }
-      if (el.hasAttribute('data-EFDRCnid')) {
-        EFDRC.cleanResize(el)
-        window.pycmd('EFDRC#' + el.getAttribute('data-EFDRCnid') + '#' + el.getAttribute('data-EFDRCfield') + '#' + el.innerHTML)
-        window.pycmd('EFDRC!reload')
-      } else {
-        window.pycmd('EFDRC!reload')
-      }
-    })
-
-    e.addEventListener('keydown', function (event) {
-      // Slightly faster.
-      const ctrlKey = event.ctrlKey || event.metaKey
-      const shiftKey = event.shiftKey
-      const altKey = event.altKey
-      const codeKey = event.code
-      const el = event.currentTarget
-      if (EFDRC.SPAN) {
-        if (codeKey === 'Backspace') {
-          event.stopPropagation()
-        }
-      }
-      if (EFDRC.REMSPAN) {
-        if (codeKey === 'Backspace' || codeKey === 'Delete') {
-          setTimeout(function () {
-            EFDRC.removeSpan(el)
-          }, 0)
-        }
-      }
-
-      if (event.code === 'KeyS' && event.altKey &&
-                !event.shiftKey && !event.ctrlKey && !event.metaKey) {
-        // image resizer
-        EFDRC.resizeImageMode = !EFDRC.resizeImageMode
-        EFDRC.maybeResizeOrClean()
-        event.preventDefault()
+  EFDRC.handleKeydown = function (event, target) {
+    // Slightly faster.
+    const ctrlKey = event.ctrlKey || event.metaKey
+    const shiftKey = event.shiftKey
+    const altKey = event.altKey
+    const codeKey = event.code
+    const el = target
+    if (EFDRC.SPAN) {
+      if (codeKey === 'Backspace') {
         event.stopPropagation()
       }
+    }
+    if (EFDRC.REMSPAN) {
+      if (codeKey === 'Backspace' || codeKey === 'Delete') {
+        setTimeout(function () {
+          EFDRC.removeSpan(el)
+        }, 0)
+      }
+    }
 
-      if (ctrlKey) {
-        // cloze deletion, onCloze from aqt.editor
-        if (event.code === 'KeyC' && shiftKey) {
-          let highest = 0
-          const val = el.innerHTML
-          let m
-          const myRe = /\{\{c(\d+)::/g
-          while ((m = myRe.exec(val)) !== null) {
-            highest = Math.max(highest, m[1])
-          }
-          if (!altKey) {
-            highest += 1
-          }
-          highest = Math.max(1, highest)
-          EFDRC.wrapInternal('{{c' + highest + '::', '}}')
-          event.preventDefault()
-        } else {
-          // Special formatting that requires ctrl key.
-          for (const special in EFDRC.specials_ctrl) {
-            const specialVal = EFDRC.specials_ctrl[special]
-            let enabled, parmVal
-            if (specialVal[4]) {
-              enabled = EFDRC.SPECIAL[special][0]
-              parmVal = EFDRC.SPECIAL[special][1]
-            } else {
-              enabled = EFDRC.SPECIAL[special]
-            }
-            if (enabled) {
-              const s = specialVal[0]
-              const a = specialVal[1]
-              const c = specialVal[2]
-              if (shiftKey === s && altKey === a && codeKey === c) {
-                if (specialVal[4]) {
-                  document.execCommand(specialVal[3], false, parmVal)
-                } else {
-                  document.execCommand(specialVal[3], false)
-                }
-                event.preventDefault()
-              }
-            }
-          }
+    if (event.code === 'KeyS' && event.altKey &&
+              !event.shiftKey && !event.ctrlKey && !event.metaKey) {
+      // image resizer
+      EFDRC.resizeImageMode = !EFDRC.resizeImageMode
+      EFDRC.maybeResizeOrClean()
+      event.preventDefault()
+      event.stopPropagation()
+    }
+
+    if (ctrlKey) {
+      // cloze deletion, onCloze from aqt.editor
+      if (event.code === 'KeyC' && shiftKey) {
+        let highest = 0
+        const val = el.innerHTML
+        let m
+        const myRe = /\{\{c(\d+)::/g
+        while ((m = myRe.exec(val)) !== null) {
+          highest = Math.max(highest, m[1])
         }
+        if (!altKey) {
+          highest += 1
+        }
+        highest = Math.max(1, highest)
+        EFDRC.wrapInternal('{{c' + highest + '::', '}}')
+        event.preventDefault()
       } else {
-        // Special formatting that doesn't require ctrl key
-        for (const special in EFDRC.specials_noctrl) {
-          const specialVal = EFDRC.specials_noctrl[special]
+        // Special formatting that requires ctrl key.
+        for (const special in EFDRC.specials_ctrl) {
+          const specialVal = EFDRC.specials_ctrl[special]
           let enabled, parmVal
           if (specialVal[4]) {
             enabled = EFDRC.SPECIAL[special][0]
@@ -280,7 +266,55 @@
           }
         }
       }
+    } else {
+      // Special formatting that doesn't require ctrl key
+      for (const special in EFDRC.specials_noctrl) {
+        const specialVal = EFDRC.specials_noctrl[special]
+        let enabled, parmVal
+        if (specialVal[4]) {
+          enabled = EFDRC.SPECIAL[special][0]
+          parmVal = EFDRC.SPECIAL[special][1]
+        } else {
+          enabled = EFDRC.SPECIAL[special]
+        }
+        if (enabled) {
+          const s = specialVal[0]
+          const a = specialVal[1]
+          const c = specialVal[2]
+          if (shiftKey === s && altKey === a && codeKey === c) {
+            if (specialVal[4]) {
+              document.execCommand(specialVal[3], false, parmVal)
+            } else {
+              document.execCommand(specialVal[3], false)
+            }
+            event.preventDefault()
+          }
+        }
+      }
+    }
+  }
+
+  EFDRC.addListener = function (handlerInfo) {
+    const eventName = handlerInfo[0]
+    const handler = handlerInfo[1]
+    window.addEventListener(eventName, function (event) {
+      console.log('maybe handle' + eventName)
+      const target = EFDRC.isInsideEfdrcDiv(event.target)
+      if (target) {
+        console.log('handling ' + eventName)
+        handler(event, target)
+      }
     })
+  }
+
+  EFDRC.handlers = [
+    ['paste', EFDRC.handlePaste],
+    ['focusin', EFDRC.handleFocus],
+    ['focusout', EFDRC.handleBlur],
+    ['keydown', EFDRC.handleKeydown]
+  ]
+  for (let i = 0; i < EFDRC.handlers.length; i++) {
+    EFDRC.addListener(EFDRC.handlers[i])
   }
 
   EFDRC.ctrlLinkEnable = function () {
@@ -320,7 +354,6 @@
     const els = document.querySelectorAll("[data-EFDRCfield='" + fld + "']")
     for (let e = 0; e < els.length; e++) {
       const el = els[e]
-      EFDRC.addListeners(el, fld)
       if (EFDRC.CTRL) {
         EFDRC.placeholder(el)
       }
