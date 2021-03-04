@@ -1,7 +1,6 @@
 /* global $, EFDRC */
 
 (function () {
-  EFDRC.resizeImageMode = EFDRC.DEFAULTRESIZE
   EFDRC.priorImgs = []
 
   EFDRC.savePriorImg = function (img) {
@@ -29,9 +28,9 @@
   }
 
   EFDRC.ratioShouldBePreserved = function (event) {
-    if (EFDRC.preserve_ratio === 1 && event.originalEvent.target.classList.contains('ui-resizable-se')) {
+    if (EFDRC.resize_image_preserve_ratio === 1 && event.originalEvent.target.classList.contains('ui-resizable-se')) {
       return true
-    } else if (EFDRC.preserve_ratio === 2) {
+    } else if (EFDRC.resize_image_preserve_ratio === 2) {
       return true
     } else {
       return false
@@ -42,7 +41,7 @@
     if (!img.naturalHeight) { return }
     const originalRatio = img.naturalWidth / img.naturalHeight
     const currentRatio = $img.width() / $img.height()
-    if (Math.abs(originalRatio - currentRatio) < 0.01 || EFDRC.preserve_ratio === 2) {
+    if (Math.abs(originalRatio - currentRatio) < 0.01 || EFDRC.resize_image_preserve_ratio === 2) {
       $img.css('height', '')
       if (ui) {
         ui.element.css('height', $img.height())
@@ -60,7 +59,7 @@
 
     const $img = $(img)
     if ($img.resizable('instance') === undefined) { // just in case?
-      const aspRatio = (EFDRC.preserve_ratio === 2)
+      const aspRatio = (EFDRC.resize_image_preserve_ratio === 2)
       const computedStyle = window.getComputedStyle(img)
 
       $img.resizable({
@@ -135,9 +134,8 @@
   EFDRC.maybeResizeOrClean = function (focus) {
     if (focus) {
       // Called from __init__.py on field focus. Else undefined.
-      EFDRC.resizeImageMode = EFDRC.DEFAULTRESIZE
     }
-    if (EFDRC.resizeImageMode) {
+    if (EFDRC.CONF.resize_image_default_state) {
       $(document.activeElement).find('img').each(EFDRC.resizeImage)
     } else {
       EFDRC.cleanResize(document.activeElement)

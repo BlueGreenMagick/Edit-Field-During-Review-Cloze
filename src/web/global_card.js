@@ -53,7 +53,7 @@
   }
 
   EFDRC.handlePaste = function (e) {
-    if (!EFDRC.PASTE) {
+    if (!EFDRC.CONF.process_paste) {
       return
     }
     const mimetype = ['text/html', 'image/', 'video/', 'audio/', 'application/']
@@ -77,7 +77,7 @@
 
   EFDRC.ctrldown = function () {
     EFDRC.ctrlLinkEnable()
-    if (EFDRC.CTRL) {
+    if (EFDRC.CONF.ctrl_click) {
       const els = document.querySelectorAll('[data-EFDRCfield]')
       for (let e = 0; e < els.length; e++) {
         const el = els[e]
@@ -91,7 +91,7 @@
 
   EFDRC.ctrlup = function () {
     EFDRC.ctrlLinkDisable()
-    if (EFDRC.CTRL) {
+    if (EFDRC.CONF.ctrl_click) {
       const els = document.querySelectorAll('[data-EFDRCfield]')
       for (let e = 0; e < els.length; e++) {
         const el = els[e]
@@ -210,7 +210,7 @@
     }
 
     const el = target
-    if (EFDRC.REMSPAN) {
+    if (EFDRC.CONF.remove_span) {
       EFDRC.removeSpan(el)
     }
     if (el.hasAttribute('data-EFDRCnotctrl')) {
@@ -264,21 +264,10 @@
   }
 
   EFDRC.registerConfig = function (confStr) {
-    const conf = JSON.parse(confStr)
-    console.log(conf)
-    if (conf.tag === 'span') {
-      EFDRC.SPAN = true
-    } else {
-      EFDRC.SPAN = false
-    }
-    EFDRC.CTRL = conf.ctrl_click
-    EFDRC.PASTE = conf.process_paste
-    EFDRC.REMSPAN = conf.remove_span
-    EFDRC.DEFAULTRESIZE = conf.resize_image_default_state
-    EFDRC.SPECIAL = conf.z_special_formatting
-    EFDRC.preserve_ratio = conf.resize_image_preserve_ratio
-    for (const key in conf.z_special_formatting) {
-      const format = conf.z_special_formatting[key]
+    EFDRC.CONF = JSON.parse(confStr)
+    EFDRC.CONF.span = (EFDRC.CONF.tag === 'span')
+    for (const key in EFDRC.CONF.z_special_formatting) {
+      const format = EFDRC.CONF.z_special_formatting[key]
       if (!format.enabled) {
         continue
       }
@@ -292,12 +281,12 @@
     const els = document.querySelectorAll("[data-EFDRCfield='" + fld + "']")
     for (let e = 0; e < els.length; e++) {
       const el = els[e]
-      if (EFDRC.CTRL) {
+      if (EFDRC.CONF.ctrl_click) {
         EFDRC.placeholder(el)
       }
     }
 
-    if (!EFDRC.CTRL) {
+    if (!EFDRC.CONF.ctrl_click) {
       for (let e = 0; e < els.length; e++) {
         els[e].setAttribute('contenteditable', 'true')
       }
@@ -316,12 +305,12 @@
     EFDRC.wrapCloze(event, el, true)
   })
   EFDRC.registerShortcut('Backspace', (event, el) => {
-    if (EFDRC.SPAN) return
-    if (EFDRC.REMSPAN) setTimeout(() => EFDRC.removeSpan(el), 0)
+    if (EFDRC.CONF.span) return
+    if (EFDRC.CONF.remove_span) setTimeout(() => EFDRC.removeSpan(el), 0)
     return -1
   })
   EFDRC.registerShortcut('Delete', (event, el) => {
-    if (EFDRC.REMSPAN) setTimeout(() => EFDRC.removeSpan(el), 0)
+    if (EFDRC.CONF.remove_span) setTimeout(() => EFDRC.removeSpan(el), 0)
     return -1
   })
 
