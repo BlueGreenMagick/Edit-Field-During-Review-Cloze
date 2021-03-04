@@ -140,7 +140,7 @@
     EFDRC.shortcuts.push(scutInfo)
   }
 
-  EFDRC.setCloze = function (event, el, altKey) {
+  EFDRC.wrapCloze = function (event, el, altKey) {
     let highest = 0
     const val = el.innerHTML
     let m
