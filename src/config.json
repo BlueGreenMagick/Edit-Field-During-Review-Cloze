@@ -8,22 +8,107 @@
   "resize_image_default_state": true,
   "resize_image_preserve_ratio": 2,
   "z_special_formatting":{
-    "fontcolor": [true, "#00f"],
-    "formatblock": [false,"pre"],
-    "highlight": [false,"#00f"],
-    "hyperlink": false,
-    "indent": false,
-    "justifyCenter": false,
-    "justifyFull": false,
-    "justifyLeft": false,
-    "justifyRight": false,
-    "orderedlist": false,
-    "outdent": false,
-    "removeformat": true,
-    "strikethrough": true,
-    "subscript": false,
-    "superscript": false,
-    "unhyperlink": false,
-    "unorderedlist": false
+    "fontcolor": {
+      "enabled": true,
+      "command": "foreColor",
+      "shortcut": "F7",
+      "args": ["#00f"]
+    },
+    "formatblock": {
+      "enabled": false,
+      "command": "formatBlock",
+      "shortcut": "Ctrl+Period",
+      "args": ["pre"]
+    },
+    "highlight": {
+      "enabled": false,
+      "command": "hiliteColor",
+      "shortcut": "Ctrl+Shift+B",
+      "args": ["#00f"]
+    },
+    "hyperlink": {
+      "enabled": false,
+      "command": "createLink",
+      "shortcut": "Ctrl+Shift+H",
+      "args": []
+    },
+    "indent": {
+      "enabled": false,
+      "command": "indent",
+      "shortcut": "Ctrl+Shift+BracketRight",
+      "args": []
+    },
+    "justifyCenter": {
+      "enabled": false,
+      "command": "justifyCenter",
+      "shortcut": "Ctrl+Shift+Alt+S",
+      "args": []
+    },
+    "justifyFull": {
+      "enabled": false,
+      "command": "justifyFull",
+      "shortcut": "Ctrl+Shift+Alt+B",
+      "args": []
+    },
+    "justifyLeft": {
+      "enabled": false,
+      "command": "justifyLeft",
+      "shortcut": "Ctrl+Shift+Alt+L",
+      "args": []
+    },
+    "justifyRight": {
+      "enabled": false,
+      "command": "justifyRight",
+      "shortcut": "Ctrl+Shift+Alt+R",
+      "args": []
+    },
+    "orderedlist": {
+      "enabled": false,
+      "command": "insertOrderedList",
+      "shortcut": "Ctrl+BracketRight",
+      "args": []
+    },
+    "outdent": {
+      "enabled": false,
+      "command": "outdent",
+      "shortcut": "Ctrl+Shift+BracketLeft",
+      "args": []
+    },
+    "removeformat": {
+      "enabled": true,
+      "command": "removeFormat",
+      "shortcut": "Ctrl+R",
+      "args": []
+    },
+    "strikethrough": {
+      "enabled": false,
+      "command": "strikeThrough",
+      "shortcut": "Ctrl+Shift+Alt+5",
+      "args": []
+    },
+    "subscript": {
+      "enabled": false,
+      "command": "subscript",
+      "shortcut": "Ctrl+Equal",
+      "args": []
+    },
+    "superscript": {
+      "enabled": false,
+      "command": "superscript",
+      "shortcut": "Ctrl+Shift+Equal",
+      "args": []
+    },
+    "unhyperlink": {
+      "enabled": false,
+      "command": "createLink",
+      "shortcut": "Ctrl+Shift+Alt+H",
+      "args": []
+    },
+    "unorderedlist": {
+      "enabled": false,
+      "command": "insertUnorderedList",
+      "shortcut": "Ctrl+BracketLeft",
+      "args": []
+    }
   }
 }

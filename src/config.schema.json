@@ -52,52 +52,7 @@
       "default": "div"
     },
     "z_special_formatting": {
-      "type": "object",
-      "properties": {
-        "fontcolor": {
-          "type": "array",
-          "items": [
-            {"type": "boolean", "default": true},
-            {
-              "type": "string", 
-              "default": "#00f", 
-              "pattern": "^(#([a-f0-9]{3}|[a-f0-9]{6}))|(rgb\\(\\d+, *\\d+, *\\d+\\))$"
-            }
-          ]
-        },
-        "formatblock": {
-          "type": "array",
-          "items": [
-            {"type": "boolean", "default": false},
-            {"type": "string", "default": "pre"}
-          ]
-        },
-        "highlight": {
-          "type": "array",
-          "items": [
-            {"type": "boolean", "default": false},
-            {
-              "type": "string", 
-              "default": "#00f", 
-              "pattern": "^(#([a-f0-9]{3}|[a-f0-9]{6}))|(rgb\\(\\d+, *\\d+, *\\d+\\))$"
-            }
-          ]
-        },
-        "hyperlink": {"type": "boolean", "default": false},
-        "indent": {"type": "boolean", "default": false},
-        "justifyCenter": {"type": "boolean", "default": false},
-        "justifyFull": {"type": "boolean", "default": false},
-        "justifyLeft": {"type": "boolean", "default": false},
-        "justifyRight": {"type": "boolean", "default": false},
-        "orderedlist": {"type": "boolean", "default": false},
-        "outdent": {"type": "boolean", "default": false},
-        "removeformat": {"type": "boolean", "default": true},
-        "strikethrough": {"type": "boolean", "default": true},
-        "subscript": {"type": "boolean", "default": false},
-        "superscript": {"type": "boolean", "default": false},
-        "unhyperlink": {"type": "boolean", "default": false},
-        "unorderedlist": {"type": "boolean", "default": false}
-      }
+      "type": "object"
     }
   }
 }

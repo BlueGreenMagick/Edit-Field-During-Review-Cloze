@@ -1,31 +1,7 @@
 (function () {
   window.EFDRC = {}
   const EFDRC = window.EFDRC
-
-  EFDRC.specials_noctrl = {
-    // shift, alt, key, command, has arg?
-    strikethrough: [true, true, 'Digit5', 'strikeThrough', false],
-    fontcolor: [false, false, 'F7', 'foreColor', true]
-  }
-
-  EFDRC.specials_ctrl = {
-    // shift, alt, key, command, has arg
-    removeformat: [false, false, 'KeyR', 'removeFormat', false],
-    highlight: [true, false, 'KeyB', 'hiliteColor', true],
-    subscript: [false, false, 'Equal', 'subscript', false],
-    superscript: [true, false, 'Equal', 'superscript', false],
-    formatblock: [false, false, 'Period', 'formatBlock', true],
-    hyperlink: [true, false, 'KeyH', 'createLink', false],
-    unhyperlink: [true, true, 'KeyH', 'createLink', false],
-    unorderedlist: [false, false, 'BracketLeft', 'insertUnorderedList', false],
-    orderedlist: [false, false, 'BracketRight', 'insertOrderedList', false],
-    indent: [true, false, 'BracketRight', 'indent', false],
-    outdent: [true, false, 'BracketLeft', 'outdent', false],
-    justifyCenter: [true, true, 'KeyS', 'justifyCenter', false],
-    justifyLeft: [true, true, 'KeyL', 'justifyLeft', false],
-    justifyRight: [true, true, 'KeyR', 'justifyRight', false],
-    justifyFull: [true, true, 'KeyB', 'justifyFull', false]
-  }
+  EFDRC.shortcuts = []
 
   // wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts
   EFDRC.wrappedExceptForWhitespace = function (text, front, back) {
@@ -146,6 +122,59 @@
     }
   }
 
+  EFDRC.registerShortcut = function (shortcut, handler) {
+    const shortcutKeys = shortcut.toLowerCase().split(/[+]/).map(key => key.trim())
+    const modKeys = ['ctrl', 'shift', 'alt']
+    const scutInfo = {}
+    modKeys.forEach(modKey => { scutInfo[modKey] = shortcutKeys.includes(modKey) })
+    let mainKey = shortcutKeys[shortcutKeys.length - 1]
+    if (mainKey.length === 1) {
+      if (/\d/.test(mainKey)) {
+        mainKey = 'digit' + mainKey
+      } else {
+        mainKey = 'key' + mainKey
+      }
+    }
+    scutInfo.key = mainKey
+    scutInfo.handler = handler
+    EFDRC.shortcuts.push(scutInfo)
+  }
+
+  EFDRC.setCloze = function (event, el, altKey) {
+    let highest = 0
+    const val = el.innerHTML
+    let m
+    const myRe = /\{\{c(\d+)::/g
+    while ((m = myRe.exec(val)) !== null) {
+      highest = Math.max(highest, m[1])
+    }
+    if (!altKey) {
+      highest += 1
+    }
+    highest = Math.max(1, highest)
+    EFDRC.wrapInternal('{{c' + highest + '::', '}}')
+    event.preventDefault()
+  }
+
+  EFDRC.matchShortcut = function (event, scutInfo) {
+    if (scutInfo.key !== event.code.toLowerCase()) return false
+    if (scutInfo.ctrl !== (event.ctrlKey || event.metaKey)) return false
+    if (scutInfo.shift !== event.shiftKey) return false
+    if (scutInfo.alt !== event.altKey) return false
+    return true
+  }
+
+  EFDRC.handleKeydown = function (event, target) {
+    for (let i = 0; i < EFDRC.shortcuts.length; i++) {
+      const scutInfo = EFDRC.shortcuts[i]
+      if (EFDRC.matchShortcut(event, scutInfo)) {
+        EFDRC.shortcuts[i].handler(event, target)
+        event.preventDefault()
+        event.stopPropagation()
+      }
+    }
+  }
+
   EFDRC.handleFocus = function (event, target) {
     if (typeof window.showTooltip === 'function' && typeof window.showTooltip2 === 'undefined') {
       // Disable Popup Dictionary addon tooltip on double mouse click.
@@ -195,113 +224,12 @@
     }
   }
 
-  EFDRC.handleKeydown = function (event, target) {
-    // Slightly faster.
-    const ctrlKey = event.ctrlKey || event.metaKey
-    const shiftKey = event.shiftKey
-    const altKey = event.altKey
-    const codeKey = event.code
-    const el = target
-    if (EFDRC.SPAN) {
-      if (codeKey === 'Backspace') {
-        event.stopPropagation()
-      }
-    }
-    if (EFDRC.REMSPAN) {
-      if (codeKey === 'Backspace' || codeKey === 'Delete') {
-        setTimeout(function () {
-          EFDRC.removeSpan(el)
-        }, 0)
-      }
-    }
-
-    if (event.code === 'KeyS' && event.altKey &&
-              !event.shiftKey && !event.ctrlKey && !event.metaKey) {
-      // image resizer
-      EFDRC.resizeImageMode = !EFDRC.resizeImageMode
-      EFDRC.maybeResizeOrClean()
-      event.preventDefault()
-      event.stopPropagation()
-    }
-
-    if (ctrlKey) {
-      // cloze deletion, onCloze from aqt.editor
-      if (event.code === 'KeyC' && shiftKey) {
-        let highest = 0
-        const val = el.innerHTML
-        let m
-        const myRe = /\{\{c(\d+)::/g
-        while ((m = myRe.exec(val)) !== null) {
-          highest = Math.max(highest, m[1])
-        }
-        if (!altKey) {
-          highest += 1
-        }
-        highest = Math.max(1, highest)
-        EFDRC.wrapInternal('{{c' + highest + '::', '}}')
-        event.preventDefault()
-      } else {
-        // Special formatting that requires ctrl key.
-        for (const special in EFDRC.specials_ctrl) {
-          const specialVal = EFDRC.specials_ctrl[special]
-          let enabled, parmVal
-          if (specialVal[4]) {
-            enabled = EFDRC.SPECIAL[special][0]
-            parmVal = EFDRC.SPECIAL[special][1]
-          } else {
-            enabled = EFDRC.SPECIAL[special]
-          }
-          if (enabled) {
-            const s = specialVal[0]
-            const a = specialVal[1]
-            const c = specialVal[2]
-            if (shiftKey === s && altKey === a && codeKey === c) {
-              if (specialVal[4]) {
-                document.execCommand(specialVal[3], false, parmVal)
-              } else {
-                document.execCommand(specialVal[3], false)
-              }
-              event.preventDefault()
-            }
-          }
-        }
-      }
-    } else {
-      // Special formatting that doesn't require ctrl key
-      for (const special in EFDRC.specials_noctrl) {
-        const specialVal = EFDRC.specials_noctrl[special]
-        let enabled, parmVal
-        if (specialVal[4]) {
-          enabled = EFDRC.SPECIAL[special][0]
-          parmVal = EFDRC.SPECIAL[special][1]
-        } else {
-          enabled = EFDRC.SPECIAL[special]
-        }
-        if (enabled) {
-          const s = specialVal[0]
-          const a = specialVal[1]
-          const c = specialVal[2]
-          if (shiftKey === s && altKey === a && codeKey === c) {
-            if (specialVal[4]) {
-              document.execCommand(specialVal[3], false, parmVal)
-            } else {
-              document.execCommand(specialVal[3], false)
-            }
-            event.preventDefault()
-          }
-        }
-      }
-    }
-  }
-
   EFDRC.addListener = function (handlerInfo) {
     const eventName = handlerInfo[0]
     const handler = handlerInfo[1]
     window.addEventListener(eventName, function (event) {
-      console.log('maybe handle' + eventName)
       const target = EFDRC.isInsideEfdrcDiv(event.target)
       if (target) {
-        console.log('handling ' + eventName)
         handler(event, target)
       }
     })
@@ -348,6 +276,15 @@
     EFDRC.DEFAULTRESIZE = conf.resize_image_default_state
     EFDRC.SPECIAL = conf.z_special_formatting
     EFDRC.preserve_ratio = conf.resize_image_preserve_ratio
+    for (const key in conf.z_special_formatting) {
+      const format = conf.z_special_formatting[key]
+      if (!format.enabled) {
+        continue
+      }
+      const shortcut = format.shortcut
+      const args = [format.command, false].concat(format.args)
+      EFDRC.registerShortcut(shortcut, () => { document.execCommand.apply(document, args) }) // spread args list
+    }
   }
 
   EFDRC.serveCard = function (fld) { // fld: string
@@ -365,6 +302,25 @@
       }
     }
   }
+
+  // image resizer
+  EFDRC.registerShortcut('Shift+S', (event) => {
+    EFDRC.resizeImageMode = !EFDRC.resizeImageMode
+    EFDRC.maybeResizeOrClean()
+  })
+  EFDRC.registerShortcut('Ctrl+Shift+C', (event, el) => {
+    EFDRC.wrapCloze(event, el, false)
+  })
+  EFDRC.registerShortcut('Ctrl+Shift+Alt+C', (event, el) => {
+    EFDRC.wrapCloze(event, el, true)
+  })
+  EFDRC.registerShortcut('Backspace', (event, el) => {
+    if (EFDRC.SPAN) event.stopPropagation()
+    if (EFDRC.REMSPAN) setTimeout(() => EFDRC.removeSpan(el), 0)
+  })
+  EFDRC.registerShortcut('Delete', (event, el) => {
+    if (EFDRC.REMSPAN) setTimeout(() => EFDRC.removeSpan(el), 0)
+  })
 
   window.addEventListener('keydown', function (event) {
     if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
