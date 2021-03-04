@@ -1,8 +1,8 @@
-[data-efdrc="true"][contenteditable="true"].EFDRC-outline:focus {
+[data-efdrcfield][contenteditable="true"].EFDRC-outline:focus {
   outline: 1px solid #308cc6;
 }
 /* placeholder style */
-[data-efdrc="true"][contenteditable="true"][data-placeholder].EFDRC-ctrl:empty:before {
+[data-efdrcfield][contenteditable="true"][data-placeholder].EFDRC-ctrl:empty:before {
   content: attr(data-placeholder);
   color: #888;
   font-style: italic;

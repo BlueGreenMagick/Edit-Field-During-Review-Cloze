@@ -78,7 +78,7 @@
   EFDRC.ctrldown = function () {
     EFDRC.ctrlLinkEnable()
     if (EFDRC.CTRL) {
-      const els = document.querySelectorAll("[data-EFDRC='true']")
+      const els = document.querySelectorAll('[data-EFDRCfield]')
       for (let e = 0; e < els.length; e++) {
         const el = els[e]
         el.setAttribute('contenteditable', 'true')
@@ -92,7 +92,7 @@
   EFDRC.ctrlup = function () {
     EFDRC.ctrlLinkDisable()
     if (EFDRC.CTRL) {
-      const els = document.querySelectorAll("[data-EFDRC='true']")
+      const els = document.querySelectorAll('[data-EFDRCfield]')
       for (let e = 0; e < els.length; e++) {
         const el = els[e]
         if (el === document.activeElement) {
@@ -114,7 +114,7 @@
     let currentEl = el
     let i = 0
     while (currentEl instanceof window.Element && i < hardBreak) {
-      if (currentEl.hasAttribute('data-EFDRC')) {
+      if (currentEl.hasAttribute('data-EFDRCfield')) {
         return currentEl
       }
       currentEl = el.parentNode
@@ -246,7 +246,7 @@
   }
 
   EFDRC.ctrlLinkEnable = function () {
-    const links = document.querySelectorAll("[data-EFDRC='true'] a")
+    const links = document.querySelectorAll('[data-EFDRCfield] a')
     for (let x = 0; x < links.length; x++) {
       const el = links[x]
       el.setAttribute('contenteditable', 'false')
@@ -254,7 +254,7 @@
   }
 
   EFDRC.ctrlLinkDisable = function () {
-    const links = document.querySelectorAll("[data-EFDRC='true'] a[contenteditable='false']")
+    const links = document.querySelectorAll("[data-EFDRCfield] a[contenteditable='false']")
     for (let x = 0; x < links.length; x++) {
       const el = links[x]
       el.removeAttribute('contenteditable')

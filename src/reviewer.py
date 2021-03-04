@@ -53,7 +53,7 @@ def edit_filter(txt: str, field: str, filt: str, ctx: TemplateRenderContext) -> 
     if conf["ctrl_click"]:
         class_name += "EFDRC-ctrl "
     field = base64.b64encode(field.encode("utf-8")).decode("ascii")
-    txt = """<%s data-EFDRCfield="%s" data-EFDRC="true" class="%s">%s</%s>""" % (
+    txt = """<%s data-EFDRCfield="%s" class="%s">%s</%s>""" % (
         conf["tag"],
         field,
         class_name,
