@@ -168,9 +168,11 @@
     for (let i = 0; i < EFDRC.shortcuts.length; i++) {
       const scutInfo = EFDRC.shortcuts[i]
       if (EFDRC.matchShortcut(event, scutInfo)) {
-        EFDRC.shortcuts[i].handler(event, target)
-        event.preventDefault()
-        event.stopPropagation()
+        const handled = EFDRC.shortcuts[i].handler(event, target)
+        if (handled !== -1) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
       }
     }
   }
@@ -269,7 +271,6 @@
     } else {
       EFDRC.SPAN = false
     }
-    EFDRC.SPAN = conf.tag
     EFDRC.CTRL = conf.ctrl_click
     EFDRC.PASTE = conf.process_paste
     EFDRC.REMSPAN = conf.remove_span
@@ -315,11 +316,13 @@
     EFDRC.wrapCloze(event, el, true)
   })
   EFDRC.registerShortcut('Backspace', (event, el) => {
-    if (EFDRC.SPAN) event.stopPropagation()
+    if (EFDRC.SPAN) return
     if (EFDRC.REMSPAN) setTimeout(() => EFDRC.removeSpan(el), 0)
+    return -1
   })
   EFDRC.registerShortcut('Delete', (event, el) => {
     if (EFDRC.REMSPAN) setTimeout(() => EFDRC.removeSpan(el), 0)
+    return -1
   })
 
   window.addEventListener('keydown', function (event) {
