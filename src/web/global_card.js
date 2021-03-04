@@ -3,12 +3,6 @@
   const EFDRC = window.EFDRC
   EFDRC.shortcuts = []
 
-  EFDRC.b64DecodeUnicode = function (str) {
-    return decodeURIComponent(window.atob(str).split('').map(function (c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    }).join(''))
-  }
-
   EFDRC.removeSpan = function (el) {
     // removes all span code because depending on the note type
     // pressing backspace can wrap the text in span and apply different styling.
@@ -22,6 +16,100 @@
       }
       span.parentNode.removeChild(span)
     }
+  }
+
+  EFDRC.wrapCloze = function (event, el, altKey) {
+    let highest = 0
+    const val = el.innerHTML
+    let m
+    const myRe = /\{\{c(\d+)::/g
+    while ((m = myRe.exec(val)) !== null) {
+      highest = Math.max(highest, m[1])
+    }
+    if (!altKey) {
+      highest += 1
+    }
+    highest = Math.max(1, highest)
+    EFDRC.execInEditorIframe((iframeWindow) => { iframeWindow.wrap('{{c' + highest + '::', '}}') })
+    event.preventDefault()
+  }
+
+  EFDRC.ctrlLinkEnable = function () {
+    const links = document.querySelectorAll('[data-EFDRCfield] a')
+    for (let x = 0; x < links.length; x++) {
+      const el = links[x]
+      el.setAttribute('contenteditable', 'false')
+    }
+  }
+
+  EFDRC.ctrlLinkDisable = function () {
+    const links = document.querySelectorAll("[data-EFDRCfield] a[contenteditable='false']")
+    for (let x = 0; x < links.length; x++) {
+      const el = links[x]
+      el.removeAttribute('contenteditable')
+    }
+  }
+
+  /* Editor Iframe */
+
+  EFDRC.setupEditorIframe = function () {
+    const iframe = document.createElement('iframe')
+    iframe.setAttribute('id', 'EFDRC-iframe')
+    iframe.style.display = 'none'
+    document.body.appendChild(iframe)
+    const iframeDoc = iframe.contentDocument
+    iframeDoc.body.innerHTML = '<div id="topbuts"></div><div id="fields"></div>'
+
+    const setupEditorJs = function () {
+      // filterHTML is declared as a let, and is not attached to the window object.
+      // So we modify the script to attach it to the window object
+      window.fetch('/_anki/js/editor.js')
+        .then(response => {
+          if (response.ok) return response.text()
+          else {
+            window.alert('ERROR: Edit Field During Review (Cloze) addon may not be compatible with this Anki version')
+          }
+        })
+        .then(script => {
+          const scriptEl = iframeDoc.createElement('script')
+          scriptEl.innerHTML = script + '\nwindow.filterHTML = filterHTML'
+          iframeDoc.body.appendChild(scriptEl)
+        })
+    }
+    const scriptEl = iframeDoc.createElement('script')
+    scriptEl.setAttribute('src', '/_anki/js/vendor/jquery.js')
+    scriptEl.addEventListener('load', setupEditorJs)
+    iframeDoc.body.appendChild(scriptEl)
+  }
+  EFDRC.execInEditorIframe = function (func) {
+    const editorIframe = document.getElementById('EFDRC-iframe')
+    return func(editorIframe.contentWindow)
+  }
+
+  /* Handlers */
+
+  EFDRC.isInsideEfdrcDiv = function (el) {
+    const hardBreak = 100
+    let currentEl = el
+    let i = 0
+    while (currentEl instanceof window.Element && i < hardBreak) {
+      if (currentEl.hasAttribute('data-EFDRCfield')) {
+        return currentEl
+      }
+      currentEl = el.parentNode
+      i++
+    }
+  }
+
+  EFDRC.addListener = function (handlerInfo) {
+    const eventName = handlerInfo[0]
+    const handler = handlerInfo[1]
+    window.addEventListener(eventName, function (event) {
+      const target = EFDRC.isInsideEfdrcDiv(event.target)
+      if (target) {
+        handler(event, target)
+      }
+    })
   }
 
   EFDRC.handlePaste = function (e) {
@@ -45,95 +133,6 @@
         break
       }
     }
-  }
-
-  EFDRC.ctrldown = function () {
-    EFDRC.ctrlLinkEnable()
-    if (EFDRC.CONF.ctrl_click) {
-      const els = document.querySelectorAll('[data-EFDRCfield]')
-      for (let e = 0; e < els.length; e++) {
-        const el = els[e]
-        el.setAttribute('contenteditable', 'true')
-        if (el.hasAttribute('data-EFDRCnotctrl')) {
-          el.removeAttribute('data-EFDRCnotctrl')
-        }
-      }
-    }
-  }
-
-  EFDRC.ctrlup = function () {
-    EFDRC.ctrlLinkDisable()
-    if (EFDRC.CONF.ctrl_click) {
-      const els = document.querySelectorAll('[data-EFDRCfield]')
-      for (let e = 0; e < els.length; e++) {
-        const el = els[e]
-        if (el === document.activeElement) {
-          el.setAttribute('data-EFDRCnotctrl', 'true')
-        } else {
-          el.setAttribute('contenteditable', 'false')
-        }
-      }
-    }
-  }
-
-  EFDRC.placeholder = function (e) {
-    const fldName = EFDRC.b64DecodeUnicode(e.getAttribute('data-EFDRCfield'))
-    e.setAttribute('data-placeholder', fldName)
-  }
-
-  EFDRC.isInsideEfdrcDiv = function (el) {
-    const hardBreak = 100
-    let currentEl = el
-    let i = 0
-    while (currentEl instanceof window.Element && i < hardBreak) {
-      if (currentEl.hasAttribute('data-EFDRCfield')) {
-        return currentEl
-      }
-      currentEl = el.parentNode
-      i++
-    }
-  }
-
-  EFDRC.registerShortcut = function (shortcut, handler) {
-    const shortcutKeys = shortcut.toLowerCase().split(/[+]/).map(key => key.trim())
-    const modKeys = ['ctrl', 'shift', 'alt']
-    const scutInfo = {}
-    modKeys.forEach(modKey => { scutInfo[modKey] = shortcutKeys.includes(modKey) })
-    let mainKey = shortcutKeys[shortcutKeys.length - 1]
-    if (mainKey.length === 1) {
-      if (/\d/.test(mainKey)) {
-        mainKey = 'digit' + mainKey
-      } else {
-        mainKey = 'key' + mainKey
-      }
-    }
-    scutInfo.key = mainKey
-    scutInfo.handler = handler
-    EFDRC.shortcuts.push(scutInfo)
-  }
-
-  EFDRC.wrapCloze = function (event, el, altKey) {
-    let highest = 0
-    const val = el.innerHTML
-    let m
-    const myRe = /\{\{c(\d+)::/g
-    while ((m = myRe.exec(val)) !== null) {
-      highest = Math.max(highest, m[1])
-    }
-    if (!altKey) {
-      highest += 1
-    }
-    highest = Math.max(1, highest)
-    EFDRC.execInEditorIframe((iframeWindow) => { iframeWindow.wrap('{{c' + highest + '::', '}}') })
-    event.preventDefault()
-  }
-
-  EFDRC.matchShortcut = function (event, scutInfo) {
-    if (scutInfo.key !== event.code.toLowerCase()) return false
-    if (scutInfo.ctrl !== (event.ctrlKey || event.metaKey)) return false
-    if (scutInfo.shift !== event.shiftKey) return false
-    if (scutInfo.alt !== event.altKey) return false
-    return true
   }
 
   EFDRC.handleKeydown = function (event, target) {
@@ -198,109 +197,32 @@
     }
   }
 
-  EFDRC.addListener = function (handlerInfo) {
-    const eventName = handlerInfo[0]
-    const handler = handlerInfo[1]
-    window.addEventListener(eventName, function (event) {
-      const target = EFDRC.isInsideEfdrcDiv(event.target)
-      if (target) {
-        handler(event, target)
-      }
-    })
-  }
+  /* Shortcuts */
 
-  EFDRC.handlers = [
-    ['paste', EFDRC.handlePaste],
-    ['focusin', EFDRC.handleFocus],
-    ['focusout', EFDRC.handleBlur],
-    ['keydown', EFDRC.handleKeydown]
-  ]
-  for (let i = 0; i < EFDRC.handlers.length; i++) {
-    EFDRC.addListener(EFDRC.handlers[i])
-  }
-
-  EFDRC.ctrlLinkEnable = function () {
-    const links = document.querySelectorAll('[data-EFDRCfield] a')
-    for (let x = 0; x < links.length; x++) {
-      const el = links[x]
-      el.setAttribute('contenteditable', 'false')
-    }
-  }
-
-  EFDRC.ctrlLinkDisable = function () {
-    const links = document.querySelectorAll("[data-EFDRCfield] a[contenteditable='false']")
-    for (let x = 0; x < links.length; x++) {
-      const el = links[x]
-      el.removeAttribute('contenteditable')
-    }
-  }
-
-  EFDRC.serveCard = function (fld) { // fld: string
-    const els = document.querySelectorAll("[data-EFDRCfield='" + fld + "']")
-    for (let e = 0; e < els.length; e++) {
-      const el = els[e]
-      if (EFDRC.CONF.ctrl_click) {
-        EFDRC.placeholder(el)
+  EFDRC.registerShortcut = function (shortcut, handler) {
+    const shortcutKeys = shortcut.toLowerCase().split(/[+]/).map(key => key.trim())
+    const modKeys = ['ctrl', 'shift', 'alt']
+    const scutInfo = {}
+    modKeys.forEach(modKey => { scutInfo[modKey] = shortcutKeys.includes(modKey) })
+    let mainKey = shortcutKeys[shortcutKeys.length - 1]
+    if (mainKey.length === 1) {
+      if (/\d/.test(mainKey)) {
+        mainKey = 'digit' + mainKey
+      } else {
+        mainKey = 'key' + mainKey
       }
     }
-
-    if (!EFDRC.CONF.ctrl_click) {
-      for (let e = 0; e < els.length; e++) {
-        els[e].setAttribute('contenteditable', 'true')
-      }
-    }
+    scutInfo.key = mainKey
+    scutInfo.handler = handler
+    EFDRC.shortcuts.push(scutInfo)
   }
 
-  EFDRC.pasteHTML = function (html, internal) {
-    EFDRC.execInEditorIframe((iframeWindow) => {
-      const outHtml = iframeWindow.filterHTML(html, internal, false)
-      document.execCommand('inserthtml', false, outHtml) // outer document
-    })
-  }
-
-  EFDRC.execInEditorIframe = function (func) {
-    const editorIframe = document.getElementById('EFDRC-iframe')
-    return func(editorIframe.contentWindow)
-  }
-
-  EFDRC.setupEditorIframe = function () {
-    const iframe = document.createElement('iframe')
-    iframe.setAttribute('id', 'EFDRC-iframe')
-    iframe.style.display = 'none'
-    document.body.appendChild(iframe)
-    const iframeDoc = iframe.contentDocument
-    iframeDoc.body.innerHTML = '<div id="topbuts"></div><div id="fields"></div>'
-
-    const appendScript = function (document, src, onLoad) {
-      const scriptEl = document.createElement('script')
-      scriptEl.setAttribute('src', src)
-      scriptEl.addEventListener('load', onLoad)
-      document.body.appendChild(scriptEl)
-    }
-
-    const setupEditorJs = function () {
-      // filterHTML is declared as a let, and is not attached to the window object.
-      // So we modify the script to attach it to the window object
-      window.fetch('/_anki/js/editor.js')
-        .then(response => {
-          if (response.ok) return response.text()
-          else {
-            window.alert('ERROR: Edit Field During Review (Cloze) addon may not be compatible with this Anki version')
-          }
-        })
-        .then(script => {
-          const scriptEl = iframeDoc.createElement('script')
-          scriptEl.innerHTML = script + '\nwindow.filterHTML = filterHTML'
-          iframeDoc.body.appendChild(scriptEl)
-        })
-    }
-
-    appendScript(iframeDoc, '/_anki/js/vendor/jquery.js', setupEditorJs)
-  }
-
-  EFDRC.registerConfig = function (confStr) {
-    EFDRC.CONF = JSON.parse(confStr)
-    EFDRC.CONF.span = (EFDRC.CONF.tag === 'span')
+  EFDRC.matchShortcut = function (event, scutInfo) {
+    if (scutInfo.key !== event.code.toLowerCase()) return false
+    if (scutInfo.ctrl !== (event.ctrlKey || event.metaKey)) return false
+    if (scutInfo.shift !== event.shiftKey) return false
+    if (scutInfo.alt !== event.altKey) return false
+    return true
   }
 
   EFDRC.registerFormattingShortcut = function () {
@@ -315,6 +237,17 @@
     }
   }
 
+  /* Called from reviewer.py */
+
+  EFDRC.b64DecodeUnicode = function (str) {
+    return decodeURIComponent(window.atob(str).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    }).join(''))
+  }
+  EFDRC.registerConfig = function (confStr) {
+    EFDRC.CONF = JSON.parse(confStr)
+    EFDRC.CONF.span = (EFDRC.CONF.tag === 'span')
+  }
   EFDRC.setupReviewer = function () {
     EFDRC.setupEditorIframe()
     // image resizer
@@ -339,6 +272,16 @@
     })
     EFDRC.registerFormattingShortcut()
 
+    const handlers = [
+      ['paste', EFDRC.handlePaste],
+      ['focusin', EFDRC.handleFocus],
+      ['focusout', EFDRC.handleBlur],
+      ['keydown', EFDRC.handleKeydown]
+    ]
+    for (let i = 0; i < handlers.length; i++) {
+      EFDRC.addListener(handlers[i])
+    }
+
     window.addEventListener('keydown', function (event) {
       if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
         EFDRC.ctrldown()
@@ -349,5 +292,58 @@
         EFDRC.ctrlup()
       }
     })
+  }
+
+  EFDRC.serveCard = function (fld) { // fld: string
+    const els = document.querySelectorAll("[data-EFDRCfield='" + fld + "']")
+    for (let e = 0; e < els.length; e++) {
+      const el = els[e]
+      if (EFDRC.CONF.ctrl_click) {
+        const fldName = EFDRC.b64DecodeUnicode(el.getAttribute('data-EFDRCfield'))
+        el.setAttribute('data-placeholder', fldName)
+      }
+    }
+
+    if (!EFDRC.CONF.ctrl_click) {
+      for (let e = 0; e < els.length; e++) {
+        els[e].setAttribute('contenteditable', 'true')
+      }
+    }
+  }
+
+  EFDRC.pasteHTML = function (html, internal) {
+    EFDRC.execInEditorIframe((iframeWindow) => {
+      const outHtml = iframeWindow.filterHTML(html, internal, false)
+      document.execCommand('inserthtml', false, outHtml) // outer document
+    })
+  }
+
+  EFDRC.ctrldown = function () {
+    EFDRC.ctrlLinkEnable()
+    if (EFDRC.CONF.ctrl_click) {
+      const els = document.querySelectorAll('[data-EFDRCfield]')
+      for (let e = 0; e < els.length; e++) {
+        const el = els[e]
+        el.setAttribute('contenteditable', 'true')
+        if (el.hasAttribute('data-EFDRCnotctrl')) {
+          el.removeAttribute('data-EFDRCnotctrl')
+        }
+      }
+    }
+  }
+
+  EFDRC.ctrlup = function () {
+    EFDRC.ctrlLinkDisable()
+    if (EFDRC.CONF.ctrl_click) {
+      const els = document.querySelectorAll('[data-EFDRCfield]')
+      for (let e = 0; e < els.length; e++) {
+        const el = els[e]
+        if (el === document.activeElement) {
+          el.setAttribute('data-EFDRCnotctrl', 'true')
+        } else {
+          el.setAttribute('contenteditable', 'false')
+        }
+      }
+    }
   }
 })()
