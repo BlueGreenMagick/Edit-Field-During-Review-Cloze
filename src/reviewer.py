@@ -39,7 +39,8 @@ def myRevHtml() -> str:
     config_make_valid(conf)
 
     # config should not have any single quote values
-    js = "EFDRC.registerConfig('{}')".format(conf.to_json())
+    js = "EFDRC.registerConfig('{}');".format(conf.to_json())
+    js += "EFDRC.setupReviewer()"
     return f"<script>{js}</script>"
 
 

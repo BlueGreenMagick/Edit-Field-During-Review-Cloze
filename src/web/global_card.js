@@ -263,20 +263,6 @@
     }
   }
 
-  EFDRC.registerConfig = function (confStr) {
-    EFDRC.CONF = JSON.parse(confStr)
-    EFDRC.CONF.span = (EFDRC.CONF.tag === 'span')
-    for (const key in EFDRC.CONF.z_special_formatting) {
-      const format = EFDRC.CONF.z_special_formatting[key]
-      if (!format.enabled) {
-        continue
-      }
-      const shortcut = format.shortcut
-      const args = [format.command, false].concat(format.args)
-      EFDRC.registerShortcut(shortcut, () => { document.execCommand.apply(document, args) }) // spread args list
-    }
-  }
-
   EFDRC.serveCard = function (fld) { // fld: string
     const els = document.querySelectorAll("[data-EFDRCfield='" + fld + "']")
     for (let e = 0; e < els.length; e++) {
@@ -293,36 +279,55 @@
     }
   }
 
-  // image resizer
-  EFDRC.registerShortcut('Shift+S', (event) => {
-    EFDRC.resizeImageMode = !EFDRC.resizeImageMode
-    EFDRC.maybeResizeOrClean()
-  })
-  EFDRC.registerShortcut('Ctrl+Shift+C', (event, el) => {
-    EFDRC.wrapCloze(event, el, false)
-  })
-  EFDRC.registerShortcut('Ctrl+Shift+Alt+C', (event, el) => {
-    EFDRC.wrapCloze(event, el, true)
-  })
-  EFDRC.registerShortcut('Backspace', (event, el) => {
-    if (EFDRC.CONF.span) return
-    if (EFDRC.CONF.remove_span) setTimeout(() => EFDRC.removeSpan(el), 0)
-    return -1
-  })
-  EFDRC.registerShortcut('Delete', (event, el) => {
-    if (EFDRC.CONF.remove_span) setTimeout(() => EFDRC.removeSpan(el), 0)
-    return -1
-  })
+  EFDRC.registerConfig = function (confStr) {
+    EFDRC.CONF = JSON.parse(confStr)
+    EFDRC.CONF.span = (EFDRC.CONF.tag === 'span')
+  }
 
-  window.addEventListener('keydown', function (event) {
-    if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
-      EFDRC.ctrldown()
+  EFDRC.registerFormattingShortcut = function () {
+    for (const key in EFDRC.CONF.z_special_formatting) {
+      const format = EFDRC.CONF.z_special_formatting[key]
+      if (!format.enabled) {
+        continue
+      }
+      const shortcut = format.shortcut
+      const args = [format.command, false].concat(format.args)
+      EFDRC.registerShortcut(shortcut, () => { document.execCommand.apply(document, args) }) // spread args list
     }
-  })
+  }
 
-  window.addEventListener('keyup', function (event) {
-    if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
-      EFDRC.ctrlup()
-    }
-  })
+  EFDRC.setupReviewer = function () {
+    // image resizer
+    EFDRC.registerShortcut('Shift+S', (event) => {
+      EFDRC.resizeImageMode = !EFDRC.resizeImageMode
+      EFDRC.maybeResizeOrClean()
+    })
+    EFDRC.registerShortcut('Ctrl+Shift+C', (event, el) => {
+      EFDRC.wrapCloze(event, el, false)
+    })
+    EFDRC.registerShortcut('Ctrl+Shift+Alt+C', (event, el) => {
+      EFDRC.wrapCloze(event, el, true)
+    })
+    EFDRC.registerShortcut('Backspace', (event, el) => {
+      if (EFDRC.CONF.span) return
+      if (EFDRC.CONF.remove_span) setTimeout(() => EFDRC.removeSpan(el), 0)
+      return -1
+    })
+    EFDRC.registerShortcut('Delete', (event, el) => {
+      if (EFDRC.CONF.remove_span) setTimeout(() => EFDRC.removeSpan(el), 0)
+      return -1
+    })
+    EFDRC.registerFormattingShortcut()
+
+    window.addEventListener('keydown', function (event) {
+      if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
+        EFDRC.ctrldown()
+      }
+    })
+    window.addEventListener('keyup', function (event) {
+      if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
+        EFDRC.ctrlup()
+      }
+    })
+  }
 })()
