@@ -200,8 +200,6 @@ def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]) -> N
     if isinstance(context, Reviewer):
         web_content.body += myRevHtml()
         js_contents = ["global_card.js", "resize.js", "jquery-ui.min.js"]
-        if conf["process_paste"]:
-            js_contents.append("paste.js")
         for file_name in js_contents:
             web_content.js.append(url_from_fname(file_name))
         web_content.css.append(url_from_fname("global_card.css"))

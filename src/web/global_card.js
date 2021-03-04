@@ -3,34 +3,6 @@
   const EFDRC = window.EFDRC
   EFDRC.shortcuts = []
 
-  // wrappedExceptForWhitespace, wrapInternal from /anki/editor.ts
-  EFDRC.wrappedExceptForWhitespace = function (text, front, back) {
-    const match = text.match(/^(\s*)([^]*?)(\s*)$/)
-    return match[1] + front + match[2] + back + match[3]
-  }
-
-  EFDRC.wrapInternal = function (front, back) {
-    if (document.activeElement.dir === 'rtl') {
-      front = '&#8235;' + front + '&#8236;'
-      back = '&#8235;' + back + '&#8236;'
-    }
-    const s = window.getSelection()
-    let r = s.getRangeAt(0)
-    const content = r.cloneContents()
-    const span = document.createElement('span')
-    span.appendChild(content)
-    const new_ = EFDRC.wrappedExceptForWhitespace(span.innerText, front, back)
-    document.execCommand('inserttext', false, new_)
-    if (!span.innerHTML) {
-      // run with an empty selection; move cursor back past postfix
-      r = s.getRangeAt(0)
-      r.setStart(r.startContainer, r.startOffset - back.length)
-      r.collapse(true)
-      s.removeAllRanges()
-      s.addRange(r)
-    }
-  }
-
   EFDRC.b64DecodeUnicode = function (str) {
     return decodeURIComponent(window.atob(str).split('').map(function (c) {
       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
@@ -152,7 +124,7 @@
       highest += 1
     }
     highest = Math.max(1, highest)
-    EFDRC.wrapInternal('{{c' + highest + '::', '}}')
+    EFDRC.execInEditorIframe((iframeWindow) => { iframeWindow.wrap('{{c' + highest + '::', '}}') })
     event.preventDefault()
   }
 
@@ -279,6 +251,53 @@
     }
   }
 
+  EFDRC.pasteHTML = function (html, internal) {
+    EFDRC.execInEditorIframe((iframeWindow) => {
+      const outHtml = iframeWindow.filterHTML(html, internal, false)
+      document.execCommand('inserthtml', false, outHtml) // outer document
+    })
+  }
+
+  EFDRC.execInEditorIframe = function (func) {
+    const editorIframe = document.getElementById('EFDRC-iframe')
+    return func(editorIframe.contentWindow)
+  }
+
+  EFDRC.setupEditorIframe = function () {
+    const iframe = document.createElement('iframe')
+    iframe.setAttribute('id', 'EFDRC-iframe')
+    iframe.style.display = 'none'
+    document.body.appendChild(iframe)
+    const iframeDoc = iframe.contentDocument
+    iframeDoc.body.innerHTML = '<div id="topbuts"></div><div id="fields"></div>'
+
+    const appendScript = function (document, src, onLoad) {
+      const scriptEl = document.createElement('script')
+      scriptEl.setAttribute('src', src)
+      scriptEl.addEventListener('load', onLoad)
+      document.body.appendChild(scriptEl)
+    }
+
+    const setupEditorJs = function () {
+      // filterHTML is declared as a let, and is not attached to the window object.
+      // So we modify the script to attach it to the window object
+      window.fetch('/_anki/js/editor.js')
+        .then(response => {
+          if (response.ok) return response.text()
+          else {
+            window.alert('ERROR: Edit Field During Review (Cloze) addon may not be compatible with this Anki version')
+          }
+        })
+        .then(script => {
+          const scriptEl = iframeDoc.createElement('script')
+          scriptEl.innerHTML = script + '\nwindow.filterHTML = filterHTML'
+          iframeDoc.body.appendChild(scriptEl)
+        })
+    }
+
+    appendScript(iframeDoc, '/_anki/js/vendor/jquery.js', setupEditorJs)
+  }
+
   EFDRC.registerConfig = function (confStr) {
     EFDRC.CONF = JSON.parse(confStr)
     EFDRC.CONF.span = (EFDRC.CONF.tag === 'span')
@@ -297,6 +316,7 @@
   }
 
   EFDRC.setupReviewer = function () {
+    EFDRC.setupEditorIframe()
     // image resizer
     EFDRC.registerShortcut('Shift+S', (event) => {
       EFDRC.resizeImageMode = !EFDRC.resizeImageMode
