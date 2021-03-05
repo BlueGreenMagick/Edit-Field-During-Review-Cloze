@@ -29,7 +29,7 @@ class ConfigManager:
         return copy.deepcopy(self.config[key])
 
     def __setitem__(self, key: str, value: Any) -> None:
-        "This function only modifies the internal config data. Call conf.write() to actually write to disk"
+        "This function only modifies the internal config data. Call conf.save() to actually write to disk"
         self.config[key] = value
         self.modified = True
 
