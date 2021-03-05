@@ -1,5 +1,5 @@
 {
-  "ctrl_click":false,
+  "ctrl_click": false,
   "outline": true,
   "process_paste": true,
   "remove_span": false,
@@ -7,24 +7,30 @@
   "undo": true,
   "resize_image_default_state": true,
   "resize_image_preserve_ratio": 2,
-  "special_formatting":{
+  "special_formatting": {
     "fontcolor": {
       "enabled": true,
       "command": "foreColor",
       "shortcut": "F7",
-      "args": ["#00f"]
+      "args": [
+        "#00f"
+      ]
     },
     "formatblock": {
       "enabled": false,
       "command": "formatBlock",
       "shortcut": "Ctrl+Period",
-      "args": ["pre"]
+      "args": [
+        "pre"
+      ]
     },
     "highlight": {
       "enabled": false,
       "command": "hiliteColor",
       "shortcut": "Ctrl+Shift+B",
-      "args": ["#00f"]
+      "args": [
+        "#00f"
+      ]
     },
     "hyperlink": {
       "enabled": false,
