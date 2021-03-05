@@ -7,7 +7,7 @@
   "undo": true,
   "resize_image_default_state": true,
   "resize_image_preserve_ratio": 2,
-  "z_special_formatting":{
+  "special_formatting":{
     "fontcolor": {
       "enabled": true,
       "command": "foreColor",

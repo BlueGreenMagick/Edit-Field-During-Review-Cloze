@@ -51,7 +51,7 @@
       "type": "string",
       "default": "div"
     },
-    "z_special_formatting": {
+    "special_formatting": {
       "type": "object"
     }
   }

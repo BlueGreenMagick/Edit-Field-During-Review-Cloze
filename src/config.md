@@ -4,9 +4,9 @@
 
 - outline: If set to `true`, add a blue outline around the field when it is in edit mode. Default, `true`.
 
-- process_paste: When pasting, save images locally, strip unnecessary HTML formatting, etc. Experimental and officially only support 2.1.19. Set it to `false` if you encounter errors regarding `editorwv` on paste.  Default: `true`.
+- process_paste: When pasting, save images locally, strip unnecessary HTML formatting, etc. Experimental and officially only support 2.1.19. Set it to `false` if you encounter errors regarding `editorwv` on paste. Default: `true`.
 
-- resize_image_default_state: Whether image resizing mode is toggled by default. You can press `Alt + S` (`Opt + S` on macOS) to toggle image resizing mode. Default: `true`. 
+- resize_image_default_state: Whether image resizing mode is toggled by default. You can press `Alt + S` (`Opt + S` on macOS) to toggle image resizing mode. Default: `true`.
 
 - resize_image_preserve_ratio: `0`: Don't preserve ratio, `1`: Only preserve ratio when using corner to resize, `2`: Always preserve ratio. If you change aspect ratio, the ratio may change again in AnkiDroid or AnkiMobile as the width shrink to fit the small screen size. Default: `2`.
 
@@ -16,19 +16,18 @@
 
 - undo: Whether the last field edit should be undo-able. Default: `true`.
 
-- z_special_formatting: Shortcuts for special formattings. Possible choices are written below, and its corresponding shortcuts. Set `false` to `true` to enable each, and `true` to `false` to disable.
-
+- special_formatting: Shortcuts for special formattings. Possible choices are written below, and its corresponding shortcuts. Set `false` to `true` to enable each, and `true` to `false` to disable.
 
 #### Special Formatting options
 
 Below are additional formatting options. Italic(Ctrl+I), Bold(Ctrl+B), Underline(Ctrl+U) is implemented by default. `fontcolor`, `removeformat`, `strikethrough` is set to `true` by default.
 
 - `"fontcolor"`: F7
-Note that this requires either a hex code or a rgb value as the second value in the array.
+  Note that this requires either a hex code or a rgb value as the second value in the array.
 - `"formatblock"`: Ctrl + .
-Note that this requires a html tag as the second value in the array. Example: `"pre"`. Note that 'pre' doesn't get removed by 'removeformat'.
+  Note that this requires a html tag as the second value in the array. Example: `"pre"`. Note that 'pre' doesn't get removed by 'removeformat'.
 - `"highlight"`: Ctrl + Shift + B
-Note that this requires either a hex code or a rgb value as the second value in the array. Also, to use highlights, you have to set `remove_span` config to `false`. Example: `"#00f"`.
+  Note that this requires either a hex code or a rgb value as the second value in the array. Also, to use highlights, you have to set `remove_span` config to `false`. Example: `"#00f"`.
 - `"hyperlink"`: Ctrl + Shift + H
 - `"indent"`: Ctrl + Shift + ]
 - `"justifyCenter"`: Ctrl + Shift + Alt + S
@@ -43,5 +42,3 @@ Note that this requires either a hex code or a rgb value as the second value in 
 - `"superscript"`: Ctrl + Shift + =
 - `"unhyperlink"`: Ctrl + Shift + Alt + H
 - `"unorderedlist"`: Ctrl + [
-
-

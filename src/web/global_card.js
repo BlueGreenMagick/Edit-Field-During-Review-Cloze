@@ -226,8 +226,8 @@
   }
 
   EFDRC.registerFormattingShortcut = function () {
-    for (const key in EFDRC.CONF.z_special_formatting) {
-      const format = EFDRC.CONF.z_special_formatting[key]
+    for (const key in EFDRC.CONF.special_formatting) {
+      const format = EFDRC.CONF.special_formatting[key]
       if (!format.enabled) {
         continue
       }
