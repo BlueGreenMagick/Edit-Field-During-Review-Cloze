@@ -52,39 +52,7 @@
 
   /* Editor Iframe */
 
-  EFDRC.setupEditorIframe = function () {
-    const iframe = document.createElement('iframe')
-    iframe.setAttribute('id', 'EFDRC-iframe')
-    iframe.style.display = 'none'
-    document.body.appendChild(iframe)
-    const iframeDoc = iframe.contentDocument
-    iframeDoc.body.innerHTML = '<div id="topbuts"></div><div id="fields"></div>'
-
-    const setupEditorJs = function () {
-      // filterHTML is declared as a let, and is not attached to the window object.
-      // So we modify the script to attach it to the window object
-      window.fetch('/_anki/js/editor.js')
-        .then(response => {
-          if (response.ok) return response.text()
-          else {
-            window.alert('ERROR: Edit Field During Review (Cloze) addon may not be compatible with this Anki version')
-          }
-        })
-        .then(script => {
-          const scriptEl = iframeDoc.createElement('script')
-          scriptEl.innerHTML = script + '\nwindow.filterHTML = filterHTML'
-          iframeDoc.body.appendChild(scriptEl)
-        })
-    }
-    const scriptEl = iframeDoc.createElement('script')
-    scriptEl.setAttribute('src', '/_anki/js/vendor/jquery.min.js')
-    scriptEl.addEventListener('load', setupEditorJs)
-    iframeDoc.body.appendChild(scriptEl)
-  }
-  EFDRC.execInEditorIframe = function (func) {
-    const editorIframe = document.getElementById('EFDRC-iframe')
-    return func(editorIframe.contentWindow)
-  }
+  // TODO: loading editor js won't work. Will have to manually add in editor ts
 
   /* Handlers */
 
@@ -313,8 +281,7 @@
 
   EFDRC.pasteHTML = function (html, internal) {
     EFDRC.execInEditorIframe((iframeWindow) => {
-      const outHtml = iframeWindow.filterHTML(html, internal, false)
-      document.execCommand('inserthtml', false, outHtml) // outer document
+      iframeWindow.pasteHTML(html, internal, false)
     })
   }
 
