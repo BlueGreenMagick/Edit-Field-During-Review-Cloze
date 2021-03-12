@@ -77,7 +77,7 @@
         })
     }
     const scriptEl = iframeDoc.createElement('script')
-    scriptEl.setAttribute('src', '/_anki/js/vendor/jquery.js')
+    scriptEl.setAttribute('src', '/_anki/js/vendor/jquery.min.js')
     scriptEl.addEventListener('load', setupEditorJs)
     iframeDoc.body.appendChild(scriptEl)
   }
