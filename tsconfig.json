@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outDir": "./src/addon/web/EFDRCEditor",
+        "outDir": "src/addon/web/editor",
         "target": "es6",
         "module": "es6",
         "lib": [
