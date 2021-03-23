@@ -1,0 +1,25 @@
+{
+  "name": "edit-field-during-review-cloze",
+  "version": "1.0.0",
+  "description": "This addon lets you edit card during review. More information at [Ankiweb](https://ankiweb.net/shared/info/385888438)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BlueGreenMagick/Edit-Field-During-Review-Cloze.git"
+  },
+  "author": "bluegreenmagick",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BlueGreenMagick/Edit-Field-During-Review-Cloze/issues"
+  },
+  "homepage": "https://github.com/BlueGreenMagick/Edit-Field-During-Review-Cloze#readme",
+  "standard": {
+    "ignore": [
+      "src/addon/web/editor"
+    ]
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "standard": "^16.0.3",
+    "typescript": "^4.2.3"
+  }
+}
