@@ -1,3 +1,5 @@
+import { wrap, pasteHTML } from "./EFDRCEditor";
+
 (function () {
   window.EFDRC = {}
   const EFDRC = window.EFDRC
@@ -30,7 +32,7 @@
       highest += 1
     }
     highest = Math.max(1, highest)
-    EFDRC.execInEditorIframe((iframeWindow) => { iframeWindow.wrap('{{c' + highest + '::', '}}') })
+    wrap('{{c' + highest + '::', '}}')
     event.preventDefault()
   }
 
@@ -279,11 +281,7 @@
     }
   }
 
-  EFDRC.pasteHTML = function (html, internal) {
-    EFDRC.execInEditorIframe((iframeWindow) => {
-      iframeWindow.pasteHTML(html, internal, false)
-    })
-  }
+  EFDRC.pasteHTML = pasteHTML
 
   EFDRC.ctrldown = function () {
     EFDRC.ctrlLinkEnable()
