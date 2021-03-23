@@ -1,7 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-import { setFormat } from ".";
+import { setFormat } from "./index.js";
 
 function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
     const match = text.match(/^(\s*)([^]*?)(\s*)$/)!;

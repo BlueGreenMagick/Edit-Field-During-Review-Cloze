@@ -1,7 +1,7 @@
 /* Copyright: Ankitects Pty Ltd and contributors
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
-import { nodeIsElement } from "./helpers";
+import { nodeIsElement } from "./helpers.js";
 
 export function filterHTML(
     html: string,
