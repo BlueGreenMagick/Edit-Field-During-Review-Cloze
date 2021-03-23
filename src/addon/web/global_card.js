@@ -1,5 +1,3 @@
-import { wrap, pasteHTML } from "./EFDRCEditor";
-
 (function () {
   window.EFDRC = {}
   const EFDRC = window.EFDRC
@@ -32,7 +30,7 @@ import { wrap, pasteHTML } from "./EFDRCEditor";
       highest += 1
     }
     highest = Math.max(1, highest)
-    wrap('{{c' + highest + '::', '}}')
+    EFDRC.wrap('{{c' + highest + '::', '}}')
     event.preventDefault()
   }
 
@@ -51,10 +49,6 @@ import { wrap, pasteHTML } from "./EFDRCEditor";
       el.removeAttribute('contenteditable')
     }
   }
-
-  /* Editor Iframe */
-
-  // TODO: loading editor js won't work. Will have to manually add in editor ts
 
   /* Handlers */
 
@@ -219,7 +213,6 @@ import { wrap, pasteHTML } from "./EFDRCEditor";
     EFDRC.CONF.span = (EFDRC.CONF.tag === 'span')
   }
   EFDRC.setupReviewer = function () {
-    EFDRC.setupEditorIframe()
     // image resizer
     EFDRC.registerShortcut('Shift+S', (event) => {
       EFDRC.resizeImageMode = !EFDRC.resizeImageMode
@@ -280,8 +273,6 @@ import { wrap, pasteHTML } from "./EFDRCEditor";
       }
     }
   }
-
-  EFDRC.pasteHTML = pasteHTML
 
   EFDRC.ctrldown = function () {
     EFDRC.ctrlLinkEnable()

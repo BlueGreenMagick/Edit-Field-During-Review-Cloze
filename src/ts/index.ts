@@ -2,10 +2,18 @@
  * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
 
 import { filterHTML } from "./htmlFilter.js";
-export { wrap } from "./wrap.js";
+import { wrap } from "./wrap.js";
 
+export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void {
+    // modified - removed saveField call
+    document.execCommand(cmd, false, arg);
+}
 
-export function pasteHTML(
+declare global {
+    interface Window { EFDRC: any; }
+}
+
+window.EFDRC.pasteHTML = function (
     html: string,
     internal: boolean,
     extendedMode: boolean
@@ -17,8 +25,4 @@ export function pasteHTML(
     }
 }
 
-
-export function setFormat(cmd: string, arg?: any, nosave: boolean = false): void {
-    // modified - removed saveField call
-    document.execCommand(cmd, false, arg);
-}
+window.EFDRC.wrap = wrap
