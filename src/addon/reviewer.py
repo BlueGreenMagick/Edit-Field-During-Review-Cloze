@@ -25,6 +25,8 @@ ankiver_major = ankiversion[0:3]
 conf = ConfigManager()
 editorwv = semiEditorWebView()
 
+window = conf.enable_config_window()
+
 
 class FldNotFoundError(Exception):
     def __init__(self, fld: str):
