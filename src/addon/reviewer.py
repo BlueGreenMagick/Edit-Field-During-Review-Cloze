@@ -14,18 +14,17 @@ from aqt.qt import QClipboard
 from aqt.reviewer import Reviewer, ReviewerBottomBar
 from aqt.utils import showText, tooltip
 
+
 from .semieditor import semiEditorWebView
-from .config import ConfigManager, config_make_valid
+from .config import conf
+from .configmanager import config_make_valid
 
 ERROR_MSG = "ERROR - Edit Field During Review Cloze\n{}"
 
 ankiver_minor = int(ankiversion.split(".")[2])
 ankiver_major = ankiversion[0:3]
 
-conf = ConfigManager()
 editorwv = semiEditorWebView()
-
-window = conf.enable_config_window()
 
 
 class FldNotFoundError(Exception):
