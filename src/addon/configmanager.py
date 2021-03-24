@@ -276,6 +276,20 @@ class ConfigLayout(QBoxLayout):
         self.addLayout(layout)
         return layout
 
+    def scroll_layout(self, horizontal: bool = True, vertical: bool = True) -> "ConfigLayout":
+        layout = ConfigLayout(self, QBoxLayout.TopToBottom)
+        inner_widget = QWidget()
+        inner_widget.setLayout(layout)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(inner_widget)
+        scroll.setSizePolicy(
+            QSizePolicy.Expanding if horizontal else QSizePolicy.Minimum,
+            QSizePolicy.Expanding if vertical else QSizePolicy.Minimum,
+        )
+        self.addWidget(scroll)
+        return layout
+
 
 def config_make_valid(conf: ConfigManager) -> None:
     # Once a boolean, Now a number.
