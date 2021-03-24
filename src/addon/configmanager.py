@@ -181,9 +181,13 @@ class ConfigTab(QWidget):
         self.conf = self.config_window.conf
         self.widget_updates = window.widget_updates
 
-    def layout(self) -> "ConfigLayout":
-        self.main_layout = ConfigLayout(self, QBoxLayout.TopToBottom)
-        layout = self.main_layout
+    def hlayout(self) -> "ConfigLayout":
+        layout = ConfigLayout(self, QBoxLayout.LeftToRight)
+        self.setLayout(layout)
+        return layout
+
+    def vlayout(self) -> "ConfigLayout":
+        layout = ConfigLayout(self, QBoxLayout.TopToBottom)
         self.setLayout(layout)
         return layout
 
@@ -264,6 +268,11 @@ class ConfigLayout(QBoxLayout):
 
     def hlayout(self) -> "ConfigLayout":
         layout = ConfigLayout(self, QBoxLayout.LeftToRight)
+        self.addLayout(layout)
+        return layout
+
+    def vlayout(self) -> "ConfigLayout":
+        layout = ConfigLayout(self, QBoxLayout.TopToBottom)
         self.addLayout(layout)
         return layout
 
