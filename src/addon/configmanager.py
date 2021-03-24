@@ -243,6 +243,19 @@ class ConfigLayout(QBoxLayout):
         self.addWidget(combobox)
         return combobox
 
+    def text_input(self, key: str) -> QLineEdit:
+        "For string config"
+        line_edit = QLineEdit()
+
+        def update(conf: ConfigManager) -> None:
+            line_edit.setText(conf.get(key))
+        self.widget_updates.append(update)
+
+        line_edit.textChanged.connect(
+            lambda text: self.conf.set(key, text))
+        self.addWidget(line_edit)
+        return line_edit
+
     def spacing(self, space: int = 1) -> None:
         self.addSpacing(space)
 
