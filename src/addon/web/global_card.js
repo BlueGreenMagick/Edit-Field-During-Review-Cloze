@@ -196,8 +196,13 @@
         continue
       }
       const shortcut = format.shortcut
-      const args = [format.command, false].concat(format.args)
-      EFDRC.registerShortcut(shortcut, () => { document.execCommand.apply(document, args) }) // spread args list
+      EFDRC.registerShortcut(shortcut, () => {
+        if (format.arg) {
+          document.execCommand(format.command, false, format.arg.value)
+        } else {
+          document.execCommand(format.command, false)
+        }
+      }) // spread args list
     }
   }
 
