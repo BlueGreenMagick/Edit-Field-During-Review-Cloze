@@ -54,7 +54,7 @@ class ConfigManager:
                 raise
 
     def get_default_value(self, key: str) -> Any:
-        self.get_from_dict(self._default, key)
+        return self.get_from_dict(self._default, key)
 
     def set(self, key: str, value: Any) -> None:
         self.modified = True
@@ -71,7 +71,7 @@ class ConfigManager:
 
     def __getitem__(self, key: str) -> Any:
         "Returns a deep copy of the config. Modifying the returned object will not affect conf."
-        self.get(key)
+        return self.get(key)
 
     def __setitem__(self, key: str, value: Any) -> None:
         "This function only modifies the internal config data. Call conf.save() to actually write to disk"
