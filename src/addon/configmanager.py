@@ -196,6 +196,7 @@ class ConfigLayout(QBoxLayout):
     def __init__(self, parent: QObject, direction: QBoxLayout.Direction):
         QBoxLayout.__init__(self, direction)
         self.conf = parent.conf
+        self.config_window = parent.config_window
         self.widget_updates = parent.widget_updates
 
     def label(self, label: str, bold: bool = False, size: int = 0) -> QLabel:
@@ -259,6 +260,33 @@ class ConfigLayout(QBoxLayout):
             lambda text: self.conf.set(key, text))
         self.addWidget(line_edit)
         return line_edit
+
+    def color_input(self, key: str) -> QPushButton:
+        "For hex color config"
+        button = QPushButton()
+        button.setFixedWidth(25)
+        button.setFixedHeight(25)
+
+        color_dialog = QColorDialog(self.config_window)
+
+        def set_color(rgb: str) -> None:
+            button.setStyleSheet(
+                "QPushButton{ background-color: \"%s\"; border: none; border-radius: 3px}" % rgb
+            )
+            color = QColor()
+            color.setNamedColor(rgb)
+            color_dialog.setCurrentColor(color)
+
+        def update(conf: ConfigManager) -> None:
+            set_color(conf.get(key))
+
+        self.widget_updates.append(update)
+        color_dialog.colorSelected.connect(
+            lambda color: set_color(color.name(QColor.HexRgb)))
+        button.clicked.connect(lambda _: color_dialog.exec_())
+
+        self.addWidget(button)
+        return button
 
     def spacing(self, space: int = 1) -> None:
         self.addSpacing(space)
