@@ -194,8 +194,16 @@ class ConfigLayout(QBoxLayout):
         self.conf = parent.conf
         self.widget_updates = parent.widget_updates
 
-    def label(self, label: str) -> QLabel:
+    def label(self, label: str, bold: bool = False, size: int = 0) -> QLabel:
         label_widget = QLabel(label)
+        if bold or size:
+            font = QFont()
+            if bold:
+                font.setBold(True)
+            if size:
+                font.setPixelSize(size)
+            label_widget.setFont(font)
+
         self.addWidget(label_widget)
         return label_widget
 
@@ -234,6 +242,9 @@ class ConfigLayout(QBoxLayout):
             lambda idx: self.conf.set(key, values[idx]))
         self.addWidget(combobox)
         return combobox
+
+    def spacing(self, space: int = 1) -> None:
+        self.addSpacing(space)
 
     def stretch(self, factor: int = 0) -> None:
         self.addStretch(factor)
