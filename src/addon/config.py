@@ -107,24 +107,32 @@ def parse_fields(template: str) -> List[FieldInfo]:
     return fields
 
 
-def toggle_edit_mod(note_type: NoteType, front: bool, index: int, checked: bool) -> None:
-    "Insert or remove edit: modifier in note type template"
-    pass
+class TemplateFieldInfos(TypedDict):
+    qfields: List[FieldInfo]
+    afields: List[FieldInfo]
+    qmodified: bool
+    amodified: bool
+    note_type: NoteType
 
 
-def populate_field_info(qlist: QListWidget, note_type: NoteType, fields: List[FieldInfo]) -> None:
-    qlist.clear()
-    for i, field in enumerate(fields):
-        field_label = field["name"]
-        for mod in field["modifiers"]:
-            field_label += f" ({mod})"
-        # {{edit:FrontSide}} is ignored
-        if field["name"] == "FrontSide":
+def populate_field_info(lists: Tuple[QListWidget, QListWidget], template_fields: TemplateFieldInfos) -> None:
+    fields_key = ["qfields", "afields"]
+    for i in range(2):
+        fields = template_fields[fields_key[i]]  # type: ignore
+        qlist = lists[i]
+
+        qlist.clear()
+        for i, field in enumerate(fields):
+            field_label = field["name"]
+            for mod in field["modifiers"]:
+                field_label += f" ({mod})"
+            # {{edit:FrontSide}} is ignored
+            if field["name"] == "FrontSide":
+                item = QListWidgetItem(field_label, qlist, 0)
+                qlist.addItem(item)
+                continue
             item = QListWidgetItem(field_label, qlist, 0)
-            qlist.addItem(item)
-            continue
-        item = QListWidgetItem(field_label, qlist, 0)
-        item.setCheckState(Qt.Checked if field["edit"] else Qt.Unchecked)
+            item.setCheckState(Qt.Checked if field["edit"] else Qt.Unchecked)
 
 
 class FieldsListWidgetContent(TypedDict):
@@ -149,15 +157,12 @@ def fields_tab(conf_window: ConfigWindow) -> None:
     back_list.setStyleSheet(list_stylesheet)
     hlayout.addWidget(front_list)
     hlayout.addWidget(back_list)
+    templates_fields: List[TemplateFieldInfos] = []
 
     def switch_template(idx: int) -> None:
         if idx == -1:
             return
-        note_type, template = dropdown.itemData(idx, Qt.UserRole)
-        qfields = parse_fields(template["qfmt"])
-        populate_field_info(front_list, note_type, qfields)
-        afields = parse_fields(template["afmt"])
-        populate_field_info(back_list, note_type, afields)
+        populate_field_info((front_list, back_list), templates_fields[idx])
 
     dropdown.currentIndexChanged.connect(switch_template)
 
@@ -170,7 +175,17 @@ def fields_tab(conf_window: ConfigWindow) -> None:
             templates = note_type["tmpls"]
             for template in templates:
                 label = "{}: {}".format(note_type["name"], template["name"])
-                dropdown.addItem(label, (note_type, template))
+                qfields = parse_fields(template["qfmt"])
+                afields = parse_fields(template["afmt"])
+                template_fields = TemplateFieldInfos({
+                    "note_type": note_type,
+                    "qfields": qfields,
+                    "afields": afields,
+                    "qmodified": False,
+                    "amodified": False
+                })
+                templates_fields.append(template_fields)
+                dropdown.addItem(label)
 
         dropdown.setCurrentIndex(0)  # Triggers currentIndexChanged
 
