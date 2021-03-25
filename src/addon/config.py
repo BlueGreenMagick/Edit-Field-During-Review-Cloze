@@ -1,4 +1,13 @@
-from .configmanager import ConfigManager, ConfigWindow
+
+from enum import Enum
+import re
+from typing import Tuple, List, Dict, TypedDict, Union, Optional
+
+from anki.models import NoteType, Template
+from aqt import mw
+from aqt.qt import Qt, QCheckBox, QComboBox, QListWidget, QListWidgetItem, QWidget
+
+from .configmanager import ConfigManager, ConfigWindow, ConfigLayout
 
 conf = ConfigManager()
 
@@ -25,7 +34,7 @@ def general_tab(conf_window: ConfigWindow) -> None:
         "tag", tag_options, tag_options
     ).setToolTip("Use span if you want an inline field")
     tag_hlayout.stretch()
-    layout.spacing()
+    layout.stretch()
 
     layout.label("Image Resizing", bold=True)
     layout.checkbox("resize_image_default_state",
@@ -69,6 +78,106 @@ def formatting_tab(conf_window: ConfigWindow) -> None:
     layout.stretch(1)
 
 
+class FieldInfo(TypedDict):
+    name: str
+    edit: bool
+    modifiers: List[str]
+
+
+def parse_fields(template: str) -> List[FieldInfo]:
+    matches = re.findall("{{[^#/}]+?}}", template)  # type: ignore
+    fields = []
+    for m in matches:
+        # strip off mustache
+        m = re.sub(r"[{}]", "", m)
+        # strip off modifiers
+        splitted = m.split(":")
+        modifiers = splitted[:-1]
+        field_name = splitted[-1]
+        has_edit = False
+        try:
+            modifiers.remove("edit")
+            has_edit = True
+        except:
+            pass
+        field_info = FieldInfo(
+            name=field_name, edit=has_edit, modifiers=modifiers
+        )
+        fields.append(field_info)
+    return fields
+
+
+def toggle_edit_mod(note_type: NoteType, front: bool, index: int, checked: bool) -> None:
+    "Insert or remove edit: modifier in note type template"
+    pass
+
+
+def populate_field_info(qlist: QListWidget, note_type: NoteType, fields: List[FieldInfo]) -> None:
+    qlist.clear()
+    for i, field in enumerate(fields):
+        field_label = field["name"]
+        for mod in field["modifiers"]:
+            field_label += f" ({mod})"
+        # {{edit:FrontSide}} is ignored
+        if field["name"] == "FrontSide":
+            item = QListWidgetItem(field_label, qlist, 0)
+            qlist.addItem(item)
+            continue
+        item = QListWidgetItem(field_label, qlist, 0)
+        item.setCheckState(Qt.Checked if field["edit"] else Qt.Unchecked)
+
+
+class FieldsListWidgetContent(TypedDict):
+    front_widget: Optional[QWidget]
+    back_widget: Optional[QWidget]
+    front_inner: Optional[ConfigLayout]
+    back_inner: Optional[ConfigLayout]
+
+
+def fields_tab(conf_window: ConfigWindow) -> None:
+    tab = conf_window.addTab("Fields")
+    layout = tab.vlayout()
+    dropdown = QComboBox()
+    layout.addWidget(dropdown)
+    layout.space(20)
+    hlayout = layout.hlayout()
+    layout.space(20)
+    list_stylesheet = "QListWidget{border: 1px solid; padding: 6px;}"
+    front_list = QListWidget()
+    front_list.setStyleSheet(list_stylesheet)
+    back_list = QListWidget()
+    back_list.setStyleSheet(list_stylesheet)
+    hlayout.addWidget(front_list)
+    hlayout.addWidget(back_list)
+
+    def switch_template(idx: int) -> None:
+        if idx == -1:
+            return
+        note_type, template = dropdown.itemData(idx, Qt.UserRole)
+        qfields = parse_fields(template["qfmt"])
+        populate_field_info(front_list, note_type, qfields)
+        afields = parse_fields(template["afmt"])
+        populate_field_info(back_list, note_type, afields)
+
+    dropdown.currentIndexChanged.connect(switch_template)
+
+    def on_open() -> None:
+        dropdown.clear()
+
+        models = mw.col.models
+        note_types = models.all()
+        for note_type in note_types:
+            templates = note_type["tmpls"]
+            for template in templates:
+                label = "{}: {}".format(note_type["name"], template["name"])
+                dropdown.addItem(label, (note_type, template))
+
+        dropdown.setCurrentIndex(0)  # Triggers currentIndexChanged
+
+    conf_window.widget_on_open.append(on_open)
+
+
 conf_window = conf.enable_config_window()
 general_tab(conf_window)
 formatting_tab(conf_window)
+fields_tab(conf_window)
