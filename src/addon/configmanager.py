@@ -292,7 +292,7 @@ class ConfigLayout(QBoxLayout):
         self.addWidget(button)
         return button
 
-    def spacing(self, space: int = 1) -> None:
+    def space(self, space: int = 1) -> None:
         self.addSpacing(space)
 
     def stretch(self, factor: int = 0) -> None:
