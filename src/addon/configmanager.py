@@ -280,9 +280,13 @@ class ConfigLayout(QBoxLayout):
         def update(conf: ConfigManager) -> None:
             set_color(conf.get(key))
 
+        def save(color: QColor) -> None:
+            rgb = color.name(QColor.HexRgb)
+            self.conf.set(key, rgb)
+            set_color(rgb)
+
         self.widget_updates.append(update)
-        color_dialog.colorSelected.connect(
-            lambda color: set_color(color.name(QColor.HexRgb)))
+        color_dialog.colorSelected.connect(lambda color: save(color))
         button.clicked.connect(lambda _: color_dialog.exec_())
 
         self.addWidget(button)
