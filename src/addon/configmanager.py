@@ -86,7 +86,7 @@ class ConfigManager:
         config_window = self.config_window
 
         def open_config() -> bool:
-            config_window.update_widgets()
+            config_window.on_open()
             config_window.exec_()
             return True
         mw.addonManager.setConfigAction(__name__, open_config)
@@ -100,6 +100,7 @@ class ConfigWindow(QDialog):
         self.conf = conf
         self.mgr = mw.addonManager
         self.setWindowTitle("Config for Edit Field During Review (Cloze)")
+        self.widget_on_open: List[Callable[[], None]] = []
         self.widget_updates: List[Callable[[ConfigManager], None]] = []
         self.setup()
 
@@ -139,9 +140,17 @@ class ConfigWindow(QDialog):
 
         self.main_layout.addLayout(btn_box)
 
+    def widget_execute_open(self) -> None:
+        for on_open in self.widget_on_open:
+            on_open()
+
     def update_widgets(self) -> None:
         for widget_update in self.widget_updates:
             widget_update(self.conf)
+
+    def on_open(self) -> None:
+        self.widget_execute_open()
+        self.update_widgets()
 
     def on_save(self) -> None:
         self.conf.save()
@@ -179,6 +188,7 @@ class ConfigTab(QWidget):
         QWidget.__init__(self, window)
         self.config_window = window
         self.conf = self.config_window.conf
+        self.widget_on_open = window.widget_on_open
         self.widget_updates = window.widget_updates
 
     def hlayout(self) -> "ConfigLayout":
@@ -197,6 +207,7 @@ class ConfigLayout(QBoxLayout):
         QBoxLayout.__init__(self, direction)
         self.conf = parent.conf
         self.config_window = parent.config_window
+        self.widget_on_open = parent.widget_on_open
         self.widget_updates = parent.widget_updates
 
     def label(self, label: str, bold: bool = False, size: int = 0) -> QLabel:
