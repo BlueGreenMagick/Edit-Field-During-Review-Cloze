@@ -11,6 +11,7 @@ from aqt.utils import tooltip
 class ConfigManager:
     def __init__(self) -> None:
         self.config_window: Optional[ConfigWindow] = None
+        self.config_tabs: List[Callable] = []
         self._config: Optional[Dict] = None
         addon_dir = mw.addonManager.addonFromModule(__name__)
         self._default = mw.addonManager.addonConfigDefaults(addon_dir)
@@ -81,17 +82,19 @@ class ConfigManager:
         return iter(self._config)
 
     # Config Window
-    def enable_config_window(self) -> "ConfigWindow":
-        self.config_window = ConfigWindow(self)
-        config_window = self.config_window
-
+    def enable_config_window(self) -> None:
         def open_config() -> bool:
+            config_window = ConfigWindow(self)
+            for tab in self.config_tabs:
+                tab(config_window)
             config_window.on_open()
             config_window.exec_()
+            self.config_window = config_window
             return True
         mw.addonManager.setConfigAction(__name__, open_config)
 
-        return config_window
+    def add_config_tab(self, tab: Callable[["ConfigWindow"], None]) -> None:
+        self.config_tabs.append(tab)
 
 
 class ConfigWindow(QDialog):
@@ -100,6 +103,7 @@ class ConfigWindow(QDialog):
         self.conf = conf
         self.mgr = mw.addonManager
         self.setWindowTitle("Config for Edit Field During Review (Cloze)")
+        self.setAttribute(Qt.WA_DeleteOnClose)
         self.widget_on_open: List[Callable[[], None]] = []
         self.widget_updates: List[Callable[[ConfigManager], None]] = []
         self.setup()
@@ -177,7 +181,7 @@ class ConfigWindow(QDialog):
 
     # Add Widgets
 
-    def addTab(self, name: str, widget: QWidget = None) -> "ConfigTab":
+    def add_tab(self, name: str, widget: QWidget = None) -> "ConfigTab":
         tab = ConfigTab(self)
         self.main_tab.addTab(tab, name)
         return tab

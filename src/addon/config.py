@@ -13,7 +13,7 @@ conf = ConfigManager()
 
 
 def general_tab(conf_window: ConfigWindow) -> None:
-    tab = conf_window.addTab("General")
+    tab = conf_window.add_tab("General")
     layout = tab.vlayout()
 
     layout.checkbox(
@@ -57,7 +57,7 @@ def general_tab(conf_window: ConfigWindow) -> None:
 
 def formatting_tab(conf_window: ConfigWindow) -> None:
     conf = conf_window.conf
-    tab = conf_window.addTab("Formatting")
+    tab = conf_window.add_tab("Formatting")
     layout = tab.vlayout()
     layout.setContentsMargins(25, 25, 25, 25)
     scroll_layout = layout.scroll_layout(horizontal=False)
@@ -172,7 +172,7 @@ def get_fields_in_every_notetype(fields_in_note_type: List[NoteTypeFields]) -> N
 
 
 def fields_tab(conf_window: ConfigWindow) -> None:
-    tab = conf_window.addTab("Fields")
+    tab = conf_window.add_tab("Fields")
     layout = tab.vlayout()
     dropdown = QComboBox()
     layout.addWidget(dropdown)
@@ -213,7 +213,7 @@ def fields_tab(conf_window: ConfigWindow) -> None:
     conf_window.widget_on_open.append(on_open)
 
 
-conf_window = conf.enable_config_window()
-general_tab(conf_window)
-formatting_tab(conf_window)
-fields_tab(conf_window)
+conf.enable_config_window()
+conf.add_config_tab(general_tab)
+conf.add_config_tab(formatting_tab)
+conf.add_config_tab(fields_tab)
