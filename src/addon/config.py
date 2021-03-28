@@ -83,22 +83,6 @@ class TemplateField(TypedDict):
     edit: bool
 
 
-def parse_fields(template: str) -> List[TemplateField]:
-    matches = re.findall("{{[^#/}]+?}}", template)  # type: ignore
-    fields = []
-    for m in matches:
-        # strip off mustache
-        m = re.sub(r"[{}]", "", m)
-        # strip off modifiers
-        splitted = m.split(":")
-        modifiers = splitted[:-1]
-        field_name = splitted[-1]
-        has_edit = ("edit" in modifiers)
-        field_info = TemplateField(name=field_name, edit=has_edit)
-        fields.append(field_info)
-    return fields
-
-
 class Editability(Enum):
     NONE = 0
     PARTIAL = 1
@@ -129,6 +113,33 @@ class FieldIsEditable(TypedDict):
 class NoteTypeFields(TypedDict):
     name: str
     fields: List[FieldIsEditable]
+
+
+def replace_fields(template: str, fields: List[FieldIsEditable]) -> str:
+    for field in fields:
+        if field["edit"] == Editability.ALL:
+            template = re.sub("{{((?:(?!edit:)[^#/:}]+:)*%s)}}" %
+                              field["name"], r"{{edit:\1}}", template)
+        elif field["edit"] == Editability.NONE:
+            template = re.sub(
+                "{{((?:[^#/:}]+:)*)edit:((?:[^#/:}]+:)*%s)}}" % field["name"], r"{{\1\2}}", template)
+    return template
+
+
+def parse_fields(template: str) -> List[TemplateField]:
+    matches = re.findall("{{[^#/}]+?}}", template)  # type: ignore
+    fields = []
+    for m in matches:
+        # strip off mustache
+        m = re.sub(r"[{}]", "", m)
+        # strip off modifiers
+        splitted = m.split(":")
+        modifiers = splitted[:-1]
+        field_name = splitted[-1]
+        has_edit = ("edit" in modifiers)
+        field_info = TemplateField(name=field_name, edit=has_edit)
+        fields.append(field_info)
+    return fields
 
 
 def get_fields_in_every_notetype(fields_in_note_type: List[NoteTypeFields]) -> None:
@@ -207,6 +218,17 @@ def fields_tab(conf_window: ConfigWindow) -> None:
     for nt in fields_in_note_type:
         dropdown.addItem(nt["name"])
     dropdown.setCurrentIndex(0)  # Triggers currentIndexChanged
+
+    def on_save() -> None:
+        for note_type_fields in fields_in_note_type:
+            note_type = mw.col.models.byName(note_type_fields["name"])
+            for template in note_type["tmpls"]:
+                for side in ["qfmt", "afmt"]:
+                    template[side] = replace_fields(
+                        template[side], note_type_fields["fields"])
+            mw.col.models.save(note_type)
+
+    conf_window.execute_on_save(on_save)
 
 
 conf.use_custom_window()
