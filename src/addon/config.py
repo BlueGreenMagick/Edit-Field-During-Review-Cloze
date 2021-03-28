@@ -203,14 +203,10 @@ def fields_tab(conf_window: ConfigWindow) -> None:
 
     dropdown.currentIndexChanged.connect(switch_template)
 
-    def on_open() -> None:
-        dropdown.clear()
-        get_fields_in_every_notetype(fields_in_note_type)
-        for nt in fields_in_note_type:
-            dropdown.addItem(nt["name"])
-        dropdown.setCurrentIndex(0)  # Triggers currentIndexChanged
-
-    conf_window.widget_on_open.append(on_open)
+    get_fields_in_every_notetype(fields_in_note_type)
+    for nt in fields_in_note_type:
+        dropdown.addItem(nt["name"])
+    dropdown.setCurrentIndex(0)  # Triggers currentIndexChanged
 
 
 conf.use_custom_window()
