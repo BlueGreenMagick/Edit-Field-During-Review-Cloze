@@ -3,7 +3,7 @@ from enum import Enum
 import re
 from typing import List, TypedDict, Set
 
-from anki.models import Template
+from anki.models import Template, NoteType
 from aqt import mw
 from aqt.qt import Qt, QComboBox, QListWidget, QListWidgetItem
 
@@ -107,6 +107,7 @@ class Editability(Enum):
 
 class FieldIsEditable(TypedDict):
     name: str
+    orig_edit: Editability
     edit: Editability
 
 
@@ -115,15 +116,16 @@ class NoteTypeFields(TypedDict):
     fields: List[FieldIsEditable]
 
 
-def replace_fields(template: str, fields: List[FieldIsEditable]) -> str:
-    for field in fields:
-        if field["edit"] == Editability.ALL:
-            template = re.sub("{{((?:(?!edit:)[^#/:}]+:)*%s)}}" %
-                              field["name"], r"{{edit:\1}}", template)
-        elif field["edit"] == Editability.NONE:
-            template = re.sub(
-                "{{((?:[^#/:}]+:)*)edit:((?:[^#/:}]+:)*%s)}}" % field["name"], r"{{\1\2}}", template)
-    return template
+def replace_field(note_type: NoteType, field: FieldIsEditable) -> NoteType:
+    for template in note_type["tmpls"]:
+        for side in ["qfmt", "afmt"]:
+            if field["edit"] == Editability.ALL:
+                template[side] = re.sub("{{((?:(?!edit:)[^#/:}]+:)*%s)}}" %
+                                        field["name"], r"{{edit:\1}}", template[side])
+            elif field["edit"] == Editability.NONE:
+                template[side] = re.sub(
+                    "{{((?:[^#/:}]+:)*)edit:((?:[^#/:}]+:)*%s)}}" % field["name"], r"{{\1\2}}", template[side])
+    return note_type
 
 
 def parse_fields(template: str) -> List[TemplateField]:
@@ -167,14 +169,14 @@ def get_fields_in_every_notetype(fields_in_note_type: List[NoteTypeFields]) -> N
         for fldname in field_names:
             try:
                 # if (False, False), skip since the field isn't used in any of the templates.
+                editable = {
+                    (True, True): Editability.PARTIAL,
+                    (True, False): Editability.ALL,
+                    (False, True): Editability.NONE
+                }[(fldname in editable_field_names, fldname in uneditable_field_names)]
+
                 field = FieldIsEditable(
-                    name=fldname,
-                    edit={
-                        (True, True): Editability.PARTIAL,
-                        (True, False): Editability.ALL,
-                        (False, True): Editability.NONE
-                    }[(fldname in editable_field_names, fldname in uneditable_field_names)]
-                )
+                    name=fldname, edit=editable, orig_edit=editable)
                 fields_list.append(field)
             except:
                 pass
@@ -221,12 +223,14 @@ def fields_tab(conf_window: ConfigWindow) -> None:
 
     def on_save() -> None:
         for note_type_fields in fields_in_note_type:
+            modified = False
             note_type = mw.col.models.byName(note_type_fields["name"])
-            for template in note_type["tmpls"]:
-                for side in ["qfmt", "afmt"]:
-                    template[side] = replace_fields(
-                        template[side], note_type_fields["fields"])
-            mw.col.models.save(note_type)
+            for field in note_type_fields["fields"]:
+                if field["edit"] != field["orig_edit"]:
+                    modified = True
+                    note_type = replace_field(note_type, field)
+            if modified:
+                mw.col.models.save(note_type)
 
     conf_window.execute_on_save(on_save)
 
