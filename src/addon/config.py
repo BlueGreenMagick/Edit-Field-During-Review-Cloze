@@ -1,13 +1,13 @@
 
 from enum import Enum
 import re
-from typing import Tuple, List, Dict, TypedDict, Union, Optional
+from typing import List, TypedDict, Set
 
-from anki.models import NoteType, Template
+from anki.models import Template
 from aqt import mw
-from aqt.qt import Qt, QCheckBox, QComboBox, QListWidget, QListWidgetItem, QWidget
+from aqt.qt import Qt, QComboBox, QListWidget, QListWidgetItem
 
-from .configmanager import ConfigManager, ConfigWindow, ConfigLayout
+from .configmanager import ConfigManager, ConfigWindow
 
 conf = ConfigManager()
 
@@ -78,13 +78,12 @@ def formatting_tab(conf_window: ConfigWindow) -> None:
     layout.stretch(1)
 
 
-class FieldInfo(TypedDict):
+class TemplateField(TypedDict):
     name: str
     edit: bool
-    modifiers: List[str]
 
 
-def parse_fields(template: str) -> List[FieldInfo]:
+def parse_fields(template: str) -> List[TemplateField]:
     matches = re.findall("{{[^#/}]+?}}", template)  # type: ignore
     fields = []
     for m in matches:
@@ -94,52 +93,66 @@ def parse_fields(template: str) -> List[FieldInfo]:
         splitted = m.split(":")
         modifiers = splitted[:-1]
         field_name = splitted[-1]
-        has_edit = False
-        try:
-            modifiers.remove("edit")
-            has_edit = True
-        except:
-            pass
-        field_info = FieldInfo(
-            name=field_name, edit=has_edit, modifiers=modifiers
-        )
+        has_edit = ("edit" in modifiers)
+        field_info = TemplateField(name=field_name, edit=has_edit)
         fields.append(field_info)
     return fields
 
 
-class TemplateFieldInfos(TypedDict):
-    qfields: List[FieldInfo]
-    afields: List[FieldInfo]
-    qmodified: bool
-    amodified: bool
-    note_type: NoteType
+class Editability(Enum):
+    NONE = Qt.Unchecked
+    PARTIAL = Qt.PartiallyChecked
+    ALL = Qt.Checked
 
 
-def populate_field_info(lists: Tuple[QListWidget, QListWidget], template_fields: TemplateFieldInfos) -> None:
-    fields_key = ["qfields", "afields"]
-    for i in range(2):
-        fields = template_fields[fields_key[i]]  # type: ignore
-        qlist = lists[i]
-
-        qlist.clear()
-        for i, field in enumerate(fields):
-            field_label = field["name"]
-            for mod in field["modifiers"]:
-                field_label += f" ({mod})"
-            # {{edit:FrontSide}} is ignored
-            if field["name"] == "FrontSide":
-                item = QListWidgetItem(field_label, qlist, 0)
-                qlist.addItem(item)
-                continue
-            item = QListWidgetItem(field_label, qlist, 0)
-            item.setCheckState(Qt.Checked if field["edit"] else Qt.Unchecked)
+class FieldIsEditable(TypedDict):
+    name: str
+    edit: Editability
 
 
-class FieldsListWidgetContent(TypedDict):
-    front_widget: Optional[QWidget]
-    back_widget: Optional[QWidget]
-    front_inner: Optional[ConfigLayout]
-    back_inner: Optional[ConfigLayout]
+class NoteTypeFields(TypedDict):
+    name: str
+    fields: List[FieldIsEditable]
+
+
+def get_fields_in_every_notetype(fields_in_note_type: List[NoteTypeFields]) -> None:
+    for i in fields_in_note_type:
+        fields_in_note_type.pop()
+
+    models = mw.col.models
+    note_types = models.all()
+    for note_type in note_types:
+        templates: List[Template] = note_type["tmpls"]
+        editable_field_names: Set[str] = set()
+        uneditable_field_names: Set[str] = set()
+
+        for template in templates:
+            for side in ["qfmt", "afmt"]:
+                for tmpl_field in parse_fields(template[side]):  # type: ignore
+                    name = tmpl_field["name"]
+                    if tmpl_field["edit"]:
+                        editable_field_names.update([name])
+                    else:
+                        uneditable_field_names.update([name])
+
+        field_names = [fld["name"] for fld in note_type["flds"]]
+        fields_list = []
+        for fldname in field_names:
+            try:
+                # if (False, False), skip since the field isn't used in any of the templates.
+                field = FieldIsEditable(
+                    name=fldname,
+                    edit={
+                        (True, True): Editability.PARTIAL,
+                        (True, False): Editability.ALL,
+                        (False, True): Editability.NONE
+                    }[(fldname in editable_field_names, fldname in uneditable_field_names)]
+                )
+                fields_list.append(field)
+            except:
+                pass
+        nt = NoteTypeFields(name=note_type["name"], fields=fields_list)
+        fields_in_note_type.append(nt)
 
 
 def fields_tab(conf_window: ConfigWindow) -> None:
@@ -148,45 +161,30 @@ def fields_tab(conf_window: ConfigWindow) -> None:
     dropdown = QComboBox()
     layout.addWidget(dropdown)
     layout.space(20)
-    hlayout = layout.hlayout()
-    layout.space(20)
-    list_stylesheet = "QListWidget{border: 1px solid; padding: 6px;}"
-    front_list = QListWidget()
-    front_list.setStyleSheet(list_stylesheet)
-    back_list = QListWidget()
-    back_list.setStyleSheet(list_stylesheet)
-    hlayout.addWidget(front_list)
-    hlayout.addWidget(back_list)
-    templates_fields: List[TemplateFieldInfos] = []
+    layout.label("Check the boxes to make the fields editable while reviewing")
+    qlist = QListWidget()
+    qlist.setStyleSheet("QListWidget{border: 1px solid; padding: 6px;}")
+    layout.addWidget(qlist)
+
+    fields_in_note_type: List[NoteTypeFields] = []
 
     def switch_template(idx: int) -> None:
         if idx == -1:
             return
-        populate_field_info((front_list, back_list), templates_fields[idx])
+        qlist.clear()
+        fields = fields_in_note_type[idx]["fields"]
+        for field in fields:
+            item = QListWidgetItem(field["name"], qlist, QListWidgetItem.Type)
+            qlist.addItem(item)
+            item.setCheckState(field["edit"].value)
 
     dropdown.currentIndexChanged.connect(switch_template)
 
     def on_open() -> None:
         dropdown.clear()
-
-        models = mw.col.models
-        note_types = models.all()
-        for note_type in note_types:
-            templates = note_type["tmpls"]
-            for template in templates:
-                label = "{}: {}".format(note_type["name"], template["name"])
-                qfields = parse_fields(template["qfmt"])
-                afields = parse_fields(template["afmt"])
-                template_fields = TemplateFieldInfos({
-                    "note_type": note_type,
-                    "qfields": qfields,
-                    "afields": afields,
-                    "qmodified": False,
-                    "amodified": False
-                })
-                templates_fields.append(template_fields)
-                dropdown.addItem(label)
-
+        get_fields_in_every_notetype(fields_in_note_type)
+        for nt in fields_in_note_type:
+            dropdown.addItem(nt["name"])
         dropdown.setCurrentIndex(0)  # Triggers currentIndexChanged
 
     conf_window.widget_on_open.append(on_open)
