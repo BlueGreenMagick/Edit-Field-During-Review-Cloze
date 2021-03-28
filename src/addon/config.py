@@ -213,7 +213,7 @@ def fields_tab(conf_window: ConfigWindow) -> None:
     conf_window.widget_on_open.append(on_open)
 
 
-conf.enable_config_window()
+conf.use_custom_window()
 conf.add_config_tab(general_tab)
 conf.add_config_tab(formatting_tab)
 conf.add_config_tab(fields_tab)

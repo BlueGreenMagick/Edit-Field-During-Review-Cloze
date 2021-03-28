@@ -82,7 +82,7 @@ class ConfigManager:
         return iter(self._config)
 
     # Config Window
-    def enable_config_window(self) -> None:
+    def use_custom_window(self) -> None:
         def open_config() -> bool:
             config_window = ConfigWindow(self)
             for tab in self.config_tabs:
