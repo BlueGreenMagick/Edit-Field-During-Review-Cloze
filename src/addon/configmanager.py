@@ -105,6 +105,7 @@ class ConfigWindow(QDialog):
         self.setWindowTitle("Config for Edit Field During Review (Cloze)")
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.widget_updates: List[Callable[[ConfigManager], None]] = []
+        self._on_save_hook: List[Callable[[], None]] = []
         self.setup()
 
     def setup(self) -> None:
@@ -151,6 +152,8 @@ class ConfigWindow(QDialog):
         self.update_widgets()
 
     def on_save(self) -> None:
+        for hook in self._on_save_hook:
+            hook()
         self.conf.save()
         self.close()
 
@@ -179,6 +182,9 @@ class ConfigWindow(QDialog):
         tab = ConfigTab(self)
         self.main_tab.addTab(tab, name)
         return tab
+
+    def execute_on_save(self, hook: Callable[[], None]) -> None:
+        self._on_save_hook.append(hook)
 
 
 class ConfigTab(QWidget):
