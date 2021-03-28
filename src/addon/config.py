@@ -116,7 +116,7 @@ class NoteTypeFields(TypedDict):
     fields: List[FieldIsEditable]
 
 
-def replace_field(note_type: NoteType, field: FieldIsEditable) -> NoteType:
+def modify_field_editability(note_type: NoteType, field: FieldIsEditable) -> NoteType:
     for template in note_type["tmpls"]:
         for side in ["qfmt", "afmt"]:
             if field["edit"] == Editability.ALL:
@@ -228,7 +228,7 @@ def fields_tab(conf_window: ConfigWindow) -> None:
             for field in note_type_fields["fields"]:
                 if field["edit"] != field["orig_edit"]:
                     modified = True
-                    note_type = replace_field(note_type, field)
+                    note_type = modify_field_editability(note_type, field)
             if modified:
                 mw.col.models.save(note_type)
 
