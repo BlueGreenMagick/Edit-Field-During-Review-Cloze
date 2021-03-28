@@ -100,9 +100,25 @@ def parse_fields(template: str) -> List[TemplateField]:
 
 
 class Editability(Enum):
-    NONE = Qt.Unchecked
-    PARTIAL = Qt.PartiallyChecked
-    ALL = Qt.Checked
+    NONE = 0
+    PARTIAL = 1
+    ALL = 2
+
+    @classmethod
+    def from_check_state(cls, check_state: Qt.CheckState) -> "Editability":
+        if check_state == Qt.Unchecked:
+            return cls.NONE
+        if check_state == Qt.Checked:
+            return cls.ALL
+        return cls.PARTIAL
+
+    @classmethod
+    def to_check_state(cls, val: "Editability") -> Qt.CheckState:
+        if val == cls.NONE:
+            return Qt.Unchecked
+        if val == cls.ALL:
+            return Qt.Checked
+        return Qt.PartiallyChecked
 
 
 class FieldIsEditable(TypedDict):
@@ -168,6 +184,13 @@ def fields_tab(conf_window: ConfigWindow) -> None:
 
     fields_in_note_type: List[NoteTypeFields] = []
 
+    def on_check(item: QListWidgetItem) -> None:
+        fields = fields_in_note_type[dropdown.currentIndex()]["fields"]
+        field = fields[qlist.row(item)]
+        field["edit"] = Editability.from_check_state(item.checkState())
+
+    qlist.itemChanged.connect(lambda item: on_check(item))
+
     def switch_template(idx: int) -> None:
         if idx == -1:
             return
@@ -176,7 +199,7 @@ def fields_tab(conf_window: ConfigWindow) -> None:
         for field in fields:
             item = QListWidgetItem(field["name"], qlist, QListWidgetItem.Type)
             qlist.addItem(item)
-            item.setCheckState(field["edit"].value)
+            item.setCheckState(Editability.to_check_state(field["edit"]))
 
     dropdown.currentIndexChanged.connect(switch_template)
 
