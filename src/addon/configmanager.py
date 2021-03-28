@@ -104,7 +104,7 @@ class ConfigWindow(QDialog):
         self.mgr = mw.addonManager
         self.setWindowTitle("Config for Edit Field During Review (Cloze)")
         self.setAttribute(Qt.WA_DeleteOnClose)
-        self.widget_updates: List[Callable[[ConfigManager], None]] = []
+        self.widget_updates: List[Callable[[], None]] = []
         self._on_save_hook: List[Callable[[], None]] = []
         self.setup()
 
@@ -146,7 +146,7 @@ class ConfigWindow(QDialog):
 
     def update_widgets(self) -> None:
         for widget_update in self.widget_updates:
-            widget_update(self.conf)
+            widget_update()
 
     def on_open(self) -> None:
         self.update_widgets()
@@ -229,8 +229,8 @@ class ConfigLayout(QBoxLayout):
         "For boolean config"
         checkbox = QCheckBox()
 
-        def update(conf: ConfigManager) -> None:
-            checkbox.setChecked(conf.get(key))
+        def update() -> None:
+            checkbox.setChecked(self.conf.get(key))
         self.widget_updates.append(update)
 
         if label:
@@ -244,7 +244,8 @@ class ConfigLayout(QBoxLayout):
         combobox = QComboBox()
         combobox.insertItems(0, labels)
 
-        def update(conf: ConfigManager) -> None:
+        def update() -> None:
+            conf = self.conf
             try:
                 val = conf.get(key)
                 index = values.index(val)
@@ -265,8 +266,8 @@ class ConfigLayout(QBoxLayout):
         "For string config"
         line_edit = QLineEdit()
 
-        def update(conf: ConfigManager) -> None:
-            line_edit.setText(conf.get(key))
+        def update() -> None:
+            line_edit.setText(self.conf.get(key))
         self.widget_updates.append(update)
 
         line_edit.textChanged.connect(
@@ -290,8 +291,8 @@ class ConfigLayout(QBoxLayout):
             color.setNamedColor(rgb)
             color_dialog.setCurrentColor(color)
 
-        def update(conf: ConfigManager) -> None:
-            set_color(conf.get(key))
+        def update() -> None:
+            set_color(self.conf.get(key))
 
         def save(color: QColor) -> None:
             rgb = color.name(QColor.HexRgb)
