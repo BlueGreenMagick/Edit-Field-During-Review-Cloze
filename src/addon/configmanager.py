@@ -1,6 +1,6 @@
 import json
 import copy
-from typing import Any, Callable, Dict, Iterator, List, Optional
+from typing import Any, Callable, Dict, Iterator, List, Optional, Union
 
 import aqt
 from aqt import mw
@@ -8,78 +8,108 @@ from aqt.qt import *
 from aqt.utils import tooltip
 
 
-class ConfigManager:
+class ConfigObject:
+    def __init__(self, conf: "ConfigManager", data: Union[dict, list]):
+        self.conf = conf
+        self._data = data
+
+    def clone(self) -> Union[dict, list]:
+        return copy.deepcopy(self._data)
+
+    def __getitem__(self, key: Union[str, int, slice]) -> Any:
+        data = self._data[key]  # type: ignore
+        if isinstance(data, (list, dict)):
+            return ConfigObject(self.conf, data)
+        return data
+
+    def __setitem__(self, key: Union[str, int], val: Any) -> None:
+        self._data[key] = val  # type: ignore
+        self.conf.save()
+
+    def __delitem__(self, key: Union[str, int, slice]) -> None:
+        del self._data[key]  # type: ignore
+        self.conf.save()
+
+    def __instancecheck__(self, other: Union[type, tuple]) -> bool:
+        return isinstance(self._data, other)
+
+    def __iter__(self) -> Iterator:
+        return iter(self._data)
+
+    def __getattribute__(self, name: str) -> Any:
+        return getattr(self._data, name)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        return setattr(self._data, name, value)
+
+
+class ConfigManager(ConfigObject):
     def __init__(self) -> None:
         self.config_window: Optional[ConfigWindow] = None
         self.config_tabs: List[Callable] = []
-        self._config: Optional[Dict] = None
+        self._data: Optional[Dict] = None  # real config
+        self._tempdata: Optional[Dict] = None
         addon_dir = mw.addonManager.addonFromModule(__name__)
-        self._default = mw.addonManager.addonConfigDefaults(addon_dir)
+
+        self.default = mw.addonManager.addonConfigDefaults(addon_dir)
         self.load()
 
     def load(self) -> None:
         "Loads config from disk"
-        self._config = mw.addonManager.getConfig(__name__)
-        self.modified = False
+        self._data = mw.addonManager.getConfig(__name__)
+        self._tempdata = copy.deepcopy(self._data)
 
-    def save(self, force: bool = False) -> None:
-        """Writes its config data to disk.
-        If `force` is `False`, config is only written to disk if it was modified since last load."""
-        if self.modified or force:
-            mw.addonManager.writeConfig(__name__, self._config)
-            self.modified = False
-
-    def load_defaults(self) -> None:
-        "call .save() afterwards to restore defaults."
-        self._config = copy.deepcopy(self._default)
-        self.modified = False
+    def save(self) -> None:
+        mw.addonManager.writeConfig(__name__, self._config)
 
     def to_json(self) -> str:
         return json.dumps(self._config)
 
-    def get_from_dict(self, dict_obj: dict, key: str) -> Any:
-        "Returns a deep copy of the config object. Raises KeyError if the config doesn't exist"
+    def get_with_key(self, dict_obj: dict, key: str) -> Any:
         levels = key.split('.')
         return_val = dict_obj
         for level in levels:
+            try:
+                level = int(level)  # type: ignore
+            except:
+                pass
             return_val = return_val[level]
-        return copy.deepcopy(return_val)
+        return return_val
 
-    def get(self, key: str, get_default: bool = True) -> Any:
-        try:
-            return self.get_from_dict(self._config, key)
-        except KeyError:
-            if get_default:
-                return self.get_default_value(key)
-            else:
-                raise
-
-    def get_default_value(self, key: str) -> Any:
-        return self.get_from_dict(self._default, key)
-
-    def set(self, key: str, value: Any) -> None:
-        self.modified = True
+    def set_with_key(self, dict_obj: dict, key: str, value: Any) -> None:
         levels = key.split('.')
-        conf_obj = self._config
         for i in range(len(levels) - 1):
             level = levels[i]
             try:
-                conf_obj = conf_obj[level]
+                level = int(level)  # type: ignore
+            except:
+                pass
+            try:
+                dict_obj = dict_obj[level]
             except KeyError:
-                conf_obj[level] = {}
-                conf_obj = conf_obj[level]
-        conf_obj[levels[-1]] = value
+                new_obj: Any
+                try:
+                    int(levels[i+1])
+                    new_obj = []
+                except:
+                    new_obj = {}
+                dict_obj[level] = new_obj
+                dict_obj = dict_obj[level]
+        dict_obj[levels[-1]] = value
 
-    def __getitem__(self, key: str) -> Any:
-        "Returns a deep copy of the config. Modifying the returned object will not affect conf."
-        return self.get(key)
+    def get_temp(self, key: str) -> Any:
+        self.get_with_key(self._tempdata, key)
 
-    def __setitem__(self, key: str, value: Any) -> None:
-        "This function only modifies the internal config data. Call conf.save() to actually write to disk"
-        self.set(key, value)
+    def set_temp(self, key: str, value: Any) -> None:
+        self.set_with_key(self._tempdata, key, value)
 
-    def __iter__(self) -> Iterator:
-        return iter(self._config)
+    def load_default_to_temp(self) -> None:
+        self._tempdata = copy.deepcopy(self.default)
+
+    def save_temp(self) -> None:
+        self._data = self._tempdata
+        self._tempdata = None  # call load() afterwards
+        self.save()
 
     # Config Window
     def use_custom_window(self) -> None:
@@ -87,7 +117,7 @@ class ConfigManager:
             config_window = ConfigWindow(self)
             for tab in self.config_tabs:
                 tab(config_window)
-            config_window.on_open()
+            config_window.update_widgets()
             config_window.exec_()
             self.config_window = config_window
             return True
@@ -106,6 +136,7 @@ class ConfigWindow(QDialog):
         self.setAttribute(Qt.WA_DeleteOnClose)
         self.widget_updates: List[Callable[[], None]] = []
         self._on_save_hook: List[Callable[[], None]] = []
+        self.conf.load()
         self.setup()
 
     def setup(self) -> None:
@@ -148,25 +179,22 @@ class ConfigWindow(QDialog):
         for widget_update in self.widget_updates:
             widget_update()
 
-    def on_open(self) -> None:
-        self.update_widgets()
-
     def on_save(self) -> None:
         for hook in self._on_save_hook:
             hook()
-        self.conf.save()
+        self.conf.save_temp()
         self.close()
 
     def on_cancel(self) -> None:
         self.close()
 
     def on_reset(self) -> None:
-        self.conf.load_defaults()
+        self.conf.load_default_to_temp()
         self.update_widgets()
         tooltip("Press save to save changes")
 
     def on_advanced(self) -> None:
-        aqt.addons.ConfigEditor(self, __name__, self.conf._config).exec_()
+        aqt.addons.ConfigEditor(self, __name__, self.conf._data).exec_()
         self.conf.load()
         self.update_widgets()
 
@@ -230,13 +258,13 @@ class ConfigLayout(QBoxLayout):
         checkbox = QCheckBox()
 
         def update() -> None:
-            checkbox.setChecked(self.conf.get(key))
+            checkbox.setChecked(self.conf.get_temp(key))
         self.widget_updates.append(update)
 
         if label:
             checkbox.setText(label)
         checkbox.stateChanged.connect(
-            lambda s: self.conf.set(key, s == Qt.Checked))
+            lambda s: self.conf.set_temp(key, s == Qt.Checked))
         self.addWidget(checkbox)
         return checkbox
 
@@ -247,18 +275,18 @@ class ConfigLayout(QBoxLayout):
         def update() -> None:
             conf = self.conf
             try:
-                val = conf.get(key)
+                val = conf.get_temp(key)
                 index = values.index(val)
             except:
                 tooltip(
                     f"Invalid config value {key}. Resetting with default value")
-                val = conf.get_default_value(key)
+                val = conf.get_default_value(key)  # TODO: remove this
                 index = values.index(conf)
             combobox.setCurrentIndex(index)
         self.widget_updates.append(update)
 
         combobox.currentIndexChanged.connect(
-            lambda idx: self.conf.set(key, values[idx]))
+            lambda idx: self.conf.set_temp(key, values[idx]))
         self.addWidget(combobox)
         return combobox
 
@@ -267,11 +295,11 @@ class ConfigLayout(QBoxLayout):
         line_edit = QLineEdit()
 
         def update() -> None:
-            line_edit.setText(self.conf.get(key))
+            line_edit.setText(self.conf.get_temp(key))
         self.widget_updates.append(update)
 
         line_edit.textChanged.connect(
-            lambda text: self.conf.set(key, text))
+            lambda text: self.conf.set_temp(key, text))
         self.addWidget(line_edit)
         return line_edit
 
@@ -292,11 +320,11 @@ class ConfigLayout(QBoxLayout):
             color_dialog.setCurrentColor(color)
 
         def update() -> None:
-            set_color(self.conf.get(key))
+            set_color(self.conf.get_temp(key))
 
         def save(color: QColor) -> None:
             rgb = color.name(QColor.HexRgb)
-            self.conf.set(key, rgb)
+            self.conf.set_temp(key, rgb)
             set_color(rgb)
 
         self.widget_updates.append(update)
