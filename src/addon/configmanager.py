@@ -85,7 +85,6 @@ class ConfigManager:
         conf_obj[levels[-1]] = value
 
     def __getitem__(self, key: str) -> Any:
-        "Returns a deep copy of the config. Modifying the returned object will not affect conf."
         return self.get(key)
 
     def __setitem__(self, key: str, value: Any) -> None:
