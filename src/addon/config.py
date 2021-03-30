@@ -28,8 +28,8 @@ def general_tab(conf_window: ConfigWindow) -> None:
     tab.dropdown(
         "tag", tag_options, tag_options, "HTML tag to use for editable field:"
     ).setToolTip("Use span if you want an inline field")
-    tab.stretch()
 
+    tab.space(20)
     tab.label("Image Resizing", bold=True)
     tab.checkbox("resize_image_default_state",
                  "Default state for image resizing.\nPress Alt + S to toggle state. (Opt + S on Mac)")
@@ -62,8 +62,8 @@ def formatting_tab(conf_window: ConfigWindow) -> None:
                 hlayout.color_input(f"{item_key}.arg.value")
             else:
                 hlayout.text_input(f"{item_key}.arg.value").setFixedWidth(60)
-        hlayout.stretch(1)
-    tab.stretch(1)
+        hlayout.stretch()
+    tab.stretch()
 
 
 class TemplateField(TypedDict):
