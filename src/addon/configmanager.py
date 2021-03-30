@@ -1,11 +1,12 @@
 import json
 import copy
+import traceback
 from typing import Any, Callable, Dict, Iterator, List, Optional
 
 import aqt
 from aqt import mw
 from aqt.qt import *
-from aqt.utils import tooltip
+from aqt.utils import tooltip, showText
 
 
 class ConfigManager:
@@ -145,8 +146,14 @@ class ConfigWindow(QDialog):
         self.main_layout.addLayout(btn_box)
 
     def update_widgets(self) -> None:
-        for widget_update in self.widget_updates:
-            widget_update()
+        try:
+            for widget_update in self.widget_updates:
+                widget_update()
+        except:
+            showText(
+                "Invalid Config. Please fix the following issue in the advanced config editor. \n\n"
+                + traceback.format_exc())
+            self.on_advanced()
 
     def on_open(self) -> None:
         self.update_widgets()
