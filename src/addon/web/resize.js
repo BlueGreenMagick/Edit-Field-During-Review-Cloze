@@ -134,8 +134,9 @@
   EFDRC.maybeResizeOrClean = function (focus) {
     if (focus) {
       // Called from __init__.py on field focus. Else undefined.
+      EFDRC.resizeImageMode = EFDRC.CONF.resize_image_default_state
     }
-    if (EFDRC.CONF.resize_image_default_state) {
+    if (EFDRC.resizeImageMode) {
       $(document.activeElement).find('img').each(EFDRC.resizeImage)
     } else {
       EFDRC.cleanResize(document.activeElement)

@@ -216,6 +216,7 @@
   EFDRC.registerConfig = function (confStr) {
     EFDRC.CONF = JSON.parse(confStr)
     EFDRC.CONF.span = (EFDRC.CONF.tag === 'span')
+    EFDRC.resizeImageMode = EFDRC.CONF.resize_image_default_state
   }
   EFDRC.setupReviewer = function () {
     // image resizer
