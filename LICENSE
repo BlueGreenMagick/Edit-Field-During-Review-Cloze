@@ -1,8 +1,8 @@
 This software is licensed under GNU Affero General Public License version 3 or later.
 
-Part of the code are under a different license. jquery-ui.min.js is licensed under the MIT,
-and resize.css contains code from jquery ui that is licensed under the MIT. 
-Full license for jquery ui code can be found in jQuery_UI_license.txt 
+Part of the code are under a different license. 
+The code in /src/addon/ts and /src/addon/web/editor is from Anki, 
+and its license can be found here: https://github.com/ankitects/anki/ 
 
 Copyright:
 (c) 2019 Damien Elmes

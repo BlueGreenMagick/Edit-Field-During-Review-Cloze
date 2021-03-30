@@ -200,9 +200,12 @@ def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]) -> N
     if isinstance(context, Reviewer):
         web_content.body += myRevHtml()
         web_content.body += f'<script type="module" src="{url_from_fname("editor/index.js")}"></script>'
-        js_contents = ["global_card.js", "resize.js", "jquery-ui.min.js"]
+        js_contents = ["global_card.js", "resize.js"]
         for file_name in js_contents:
             web_content.js.append(url_from_fname(file_name))
+        jquery_ui = "js/vendor/jquery-ui.min.js"
+        if jquery_ui not in web_content.js:
+            web_content.js.append(jquery_ui)
         web_content.css.append(url_from_fname("global_card.css"))
 
     elif isinstance(context, ReviewerBottomBar):
