@@ -52,6 +52,8 @@ class ConfigManager:
         levels = key.split('.')
         return_val = dict_obj
         for level in levels:
+            if isinstance(return_val, list):
+                level = int(level)
             return_val = return_val[level]
         return copy.deepcopy(return_val)
 
@@ -73,6 +75,8 @@ class ConfigManager:
         conf_obj = self._config
         for i in range(len(levels) - 1):
             level = levels[i]
+            if isinstance(conf_obj, list):
+                level = int(level)
             try:
                 conf_obj = conf_obj[level]
             except KeyError:
