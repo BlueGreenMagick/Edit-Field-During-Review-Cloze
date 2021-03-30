@@ -28,9 +28,9 @@
   }
 
   EFDRC.ratioShouldBePreserved = function (event) {
-    if (EFDRC.resize_image_preserve_ratio === 1 && event.originalEvent.target.classList.contains('ui-resizable-se')) {
+    if (EFDRC.CONF.resize_image_preserve_ratio === 1 && event.originalEvent.target.classList.contains('ui-resizable-se')) {
       return true
-    } else if (EFDRC.resize_image_preserve_ratio === 2) {
+    } else if (EFDRC.CONF.resize_image_preserve_ratio === 2) {
       return true
     } else {
       return false
@@ -41,7 +41,7 @@
     if (!img.naturalHeight) { return }
     const originalRatio = img.naturalWidth / img.naturalHeight
     const currentRatio = $img.width() / $img.height()
-    if (Math.abs(originalRatio - currentRatio) < 0.01 || EFDRC.resize_image_preserve_ratio === 2) {
+    if (Math.abs(originalRatio - currentRatio) < 0.01 || EFDRC.CONF.resize_image_preserve_ratio === 2) {
       $img.css('height', '')
       if (ui) {
         ui.element.css('height', $img.height())
@@ -59,7 +59,7 @@
 
     const $img = $(img)
     if ($img.resizable('instance') === undefined) { // just in case?
-      const aspRatio = (EFDRC.resize_image_preserve_ratio === 2)
+      const aspRatio = (EFDRC.CONF.resize_image_preserve_ratio === 2)
       const computedStyle = window.getComputedStyle(img)
 
       $img.resizable({
