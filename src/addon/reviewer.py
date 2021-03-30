@@ -121,6 +121,7 @@ def handle_pycmd_message(handled: Tuple[bool, Any], message: str, context: Any) 
         try:
             saveField(note, fld, new_val)
             reload_reviewer(reviewer)
+            return (True, None)
         except FldNotFoundError as e:
             tooltip(ERROR_MSG.format(str(e)))
             return (True, None)
