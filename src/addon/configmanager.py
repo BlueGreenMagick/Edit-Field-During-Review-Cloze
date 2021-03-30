@@ -48,14 +48,17 @@ class ConfigManager:
         return json.dumps(self._config)
 
     def get_from_dict(self, dict_obj: dict, key: str) -> Any:
-        "Returns a deep copy of the config object. Raises KeyError if the config doesn't exist"
+        "Raises KeyError if config doesn't exist"
         levels = key.split('.')
         return_val = dict_obj
         for level in levels:
             if isinstance(return_val, list):
                 level = int(level)
             return_val = return_val[level]
-        return copy.deepcopy(return_val)
+        return return_val
+
+    def copy(self) -> str:
+        return copy.deepcopy(self._config)
 
     def get(self, key: str, get_default: bool = True) -> Any:
         try:
