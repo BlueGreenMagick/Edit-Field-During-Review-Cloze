@@ -60,14 +60,11 @@ class ConfigManager:
     def copy(self) -> str:
         return copy.deepcopy(self._config)
 
-    def get(self, key: str, get_default: bool = True) -> Any:
+    def get(self, key: str, default: Any = None) -> Any:
         try:
             return self.get_from_dict(self._config, key)
         except KeyError:
-            if get_default:
-                return self.get_default_value(key)
-            else:
-                raise
+            return default
 
     def get_default_value(self, key: str) -> Any:
         return self.get_from_dict(self._default, key)
