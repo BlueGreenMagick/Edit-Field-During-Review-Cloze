@@ -3,7 +3,7 @@
   const EFDRC = window.EFDRC
   EFDRC.shortcuts = []
 
-  EFDRC.removeSpan = function (el) {
+  const removeSpan = function (el) {
     // removes all span code because depending on the note type
     // pressing backspace can wrap the text in span and apply different styling.
     const elems = el.getElementsByTagName('span')
@@ -18,7 +18,7 @@
     }
   }
 
-  EFDRC.wrapCloze = function (event, el, altKey) {
+  const wrapCloze = function (event, el, altKey) {
     let highest = 0
     const val = el.innerHTML
     let m
@@ -34,7 +34,7 @@
     event.preventDefault()
   }
 
-  EFDRC.ctrlLinkEnable = function () {
+  const ctrlLinkEnable = function () {
     const links = document.querySelectorAll('[data-EFDRCfield] a')
     for (let x = 0; x < links.length; x++) {
       const el = links[x]
@@ -42,7 +42,7 @@
     }
   }
 
-  EFDRC.ctrlLinkDisable = function () {
+  const ctrlLinkDisable = function () {
     const links = document.querySelectorAll("[data-EFDRCfield] a[contenteditable='false']")
     for (let x = 0; x < links.length; x++) {
       const el = links[x]
@@ -52,7 +52,7 @@
 
   /* Handlers */
 
-  EFDRC.isInsideEfdrcDiv = function (el) {
+  const isInsideEfdrcDiv = function (el) {
     const hardBreak = 100
     let currentEl = el
     let i = 0
@@ -65,18 +65,18 @@
     }
   }
 
-  EFDRC.addListener = function (handlerInfo) {
+  const addListener = function (handlerInfo) {
     const eventName = handlerInfo[0]
     const handler = handlerInfo[1]
     window.addEventListener(eventName, function (event) {
-      const target = EFDRC.isInsideEfdrcDiv(event.target)
+      const target = isInsideEfdrcDiv(event.target)
       if (target) {
         handler(event, target)
       }
     })
   }
 
-  EFDRC.handlePaste = function (e) {
+  const handlePaste = function (e) {
     if (!EFDRC.CONF.process_paste) {
       return
     }
@@ -99,10 +99,10 @@
     }
   }
 
-  EFDRC.handleKeydown = function (event, target) {
+  const handleKeydown = function (event, target) {
     for (let i = 0; i < EFDRC.shortcuts.length; i++) {
       const scutInfo = EFDRC.shortcuts[i]
-      if (EFDRC.matchShortcut(event, scutInfo)) {
+      if (matchShortcut(event, scutInfo)) {
         const handled = EFDRC.shortcuts[i].handler(event, target)
         if (handled !== -1) {
           event.preventDefault()
@@ -112,7 +112,7 @@
     }
   }
 
-  EFDRC.handleFocus = function (event, target) {
+  const handleFocus = function (event, target) {
     if (typeof window.showTooltip === 'function' && typeof window.showTooltip2 === 'undefined') {
       // Disable Popup Dictionary addon tooltip on double mouse click.
       // Using hotkey should still work however.
@@ -135,7 +135,7 @@
     window.pycmd('EFDRC!focuson#' + fld)
   }
 
-  EFDRC.handleBlur = function (event, target) {
+  const handleBlur = function (event, target) {
     if (typeof showTooltip2 === 'function') {
       // Restore Popup Dictionary
       window.showTooltip = window.showTooltip2
@@ -146,7 +146,7 @@
 
     const el = target
     if (EFDRC.CONF.remove_span) {
-      EFDRC.removeSpan(el)
+      removeSpan(el)
     }
     if (el.hasAttribute('data-EFDRCnotctrl')) {
       el.removeAttribute('data-EFDRCnotctrl')
@@ -163,7 +163,7 @@
 
   /* Shortcuts */
 
-  EFDRC.registerShortcut = function (shortcut, handler) {
+  const registerShortcut = function (shortcut, handler) {
     const shortcutKeys = shortcut.toLowerCase().split(/[+]/).map(key => key.trim())
     const modKeys = ['ctrl', 'shift', 'alt']
     const scutInfo = {}
@@ -181,7 +181,7 @@
     EFDRC.shortcuts.push(scutInfo)
   }
 
-  EFDRC.matchShortcut = function (event, scutInfo) {
+  const matchShortcut = function (event, scutInfo) {
     if (scutInfo.key !== event.code.toLowerCase()) return false
     if (scutInfo.ctrl !== (event.ctrlKey || event.metaKey)) return false
     if (scutInfo.shift !== event.shiftKey) return false
@@ -189,14 +189,14 @@
     return true
   }
 
-  EFDRC.registerFormattingShortcut = function () {
+  const registerFormattingShortcut = function () {
     for (const key in EFDRC.CONF.special_formatting) {
       const format = EFDRC.CONF.special_formatting[key]
       if (!format.enabled) {
         continue
       }
       const shortcut = format.shortcut
-      EFDRC.registerShortcut(shortcut, () => {
+      registerShortcut(shortcut, () => {
         if (format.arg) {
           document.execCommand(format.command, false, format.arg.value)
         } else {
@@ -219,35 +219,35 @@
   }
   EFDRC.setupReviewer = function () {
     // image resizer
-    EFDRC.registerShortcut('Shift+S', (event) => {
+    registerShortcut('Shift+S', (event) => {
       EFDRC.resizeImageMode = !EFDRC.resizeImageMode
       EFDRC.maybeResizeOrClean()
     })
-    EFDRC.registerShortcut('Ctrl+Shift+C', (event, el) => {
-      EFDRC.wrapCloze(event, el, false)
+    registerShortcut('Ctrl+Shift+C', (event, el) => {
+      wrapCloze(event, el, false)
     })
-    EFDRC.registerShortcut('Ctrl+Shift+Alt+C', (event, el) => {
-      EFDRC.wrapCloze(event, el, true)
+    registerShortcut('Ctrl+Shift+Alt+C', (event, el) => {
+      wrapCloze(event, el, true)
     })
-    EFDRC.registerShortcut('Backspace', (event, el) => {
+    registerShortcut('Backspace', (event, el) => {
       if (EFDRC.CONF.span) return
-      if (EFDRC.CONF.remove_span) setTimeout(() => EFDRC.removeSpan(el), 0)
+      if (EFDRC.CONF.remove_span) setTimeout(() => removeSpan(el), 0)
       return -1
     })
-    EFDRC.registerShortcut('Delete', (event, el) => {
-      if (EFDRC.CONF.remove_span) setTimeout(() => EFDRC.removeSpan(el), 0)
+    registerShortcut('Delete', (event, el) => {
+      if (EFDRC.CONF.remove_span) setTimeout(() => removeSpan(el), 0)
       return -1
     })
-    EFDRC.registerFormattingShortcut()
+    registerFormattingShortcut()
 
     const handlers = [
-      ['paste', EFDRC.handlePaste],
-      ['focusin', EFDRC.handleFocus],
-      ['focusout', EFDRC.handleBlur],
-      ['keydown', EFDRC.handleKeydown]
+      ['paste', handlePaste],
+      ['focusin', handleFocus],
+      ['focusout', handleBlur],
+      ['keydown', handleKeydown]
     ]
     for (let i = 0; i < handlers.length; i++) {
-      EFDRC.addListener(handlers[i])
+      addListener(handlers[i])
     }
 
     window.addEventListener('keydown', function (event) {
@@ -280,7 +280,7 @@
   }
 
   EFDRC.ctrldown = function () {
-    EFDRC.ctrlLinkEnable()
+    ctrlLinkEnable()
     if (EFDRC.CONF.ctrl_click) {
       const els = document.querySelectorAll('[data-EFDRCfield]')
       for (let e = 0; e < els.length; e++) {
@@ -294,7 +294,7 @@
   }
 
   EFDRC.ctrlup = function () {
-    EFDRC.ctrlLinkDisable()
+    ctrlLinkDisable()
     if (EFDRC.CONF.ctrl_click) {
       const els = document.querySelectorAll('[data-EFDRCfield]')
       for (let e = 0; e < els.length; e++) {
