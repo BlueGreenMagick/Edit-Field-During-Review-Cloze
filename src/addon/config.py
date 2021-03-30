@@ -222,10 +222,28 @@ def fields_tab(conf_window: ConfigWindow) -> None:
     conf_window.execute_on_save(on_save)
 
 
+def about_tab(conf_window: ConfigWindow) -> None:
+    conf = conf_window.conf
+    tab = conf_window.add_tab("About")
+    tab.text("Edit Field During Review (Cloze)", bold=True, size=20)
+    tab.text("© 2019-2021 Yoonchae Lee (Bluegreenmagick)")
+    tab.text(f"Version {conf['version.major']}.{conf['version.minor']}")
+    tab.text("Found a bug? Report issues"
+             " <a href='https://github.com/BlueGreenMagick/Edit-Field-During-Review-Cloze/issues'>here</a>.")
+    tab.space(15)
+    tab.text("License", bold=True)
+    tab.text("Edit Field During Review (Cloze) is a <b>Free and Open Source Software (FOSS)</b>"
+             " distributed under the GNU AGPL v3 license."
+             " It also contains code that are licensed under a different license."
+             " Please see the LICENSE file for more information.")
+    tab.stretch()
+
+
 conf.use_custom_window()
 conf.add_config_tab(general_tab)
 conf.add_config_tab(formatting_tab)
 conf.add_config_tab(fields_tab)
+conf.add_config_tab(about_tab)
 
 
 def config_make_valid(conf: ConfigManager) -> None:

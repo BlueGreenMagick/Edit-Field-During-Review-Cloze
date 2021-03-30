@@ -119,5 +119,9 @@
       "shortcut": "Ctrl+BracketLeft",
       "arg": null
     }
+  },
+  "version": {
+    "major": 5,
+    "minor": 5
   }
 }
