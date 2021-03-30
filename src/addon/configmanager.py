@@ -1,12 +1,21 @@
 import json
 import copy
-import traceback
 from typing import Any, Callable, Dict, Iterator, List, Optional
 
 import aqt
 from aqt import mw
 from aqt.qt import *
 from aqt.utils import tooltip, showText
+
+
+class InvalidConfigValueError(Exception):
+    def __init__(self, key: str, expected: str, value: Any):
+        self.key = key
+        self.expected = expected
+        self.value = value
+
+    def __str__(self) -> str:
+        return f"For config: {self.key}\nexpected value is: {self.expected}\nbut instead encountered: {self.value}"
 
 
 class ConfigManager:
@@ -149,11 +158,29 @@ class ConfigWindow(QDialog):
         try:
             for widget_update in self.widget_updates:
                 widget_update()
-        except:
-            showText(
+        except InvalidConfigValueError as e:
+            advanced = self.advanced_window()
+            dial, bbox = showText(
                 "Invalid Config. Please fix the following issue in the advanced config editor. \n\n"
-                + traceback.format_exc())
-            self.on_advanced()
+                + str(e),
+                title="Invalid Config"
+                parent=advanced,
+                run=False)
+            button = QPushButton("Quit Config")
+            bbox.addButton(button, QDialogButtonBox.DestructiveRole)
+            bbox.button(QDialogButtonBox.Close).setDefault(True)
+
+            def quit() -> None:
+                dial.close()
+                advanced.close()
+                self.widget_updates = []
+                self.close()
+
+            button.clicked.connect(quit)
+            dial.show()
+            advanced.exec_()
+            self.conf.load()
+            self.update_widgets()
 
     def on_open(self) -> None:
         self.update_widgets()
@@ -173,9 +200,12 @@ class ConfigWindow(QDialog):
         tooltip("Press save to save changes")
 
     def on_advanced(self) -> None:
-        aqt.addons.ConfigEditor(self, __name__, self.conf._config).exec_()
+        self.advanced_window().exec_()
         self.conf.load()
         self.update_widgets()
+
+    def advanced_window(self) -> aqt.addons.ConfigEditor:
+        return aqt.addons.ConfigEditor(self, __name__, self.conf._config)
 
     def closeEvent(self, evt: QCloseEvent) -> None:
         # Discard the contents when clicked cancel,
@@ -232,12 +262,17 @@ class ConfigLayout(QBoxLayout):
         self.addWidget(label_widget)
         return label_widget
 
+    # Config Input Widgets
+
     def checkbox(self, key: str, label: str = "") -> QCheckBox:
         "For boolean config"
         checkbox = QCheckBox()
 
         def update() -> None:
-            checkbox.setChecked(self.conf.get(key))
+            value = self.conf.get(key)
+            if not isinstance(value, bool):
+                raise InvalidConfigValueError(key, "boolean", value)
+            checkbox.setChecked(value)
         self.widget_updates.append(update)
 
         if label:
@@ -257,10 +292,8 @@ class ConfigLayout(QBoxLayout):
                 val = conf.get(key)
                 index = values.index(val)
             except:
-                tooltip(
-                    f"Invalid config value {key}. Resetting with default value")
-                val = conf.get_default_value(key)
-                index = values.index(conf)
+                raise InvalidConfigValueError(
+                    key, "any value in list " + str(values), val)
             combobox.setCurrentIndex(index)
         self.widget_updates.append(update)
 
@@ -274,7 +307,10 @@ class ConfigLayout(QBoxLayout):
         line_edit = QLineEdit()
 
         def update() -> None:
-            line_edit.setText(self.conf.get(key))
+            val = self.conf.get(key)
+            if not isinstance(val, str):
+                raise InvalidConfigValueError(key, "string", val)
+            line_edit.setText(val)
         self.widget_updates.append(update)
 
         line_edit.textChanged.connect(
@@ -296,10 +332,13 @@ class ConfigLayout(QBoxLayout):
             )
             color = QColor()
             color.setNamedColor(rgb)
+            if not color.isValid():
+                raise InvalidConfigValueError(key, "rgb hex color string", rgb)
             color_dialog.setCurrentColor(color)
 
         def update() -> None:
-            set_color(self.conf.get(key))
+            value = self.conf.get(key)
+            set_color(value)
 
         def save(color: QColor) -> None:
             rgb = color.name(QColor.HexRgb)
@@ -312,6 +351,8 @@ class ConfigLayout(QBoxLayout):
 
         self.addWidget(button)
         return button
+
+    # Layout widgets
 
     def space(self, space: int = 1) -> None:
         self.addSpacing(space)
