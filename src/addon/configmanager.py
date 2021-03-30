@@ -57,10 +57,11 @@ class ConfigManager:
             return_val = return_val[level]
         return return_val
 
-    def copy(self) -> str:
+    def copy(self) -> Dict:
         return copy.deepcopy(self._config)
 
     def get(self, key: str, default: Any = None) -> Any:
+        "Returns default or None if config dones't exist"
         try:
             return self.get_from_dict(self._config, key)
         except KeyError:
@@ -184,7 +185,7 @@ class ConfigWindow(QDialog):
             dial, bbox = showText(
                 "Invalid Config. Please fix the following issue in the advanced config editor. \n\n"
                 + str(e),
-                title="Invalid Config"
+                title="Invalid Config",
                 parent=advanced,
                 run=False)
             button = QPushButton("Quit Config")
