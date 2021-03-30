@@ -84,6 +84,20 @@ class ConfigManager:
                 conf_obj = conf_obj[level]
         conf_obj[levels[-1]] = value
 
+    def pop(self, key: str) -> Any:
+        self.modified = True
+        levels = key.split('.')
+        conf_obj = self._config
+        for i in range(len(levels) - 1):
+            level = levels[i]
+            if isinstance(conf_obj, list):
+                level = int(level)
+            try:
+                conf_obj = conf_obj[level]
+            except KeyError:
+                return None
+        return conf_obj.pop(levels[-1])
+
     def __getitem__(self, key: str) -> Any:
         return self.get(key)
 
@@ -94,7 +108,11 @@ class ConfigManager:
     def __iter__(self) -> Iterator:
         return iter(self._config)
 
-    # Config Window
+    def __delitem__(self, key: str) -> Any:
+        self.pop(key)
+
+        # Config Window
+
     def use_custom_window(self) -> None:
         def open_config() -> bool:
             config_window = ConfigWindow(self)
