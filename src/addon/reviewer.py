@@ -16,8 +16,7 @@ from aqt.utils import showText, tooltip
 
 
 from .semieditor import semiEditorWebView
-from .config import conf
-from .configmanager import config_make_valid
+from .config import conf, config_make_valid
 
 ERROR_MSG = "ERROR - Edit Field During Review Cloze\n{}"
 
