@@ -3,13 +3,13 @@
 (function () {
   EFDRC.priorImgs = []
 
-  EFDRC.savePriorImg = function (img) {
+  const savePriorImg = function (img) {
     const id = EFDRC.priorImgs.length
     EFDRC.priorImgs.push(img.cloneNode())
     img.setAttribute('data-EFDRCImgId', id)
   }
 
-  EFDRC.restorePriorImg = function (img) {
+  const restorePriorImg = function (img) {
     /*
         only save changes to width and height
         resizable img is guranteed to have the data-EFDRCImgId attribute.
@@ -27,7 +27,7 @@
     img.parentNode.replaceChild(priorImg, img)
   }
 
-  EFDRC.ratioShouldBePreserved = function (event) {
+  const ratioShouldBePreserved = function (event) {
     if (EFDRC.CONF.resize_image_preserve_ratio === 1 && event.originalEvent.target.classList.contains('ui-resizable-se')) {
       return true
     } else if (EFDRC.CONF.resize_image_preserve_ratio === 2) {
@@ -37,7 +37,7 @@
     }
   }
 
-  EFDRC.maybeRemoveHeight = function (img, $img, ui) {
+  const maybeRemoveHeight = function (img, $img, ui) {
     if (!img.naturalHeight) { return }
     const originalRatio = img.naturalWidth / img.naturalHeight
     const currentRatio = $img.width() / $img.height()
@@ -49,13 +49,23 @@
     }
   }
 
+  const onDblClick = function () {
+    const img = this
+    const $img = $(img)
+    $img.css('width', '')
+    $img.css('height', '')
+    const $parents = $img.parents('div[class^=ui-]')
+    $parents.css('width', '')
+    $parents.css('height', '')
+  }
+
   EFDRC.resizeImage = async function (idx, img) {
     while (!img.complete) {
       // wait for image to load
       await new Promise(resolve => setTimeout(resolve, 20))
     }
 
-    EFDRC.savePriorImg(img)
+    savePriorImg(img)
 
     const $img = $(img)
     if ($img.resizable('instance') === undefined) { // just in case?
@@ -64,18 +74,18 @@
 
       $img.resizable({
         start: function (event, ui) {
-          if (EFDRC.ratioShouldBePreserved(event)) {
+          if (ratioShouldBePreserved(event)) {
             // preserve ratio when using corner point to resize
             $img.resizable('option', 'aspectRatio', true).data('ui-resizable')._aspectRatio = true
           }
         },
         stop: function (event, ui) {
           $img.resizable('option', 'aspectRatio', false).data('ui-resizable')._aspectRatio = false
-          EFDRC.maybeRemoveHeight(img, $img, ui) // this might not be working
+          maybeRemoveHeight(img, $img, ui) // this might not be working
         },
         resize: function (event, ui) {
-          if (EFDRC.ratioShouldBePreserved(event)) {
-            EFDRC.maybeRemoveHeight(img, $img, ui)
+          if (ratioShouldBePreserved(event)) {
+            maybeRemoveHeight(img, $img, ui)
           }
         },
         classes: {
@@ -101,21 +111,11 @@
         ui.element.css('min-height', computedStyle.minHeight)
       }
 
-      $img.dblclick(EFDRC.onDblClick)
+      $img.dblclick(onDblClick)
       const $divUi = $img.parents('div[class=ui-wrapper]')
       $divUi.attr('contentEditable', 'false')
       $divUi.css('display', 'inline-block')
     }
-  }
-
-  EFDRC.onDblClick = function () {
-    const img = this
-    const $img = $(img)
-    $img.css('width', '')
-    $img.css('height', '')
-    const $parents = $img.parents('div[class^=ui-]')
-    $parents.css('width', '')
-    $parents.css('height', '')
   }
 
   EFDRC.cleanResize = function (field) {
@@ -125,8 +125,8 @@
     }
     const imgs = field.querySelectorAll('[data-EFDRCImgId]')
     for (let x = 0; x < imgs.length; x++) {
-      EFDRC.maybeRemoveHeight(imgs[x], $(imgs[x]))
-      EFDRC.restorePriorImg(imgs[x])
+      maybeRemoveHeight(imgs[x], $(imgs[x]))
+      restorePriorImg(imgs[x])
     }
     EFDRC.priorImgs = []
   }
