@@ -14,53 +14,42 @@ conf = ConfigManager()
 
 def general_tab(conf_window: ConfigWindow) -> None:
     tab = conf_window.add_tab("General")
-    layout = tab.vlayout()
-
-    layout.checkbox(
+    tab.checkbox(
         "ctrl_click", "Ctrl + Click to edit field (Cmd on mac)"
     ).setToolTip("If not checked, there is no need to press Ctrl")
-    layout.checkbox(
+    tab.checkbox(
         "outline", "Show a blue outline around the field when editing"
     )
-    layout.checkbox(
+    tab.checkbox(
         "process_paste", "Process pasted content for images and HTML"
     )
-    layout.checkbox("undo", "Enable undo")
-
-    tag_hlayout = layout.hlayout()
-    tag_hlayout.label("HTML tag to use for editable field:")
+    tab.checkbox("undo", "Enable undo")
     tag_options = ["div", "span"]
-    tag_hlayout.dropdown(
-        "tag", tag_options, tag_options
+    tab.dropdown(
+        "tag", tag_options, tag_options, "HTML tag to use for editable field:"
     ).setToolTip("Use span if you want an inline field")
-    tag_hlayout.stretch()
-    layout.stretch()
+    tab.stretch()
 
-    layout.label("Image Resizing", bold=True)
-    layout.checkbox("resize_image_default_state",
-                    "Default state for image resizing.\nYPress Alt + S to toggle state. (Opt + S on Mac)")
-    resize_hlayout = layout.hlayout()
-    resize_hlayout.label("Image resizing mode:")
+    tab.label("Image Resizing", bold=True)
+    tab.checkbox("resize_image_default_state",
+                 "Default state for image resizing.\nPress Alt + S to toggle state. (Opt + S on Mac)")
     option_labels = [
         "Don't preserve ratio",
         "Preserve ratio when using corner",
         "Always preserve ratio"
     ]
     option_values = [0, 1, 2]
-    resize_hlayout.dropdown(
-        "resize_image_preserve_ratio", option_labels, option_values
+    tab.dropdown(
+        "resize_image_preserve_ratio", option_labels, option_values, "Image resizing mode:"
     )
-    resize_hlayout.stretch()
-
-    layout.stretch()
+    tab.stretch()
 
 
 def formatting_tab(conf_window: ConfigWindow) -> None:
     conf = conf_window.conf
     tab = conf_window.add_tab("Formatting")
-    layout = tab.vlayout()
-    layout.setContentsMargins(25, 25, 25, 25)
-    scroll_layout = layout.scroll_layout(horizontal=False)
+    tab.setContentsMargins(25, 25, 25, 25)
+    scroll_layout = tab.scroll_layout(horizontal=False)
     for formatting in conf["special_formatting"]:
         hlayout = scroll_layout.hlayout()
         item_key = f"special_formatting.{formatting}"
@@ -74,8 +63,7 @@ def formatting_tab(conf_window: ConfigWindow) -> None:
             else:
                 hlayout.text_input(f"{item_key}.arg.value").setFixedWidth(60)
         hlayout.stretch(1)
-
-    layout.stretch(1)
+    tab.stretch(1)
 
 
 class TemplateField(TypedDict):
@@ -186,14 +174,13 @@ def get_fields_in_every_notetype(fields_in_note_type: List[NoteTypeFields]) -> N
 
 def fields_tab(conf_window: ConfigWindow) -> None:
     tab = conf_window.add_tab("Fields")
-    layout = tab.vlayout()
     dropdown = QComboBox()
-    layout.addWidget(dropdown)
-    layout.space(20)
-    layout.label("Check the boxes to make the fields editable while reviewing")
+    tab.addWidget(dropdown)
+    tab.space(20)
+    tab.label("Check the boxes to make the fields editable while reviewing")
     qlist = QListWidget()
     qlist.setStyleSheet("QListWidget{border: 1px solid; padding: 6px;}")
-    layout.addWidget(qlist)
+    tab.addWidget(qlist)
 
     fields_in_note_type: List[NoteTypeFields] = []
 
