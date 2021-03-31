@@ -29,7 +29,7 @@ def general_tab(conf_window: ConfigWindow) -> None:
     ).setToolTip("Use span if you want an inline field")
 
     tab.space(20)
-    tab.label("Image Resizing", bold=True)
+    tab.text("Image Resizing", bold=True)
     tab.checkbox("resize_image_default_state",
                  "Default state for image resizing.\nPress Alt + S to toggle state. (Opt + S on Mac)")
     option_labels = [
@@ -54,7 +54,7 @@ def formatting_tab(conf_window: ConfigWindow) -> None:
         item_key = f"special_formatting.{formatting}"
         hlayout.checkbox(f"{item_key}.enabled")
         label_width = conf_window.fontMetrics().width("A" * 15)
-        hlayout.label(formatting).setFixedWidth(label_width)
+        hlayout.text(formatting).setFixedWidth(label_width)
         hlayout.text_input(f"{item_key}.shortcut").setFixedWidth(label_width)
         if conf[f"{item_key}.arg"] is not None:
             if conf[f"{item_key}.arg.type"] == "color":
@@ -176,7 +176,7 @@ def fields_tab(conf_window: ConfigWindow) -> None:
     dropdown = QComboBox()
     tab.addWidget(dropdown)
     tab.space(20)
-    tab.label("Check the boxes to make the fields editable while reviewing")
+    tab.text("Check the boxes to make the fields editable while reviewing")
     qlist = QListWidget()
     qlist.setStyleSheet("QListWidget{border: 1px solid; padding: 6px;}")
     tab.addWidget(qlist)
@@ -234,7 +234,7 @@ def about_tab(conf_window: ConfigWindow) -> None:
     tab.text("Edit Field During Review (Cloze) is a <b>Free and Open Source Software (FOSS)</b>"
              " distributed under the GNU AGPL v3 license."
              " It also contains code that are licensed under a different license."
-             " Please see the LICENSE file for more information.")
+             " Please see the LICENSE file for more information.", multiline=True)
     tab.stretch()
 
 
