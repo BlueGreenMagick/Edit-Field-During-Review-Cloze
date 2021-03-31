@@ -1,4 +1,4 @@
 # -*- coding: utf-8 -*-
 
+from . import firstrun
 from . import reviewer
-from . import config

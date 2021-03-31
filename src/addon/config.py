@@ -243,14 +243,3 @@ conf.add_config_tab(general_tab)
 conf.add_config_tab(formatting_tab)
 conf.add_config_tab(fields_tab)
 conf.add_config_tab(about_tab)
-
-
-def config_make_valid(conf: ConfigManager) -> None:
-    # Once a boolean, Now a number.
-    resize_conf = conf["resize_image_preserve_ratio"]
-    if isinstance(resize_conf, bool):
-        if resize_conf:
-            conf["resize_image_preserve_ratio"] = 1
-        else:
-            conf["resize_image_preserve_ratio"] = 0
-    conf.save()

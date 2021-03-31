@@ -16,7 +16,7 @@ from aqt.utils import showText, tooltip
 
 
 from .semieditor import semiEditorWebView
-from .config import conf, config_make_valid
+from .config import conf
 
 ERROR_MSG = "ERROR - Edit Field During Review Cloze\n{}"
 
@@ -36,7 +36,6 @@ class FldNotFoundError(Exception):
 
 def myRevHtml() -> str:
     conf.load()  # update config when reviewer is launched
-    config_make_valid(conf)
 
     # config should not have any single quote values
     js = "EFDRC.registerConfig('{}');".format(conf.to_json())
