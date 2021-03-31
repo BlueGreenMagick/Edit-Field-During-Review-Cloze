@@ -23,7 +23,6 @@ def general_tab(conf_window: ConfigWindow) -> None:
     tab.checkbox(
         "process_paste", "Process pasted content for images and HTML"
     )
-    tab.checkbox("undo", "Enable undo")
     tag_options = ["div", "span"]
     tab.dropdown(
         "tag", tag_options, tag_options, "HTML tag to use for editable field:"

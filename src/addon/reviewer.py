@@ -80,8 +80,7 @@ def saveField(note: Note, fld: str, val: str) -> None:
         if note[fld] == txt:
             return
         note[fld] = txt
-    if conf["undo"]:
-        mw.checkpoint("Edit Field")
+    mw.checkpoint("Edit Field")
     note.flush()
 
 

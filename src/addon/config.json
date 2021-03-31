@@ -4,7 +4,6 @@
   "process_paste": true,
   "remove_span": false,
   "tag": "div",
-  "undo": true,
   "resize_image_default_state": true,
   "resize_image_preserve_ratio": 2,
   "special_formatting": {
