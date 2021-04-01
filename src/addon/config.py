@@ -1,4 +1,3 @@
-
 from enum import Enum
 import re
 from typing import List, TypedDict, Set
@@ -14,15 +13,11 @@ conf = ConfigManager()
 
 def general_tab(conf_window: ConfigWindow) -> None:
     tab = conf_window.add_tab("General")
-    tab.checkbox(
-        "ctrl_click", "Ctrl + Click to edit field (Cmd on mac)"
-    ).setToolTip("If not checked, there is no need to press Ctrl")
-    tab.checkbox(
-        "outline", "Show a blue outline around the field when editing"
+    tab.checkbox("ctrl_click", "Ctrl + Click to edit field (Cmd on mac)").setToolTip(
+        "If not checked, there is no need to press Ctrl"
     )
-    tab.checkbox(
-        "process_paste", "Process pasted content for images and HTML"
-    )
+    tab.checkbox("outline", "Show a blue outline around the field when editing")
+    tab.checkbox("process_paste", "Process pasted content for images and HTML")
     tag_options = ["div", "span"]
     tab.dropdown(
         "tag", tag_options, tag_options, "HTML tag to use for editable field:"
@@ -30,16 +25,21 @@ def general_tab(conf_window: ConfigWindow) -> None:
 
     tab.space(20)
     tab.text("Image Resizing", bold=True)
-    tab.checkbox("resize_image_default_state",
-                 "Default state for image resizing.\nPress Alt + S to toggle state. (Opt + S on Mac)")
+    tab.checkbox(
+        "resize_image_default_state",
+        "Default state for image resizing.\nPress Alt + S to toggle state. (Opt + S on Mac)",
+    )
     option_labels = [
         "Don't preserve ratio",
         "Preserve ratio when using corner",
-        "Always preserve ratio"
+        "Always preserve ratio",
     ]
     option_values = [0, 1, 2]
     tab.dropdown(
-        "resize_image_preserve_ratio", option_labels, option_values, "Image resizing mode:"
+        "resize_image_preserve_ratio",
+        option_labels,
+        option_values,
+        "Image resizing mode:",
     )
     tab.stretch()
 
@@ -107,11 +107,17 @@ def modify_field_editability(note_type: NoteType, field: FieldIsEditable) -> Not
     for template in note_type["tmpls"]:
         for side in ["qfmt", "afmt"]:
             if field["edit"] == Editability.ALL:
-                template[side] = re.sub("{{((?:(?!edit:)[^#/:}]+:)*%s)}}" %
-                                        field["name"], r"{{edit:\1}}", template[side])
+                template[side] = re.sub(
+                    "{{((?:(?!edit:)[^#/:}]+:)*%s)}}" % field["name"],
+                    r"{{edit:\1}}",
+                    template[side],
+                )
             elif field["edit"] == Editability.NONE:
                 template[side] = re.sub(
-                    "{{((?:[^#/:}]+:)*)edit:((?:[^#/:}]+:)*%s)}}" % field["name"], r"{{\1\2}}", template[side])
+                    "{{((?:[^#/:}]+:)*)edit:((?:[^#/:}]+:)*%s)}}" % field["name"],
+                    r"{{\1\2}}",
+                    template[side],
+                )
     return note_type
 
 
@@ -125,7 +131,7 @@ def parse_fields(template: str) -> List[TemplateField]:
         splitted = m.split(":")
         modifiers = splitted[:-1]
         field_name = splitted[-1]
-        has_edit = ("edit" in modifiers)
+        has_edit = "edit" in modifiers
         field_info = TemplateField(name=field_name, edit=has_edit)
         fields.append(field_info)
     return fields
@@ -159,11 +165,10 @@ def get_fields_in_every_notetype(fields_in_note_type: List[NoteTypeFields]) -> N
                 editable = {
                     (True, True): Editability.PARTIAL,
                     (True, False): Editability.ALL,
-                    (False, True): Editability.NONE
+                    (False, True): Editability.NONE,
                 }[(fldname in editable_field_names, fldname in uneditable_field_names)]
 
-                field = FieldIsEditable(
-                    name=fldname, edit=editable, orig_edit=editable)
+                field = FieldIsEditable(name=fldname, edit=editable, orig_edit=editable)
                 fields_list.append(field)
             except:
                 pass
@@ -227,14 +232,19 @@ def about_tab(conf_window: ConfigWindow) -> None:
     tab.text("Edit Field During Review (Cloze)", bold=True, size=20)
     tab.text("© 2019-2021 Yoonchae Lee (Bluegreenmagick)")
     tab.text(f"Version {conf['version.major']}.{conf['version.minor']}")
-    tab.text("Found a bug? Report issues"
-             " <a href='https://github.com/BlueGreenMagick/Edit-Field-During-Review-Cloze/issues'>here</a>.")
+    tab.text(
+        "Found a bug? Report issues"
+        " <a href='https://github.com/BlueGreenMagick/Edit-Field-During-Review-Cloze/issues'>here</a>."
+    )
     tab.space(15)
     tab.text("License", bold=True)
-    tab.text("Edit Field During Review (Cloze) is a <b>Free and Open Source Software (FOSS)</b>"
-             " distributed under the GNU AGPL v3 license."
-             " It also contains code that are licensed under a different license."
-             " Please see the LICENSE file for more information.", multiline=True)
+    tab.text(
+        "Edit Field During Review (Cloze) is a <b>Free and Open Source Software (FOSS)</b>"
+        " distributed under the GNU AGPL v3 license."
+        " It also contains code that are licensed under a different license."
+        " Please see the LICENSE file for more information.",
+        multiline=True,
+    )
     tab.stretch()
 
 

@@ -102,7 +102,9 @@ def reload_reviewer(reviewer: Reviewer) -> None:
         reviewer._showAnswer()
 
 
-def handle_pycmd_message(handled: Tuple[bool, Any], message: str, context: Any) -> Tuple[bool, Any]:
+def handle_pycmd_message(
+    handled: Tuple[bool, Any], message: str, context: Any
+) -> Tuple[bool, Any]:
     if not isinstance(context, Reviewer):
         return handled
     reviewer: Reviewer = context
@@ -177,8 +179,7 @@ def handle_pycmd_message(handled: Tuple[bool, Any], message: str, context: Any) 
         html, internal = editorwv._processMime(mime)
         html = editorwv.editor._pastePreFilter(html, internal)
         reviewer.web.eval(
-            "EFDRC.pasteHTML(%s, %s);" % (
-                json.dumps(html), json.dumps(internal))
+            "EFDRC.pasteHTML(%s, %s);" % (json.dumps(html), json.dumps(internal))
         )
         return (True, None)
 
@@ -198,7 +199,9 @@ def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]) -> N
 
     if isinstance(context, Reviewer):
         web_content.body += myRevHtml()
-        web_content.body += f'<script type="module" src="{url_from_fname("editor/index.js")}"></script>'
+        web_content.body += (
+            f'<script type="module" src="{url_from_fname("editor/index.js")}"></script>'
+        )
         js_contents = ["global_card.js", "resize.js"]
         for file_name in js_contents:
             web_content.js.append(url_from_fname(file_name))

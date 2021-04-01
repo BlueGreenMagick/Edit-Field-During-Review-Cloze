@@ -3,7 +3,7 @@ from pathlib import Path
 from .config import conf
 
 
-class Version():
+class Version:
     def __init__(self) -> None:
         self.load()
 
@@ -12,15 +12,15 @@ class Version():
         self.minor = conf["version.minor"]
 
     def __eq__(self, other: str) -> bool:  # type: ignore
-        ver = other.split('.')
+        ver = other.split(".")
         return self.major == ver[0] and self.minor == ver[1]
 
     def __gt__(self, other: str) -> bool:
-        ver = other.split('.')
+        ver = other.split(".")
         return self.major > ver[0] or (self.major == ver[0] and self.minor > ver[1])
 
     def __lt__(self, other: str) -> bool:
-        ver = other.split('.')
+        ver = other.split(".")
         return self.major < ver[0] or (self.major == ver[0] and self.minor < ver[1])
 
     def __ge__(self, other: str) -> bool:
@@ -37,6 +37,7 @@ version = Version()
 # Versions before 6.0 will have config version of 0.0
 # However if the user hasn't edited their config, it will show up as -1.-1
 
+
 def distinguish_initial_install() -> None:
     if not version == "-1.-1":
         return
@@ -51,6 +52,7 @@ distinguish_initial_install()
 
 
 # Make config compatible when upgrading from older version
+
 
 def change_resize_image_preserve_ratio() -> None:
     resize_conf = conf["resize_image_preserve_ratio"]
@@ -70,5 +72,5 @@ change_resize_image_preserve_ratio()
 # Save current version
 file_path = Path(__file__).parent / "VERSION"
 version_string = file_path.read_text()
-conf["version.major"] = version_string.split('.')[0]
-conf["version.minor"] = version_string.split('.')[1]
+conf["version.major"] = version_string.split(".")[0]
+conf["version.minor"] = version_string.split(".")[1]
