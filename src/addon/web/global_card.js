@@ -220,7 +220,7 @@
   }
   EFDRC.setupReviewer = function () {
     // image resizer
-    registerShortcut('Shift+S', (event) => {
+    registerShortcut('Alt+S', (event) => {
       EFDRC.resizeImageMode = !EFDRC.resizeImageMode
       EFDRC.maybeResizeOrClean()
     })
