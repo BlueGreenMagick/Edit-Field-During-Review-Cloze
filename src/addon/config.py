@@ -13,21 +13,28 @@ conf = ConfigManager()
 
 def general_tab(conf_window: ConfigWindow) -> None:
     tab = conf_window.add_tab("General")
-    tab.checkbox("ctrl_click", "Ctrl + Click to edit field (Cmd on mac)").setToolTip(
-        "If not checked, there is no need to press Ctrl"
+    tab.checkbox(
+        "ctrl_click",
+        "Ctrl + Click to edit field (Cmd on mac)",
+        tooltip="If not checked, there is no need to press Ctrl",
     )
     tab.checkbox("outline", "Show a blue outline around the field when editing")
     tab.checkbox("process_paste", "Process pasted content for images and HTML")
     tag_options = ["div", "span"]
     tab.dropdown(
-        "tag", tag_options, tag_options, "HTML tag to use for editable field:"
-    ).setToolTip("Use span if you want an inline field")
+        "tag",
+        tag_options,
+        tag_options,
+        "HTML tag to use for editable field:",
+        tooltip="div is recommended",
+    )
 
     tab.space(20)
     tab.text("Image Resizing", bold=True)
     tab.checkbox(
         "resize_image_default_state",
-        "Default state for image resizing.\nPress Alt + S to toggle state. (Opt + S on Mac)",
+        "Use image resizing",
+        tooltip="You can press Alt + S to toggle. (Opt + S on Mac)",
     )
     option_labels = [
         "Don't preserve ratio",
