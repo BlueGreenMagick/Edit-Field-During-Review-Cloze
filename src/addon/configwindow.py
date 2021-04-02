@@ -286,7 +286,13 @@ def about_tab(conf_window: ConfigWindow) -> None:
     tab.stretch()
 
 
+def with_window(conf_window: ConfigWindow) -> None:
+    conf_window.set_footer(
+        "Changes will take effect when you start a review session")
+
+
 conf.use_custom_window()
+conf.on_window_open(with_window)
 conf.add_config_tab(general_tab)
 conf.add_config_tab(formatting_tab)
 conf.add_config_tab(fields_tab)
