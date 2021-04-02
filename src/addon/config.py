@@ -195,10 +195,31 @@ def fields_tab(conf_window: ConfigWindow) -> None:
 
     fields_in_note_type: List[NoteTypeFields] = []
 
+    def update_label_status(idx: int) -> None:
+        notetype = fields_in_note_type[idx]
+        editable = {
+            Editability.NONE: 0,
+            Editability.PARTIAL: 0,
+            Editability.ALL: 0
+        }
+        for field in notetype["fields"]:
+            editable[field["edit"]] += 1
+        if editable[Editability.ALL] + editable[Editability.PARTIAL] == 0:
+            status = "❌"
+        elif editable[Editability.NONE] + editable[Editability.PARTIAL] == 0:
+            status = "✅"
+        else:
+            status = "🔶"
+        old_label = dropdown.itemText(idx)
+        new_label = old_label[:-1] + status
+        dropdown.setItemText(idx, new_label)
+
     def on_check(item: QListWidgetItem) -> None:
-        fields = fields_in_note_type[dropdown.currentIndex()]["fields"]
+        nt_idx = dropdown.currentIndex()
+        fields = fields_in_note_type[nt_idx]["fields"]
         field = fields[qlist.row(item)]
         field["edit"] = Editability.from_check_state(item.checkState())
+        update_label_status(nt_idx)
 
     qlist.itemChanged.connect(lambda item: on_check(item))
 
