@@ -6,6 +6,11 @@
   "tag": "div",
   "resize_image_default_state": true,
   "resize_image_preserve_ratio": 2,
+  "shortcuts" : {
+    "cloze": "Ctrl+Shift+C",
+    "cloze-alt": "Ctrl+Shift+Alt+C",
+    "image-resize": "Alt+S"
+  },
   "special_formatting": {
     "fontcolor": {
       "enabled": true,

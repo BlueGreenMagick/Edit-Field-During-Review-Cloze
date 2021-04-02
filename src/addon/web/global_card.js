@@ -220,14 +220,14 @@
   }
   EFDRC.setupReviewer = function () {
     // image resizer
-    registerShortcut('Alt+S', (event) => {
+    registerShortcut(EFDRC.CONF.shortcuts['image-resize'], (event) => {
       EFDRC.resizeImageMode = !EFDRC.resizeImageMode
       EFDRC.maybeResizeOrClean()
     })
-    registerShortcut('Ctrl+Shift+C', (event, el) => {
+    registerShortcut(EFDRC.CONF.shortcuts.cloze, (event, el) => {
       wrapCloze(event, el, false)
     })
-    registerShortcut('Ctrl+Shift+Alt+C', (event, el) => {
+    registerShortcut(EFDRC.CONF.shortcuts['cloze-alt'], (event, el) => {
       wrapCloze(event, el, true)
     })
     registerShortcut('Backspace', (event, el) => {

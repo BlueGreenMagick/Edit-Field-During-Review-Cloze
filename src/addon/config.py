@@ -18,7 +18,8 @@ def general_tab(conf_window: ConfigWindow) -> None:
         "Ctrl + Click to edit field (Cmd on mac)",
         tooltip="If not checked, there is no need to press Ctrl",
     )
-    tab.checkbox("outline", "Show a blue outline around the field when editing")
+    tab.checkbox(
+        "outline", "Show a blue outline around the field when editing")
     tab.checkbox("process_paste", "Process pasted content for images and HTML")
     tag_options = ["div", "span"]
     tab.dropdown(
@@ -28,13 +29,16 @@ def general_tab(conf_window: ConfigWindow) -> None:
         "HTML tag to use for editable field:",
         tooltip="div is recommended",
     )
+    tab.text_input("shortcuts.cloze-alt",
+                   "Shortcut for same number cloze:",
+                   tooltip="Default is Ctrl+Shift+Alt+C")
 
     tab.space(20)
     tab.text("Image Resizing", bold=True)
     tab.checkbox(
         "resize_image_default_state",
         "Use image resizing",
-        tooltip="You can press Alt + S to toggle. (Opt + S on Mac)",
+        tooltip="You can toggle 'image resize mode' with below shortcut",
     )
     option_labels = [
         "Don't preserve ratio",
@@ -48,6 +52,9 @@ def general_tab(conf_window: ConfigWindow) -> None:
         option_values,
         "Image resizing mode:",
     )
+    tab.text_input("shortcuts.image-resize",
+                   "Shortcut for image resize mode:",
+                   tooltip="Pressing this shortcut toggles the image resize mode")
     tab.stretch()
 
 
@@ -175,7 +182,8 @@ def get_fields_in_every_notetype(fields_in_note_type: List[NoteTypeFields]) -> N
                     (False, True): Editability.NONE,
                 }[(fldname in editable_field_names, fldname in uneditable_field_names)]
 
-                field = FieldIsEditable(name=fldname, edit=editable, orig_edit=editable)
+                field = FieldIsEditable(
+                    name=fldname, edit=editable, orig_edit=editable)
                 fields_list.append(field)
             except:
                 pass
@@ -236,8 +244,10 @@ def fields_tab(conf_window: ConfigWindow) -> None:
     dropdown.currentIndexChanged.connect(switch_template)
 
     get_fields_in_every_notetype(fields_in_note_type)
-    for nt in fields_in_note_type:
-        dropdown.addItem(nt["name"])
+
+    for idx, nt in enumerate(fields_in_note_type):
+        dropdown.addItem(nt["name"] + "  ")
+        update_label_status(idx)
     dropdown.setCurrentIndex(0)  # Triggers currentIndexChanged
 
     def on_save() -> None:
