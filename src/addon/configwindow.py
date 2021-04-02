@@ -229,7 +229,15 @@ def fields_tab(conf_window: ConfigWindow) -> None:
         field["edit"] = Editability.from_check_state(item.checkState())
         update_label_status(nt_idx)
 
-    qlist.itemChanged.connect(lambda item: on_check(item))
+    def on_double_click(item: QListWidgetItem) -> None:
+        curr_check = item.checkState()
+        if curr_check == Qt.Checked:
+            item.setCheckState(Qt.Unchecked)
+        else:  # Partially checked or unchecked
+            item.setCheckState(Qt.Checked)
+
+    qlist.itemChanged.connect(on_check)
+    qlist.itemDoubleClicked.connect(on_double_click)
 
     def switch_template(idx: int) -> None:
         if idx == -1:
