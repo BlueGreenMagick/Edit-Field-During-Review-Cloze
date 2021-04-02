@@ -1,6 +1,8 @@
 from pathlib import Path
 
-from .config import conf
+from .ankiaddonconfig import ConfigManager
+
+conf = ConfigManager()
 
 
 class Version:
@@ -53,6 +55,7 @@ distinguish_initial_install()
 
 # Make config compatible when upgrading from older version
 
+
 def change_resize_image_preserve_ratio() -> None:
     resize_conf = conf["resize_image_preserve_ratio"]
     if not isinstance(resize_conf, bool):
@@ -83,7 +86,8 @@ def change_special_formatting() -> None:
         if arg is not None:
             conf[f"special_formatting.{key}.arg"] = {
                 "type": "color" if key in ["fontcolor", "highlight"] else "text",
-                "value": arg}
+                "value": arg,
+            }
 
     del conf["z_special_formatting"]
     conf.save()

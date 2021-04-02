@@ -16,7 +16,7 @@ from aqt.utils import showText, tooltip
 
 
 from .semieditor import semiEditorWebView
-from .config import conf
+from .ankiaddonconfig import ConfigManager
 
 ERROR_MSG = "ERROR - Edit Field During Review Cloze\n{}"
 
@@ -32,6 +32,9 @@ class FldNotFoundError(Exception):
 
     def __str__(self) -> str:
         return f"Field {self.fld} not found in note. Please check your note type."
+
+
+conf = ConfigManager()
 
 
 def myRevHtml() -> str:
