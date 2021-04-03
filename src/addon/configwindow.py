@@ -1,6 +1,7 @@
 import re
 from enum import Enum
 from typing import List, TypedDict, Set
+from PyQt5.QtWidgets import QPushButton
 
 from anki.models import Template, NoteType
 from aqt import mw
@@ -195,7 +196,7 @@ def fields_tab(conf_window: ConfigWindow) -> None:
     tab = conf_window.add_tab("Fields")
     dropdown = QComboBox()
     tab.addWidget(dropdown)
-    tab.space(20)
+    tab.space(15)
     tab.text("Check the boxes to make the fields editable while reviewing")
     qlist = QListWidget()
     qlist.setStyleSheet("QListWidget{border: 1px solid; padding: 6px;}")
@@ -267,6 +268,19 @@ def fields_tab(conf_window: ConfigWindow) -> None:
         dropdown.addItem(nt["name"] + "  ")
         update_label_status(idx)
     dropdown.setCurrentIndex(0)  # Triggers currentIndexChanged
+
+    def make_every_field_editable() -> None:
+        for idx, note_type_fields in enumerate(fields_in_note_type):
+            for field in note_type_fields["fields"]:
+                field["edit"] = Editability.ALL
+            update_label_status(idx)
+        switch_template(dropdown.currentIndex())
+
+    tab.space(25)
+    button = QPushButton("Make every field in every note type editable ✅")
+    button.clicked.connect(make_every_field_editable)
+    tab.addWidget(button)
+    tab.space(5)
 
 
 def about_tab(conf_window: ConfigWindow) -> None:
