@@ -1,11 +1,11 @@
 import re
 from enum import Enum
-from typing import List, TypedDict, Set
-from PyQt5.QtWidgets import QPushButton
+from typing import List, TypedDict, Set, TYPE_CHECKING
 
-from anki.models import Template, NoteType
+if TYPE_CHECKING:
+    from anki.models import Template, NoteType
 from aqt import mw
-from aqt.qt import Qt, QComboBox, QListWidget, QListWidgetItem
+from aqt.qt import *
 
 from .ankiaddonconfig import ConfigManager, ConfigWindow
 
@@ -118,7 +118,7 @@ class NoteTypeFields(TypedDict):
     fields: List[FieldIsEditable]
 
 
-def modify_field_editability(note_type: NoteType, field: FieldIsEditable) -> NoteType:
+def modify_field_editability(note_type: "NoteType", field: FieldIsEditable) -> "NoteType":
     for template in note_type["tmpls"]:
         for side in ["qfmt", "afmt"]:
             if field["edit"] == Editability.ALL:
@@ -159,7 +159,7 @@ def get_fields_in_every_notetype(fields_in_note_type: List[NoteTypeFields]) -> N
     models = mw.col.models
     note_types = models.all()
     for note_type in note_types:
-        templates: List[Template] = note_type["tmpls"]
+        templates: List["Template"] = note_type["tmpls"]
         editable_field_names: Set[str] = set()
         uneditable_field_names: Set[str] = set()
 
