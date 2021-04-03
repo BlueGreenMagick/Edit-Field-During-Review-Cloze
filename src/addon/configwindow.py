@@ -1,5 +1,5 @@
-from enum import Enum
 import re
+from enum import Enum
 from typing import List, TypedDict, Set
 
 from anki.models import Template, NoteType
@@ -236,9 +236,6 @@ def fields_tab(conf_window: ConfigWindow) -> None:
         else:  # Partially checked or unchecked
             item.setCheckState(Qt.Checked)
 
-    qlist.itemChanged.connect(on_check)
-    qlist.itemDoubleClicked.connect(on_double_click)
-
     def switch_template(idx: int) -> None:
         if idx == -1:
             return
@@ -248,15 +245,6 @@ def fields_tab(conf_window: ConfigWindow) -> None:
             item = QListWidgetItem(field["name"], qlist, QListWidgetItem.Type)
             qlist.addItem(item)
             item.setCheckState(Editability.to_check_state(field["edit"]))
-
-    dropdown.currentIndexChanged.connect(switch_template)
-
-    get_fields_in_every_notetype(fields_in_note_type)
-
-    for idx, nt in enumerate(fields_in_note_type):
-        dropdown.addItem(nt["name"] + "  ")
-        update_label_status(idx)
-    dropdown.setCurrentIndex(0)  # Triggers currentIndexChanged
 
     def on_save() -> None:
         for note_type_fields in fields_in_note_type:
@@ -269,7 +257,16 @@ def fields_tab(conf_window: ConfigWindow) -> None:
             if modified:
                 mw.col.models.save(note_type)
 
+    qlist.itemChanged.connect(on_check)
+    qlist.itemDoubleClicked.connect(on_double_click)
+    dropdown.currentIndexChanged.connect(switch_template)
     conf_window.execute_on_save(on_save)
+
+    get_fields_in_every_notetype(fields_in_note_type)
+    for idx, nt in enumerate(fields_in_note_type):
+        dropdown.addItem(nt["name"] + "  ")
+        update_label_status(idx)
+    dropdown.setCurrentIndex(0)  # Triggers currentIndexChanged
 
 
 def about_tab(conf_window: ConfigWindow) -> None:
