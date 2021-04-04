@@ -6,9 +6,9 @@ on:
       version:
         description: version string (eg. 6.1)
         required: true
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+
 jobs:
-  build:
+  create-release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -20,6 +20,9 @@ jobs:
           
       - name: Run release/new_version.py
         run: python ./release/new_version.py ${{ github.event.inputs.version }}
+      
+      - name: Commit changes to git
+        run: git commit -am "Bump Version to v${{ github.event.inputs.version }}"
       
       - name: Push new version with tag
         uses: ad-m/github-push-action@v0.6.0
@@ -37,6 +40,7 @@ jobs:
           repo_token: ${{ github.token }}
           file: "../efdrc_v${{ github.event.inputs.version }}.ankiaddon"
           tag: ${{ github.event.inputs.version }}
+          release_name: EFDRC v${{ github.event.inputs.version }}
 
           
 
