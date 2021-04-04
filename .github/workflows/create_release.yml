@@ -1,0 +1,47 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: version string (eg. 6.1)
+        required: true
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup Python
+        uses: actions/setup-python@v2.2.1
+        with:
+          python-version: 3.8
+          
+      - name: Run release/new_version.py
+        run: python ./release/new_version.py ${{ github.event.inputs.version }}
+      
+      - name: Push new version with tag
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ github.token }}
+          branch: master
+          tags: ${{ github.event.inputs.version }}
+          
+      - name: Create ankiaddon file
+        run: git archive --format=zip -o "../efdrc_v${{ github.event.inputs.version }}.ankiaddon" HEAD:src/addon
+      
+      - name: Create github release and upload ankiaddon file
+        uses: svenstaro/upload-release-action@2.2.1
+        with:
+          repo_token: ${{ github.token }}
+          file: "../efdrc_v${{ github.event.inputs.version }}.ankiaddon"
+          tag: ${{ github.event.inputs.version }}
+
+          
+
+
+
+
+
+
