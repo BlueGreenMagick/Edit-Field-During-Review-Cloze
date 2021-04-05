@@ -1,6 +1,7 @@
-from pathlib import Path
+from aqt import mw
 
 from .ankiaddonconfig import ConfigManager
+
 
 conf = ConfigManager()
 
@@ -107,8 +108,9 @@ remove_undo()
 
 # Save current version
 
+addon_dir = mw.addonManager.addonFromModule(__name__)
+meta = mw.addonManager.addonMeta(addon_dir)
 
-file_path = Path(__file__).parent / "VERSION"
-version_string = file_path.read_text()
+version_string = meta["human_version"]
 conf["version.major"] = version_string.split(".")[0]
 conf["version.minor"] = version_string.split(".")[1]
