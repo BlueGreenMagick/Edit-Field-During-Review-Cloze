@@ -114,3 +114,4 @@ meta = mw.addonManager.addonMeta(addon_dir)
 version_string = meta["human_version"]
 conf["version.major"] = version_string.split(".")[0]
 conf["version.minor"] = version_string.split(".")[1]
+conf.save()
