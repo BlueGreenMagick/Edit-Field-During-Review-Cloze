@@ -29,11 +29,11 @@ python -m pip install aqt PyQt5-stubs mypy
 This project doesn't use a strict python formatter. Even so, please make it look pretty enough :)
 
 # Building ankiaddon file
-After cloning the repo, run the following command to install the git submodule [ankiaddonconfig](https://github.com/BlueGreenMagick/ankiaddonconfig/)
+After cloning the repo, go into the repo directory and run the following command to install the git submodule [ankiaddonconfig](https://github.com/BlueGreenMagick/ankiaddonconfig/)
 ```
 git submodule update --init src/addon/ankiaddonconfig
 ```
 After installing the git submodule, run the following command to create an `efdrc.ankiaddon` file
 ```
-git archive --format=zip -o efdrc.ankiaddon HEAD:src/addon
+cd src/addon ; zip -r ../../efdrc.ankiaddon * ; cd ../../
 ```
