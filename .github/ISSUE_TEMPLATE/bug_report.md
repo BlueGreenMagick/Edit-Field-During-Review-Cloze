@@ -6,6 +6,9 @@ labels: ''
 assignees: ''
 
 ---
+The below checklist isn't manditory, but suggested before creating an issue.
+- [ ] I've updated this add-on to the latest version
+- [ ] I've tried disabling all other add-ons except this one.
 
 **Describe the bug**
 What is the bug, and what behaviour did you expect instead?
