@@ -290,15 +290,17 @@ def about_tab(conf_window: ConfigWindow) -> None:
     tab.text("© 2019-2021 Yoonchae Lee (Bluegreenmagick)")
     tab.text(f"Version {conf['version.major']}.{conf['version.minor']}")
     tab.text(
-        "Found a bug? Report issues"
-        " <a href='https://github.com/BlueGreenMagick/Edit-Field-During-Review-Cloze/issues'>here</a>."
+        "Found a bug?"
+        " <a href='https://github.com/BlueGreenMagick/Edit-Field-During-Review-Cloze/issues'>"
+        "Report issues here"
+        "</a>."
     )
     tab.space(15)
     tab.text("License", bold=True)
     tab.text(
         "Edit Field During Review (Cloze) is a <b>Free and Open Source Software (FOSS)</b>"
         " distributed under the GNU AGPL v3 license."
-        " It also contains code that are licensed under a different license."
+        " It may also contain code that are licensed under a different license."
         " Please see the LICENSE file for more information.",
         multiline=True,
     )
