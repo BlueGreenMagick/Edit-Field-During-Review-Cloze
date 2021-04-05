@@ -1,5 +1,5 @@
 {
-  "ctrl_click": false,
+  "ctrl_click": true,
   "outline": true,
   "process_paste": true,
   "remove_span": false,
