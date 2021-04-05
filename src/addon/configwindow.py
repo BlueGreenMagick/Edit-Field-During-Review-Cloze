@@ -39,7 +39,7 @@ def general_tab(conf_window: ConfigWindow) -> None:
     tab.checkbox(
         "resize_image_default_state",
         "Use image resizing",
-        tooltip="You can toggle 'image resize mode' with below shortcut",
+        tooltip="Even when unchecked, you can toggle the 'image resize mode' with below shortcut",
     )
     option_labels = [
         "Don't preserve ratio",
