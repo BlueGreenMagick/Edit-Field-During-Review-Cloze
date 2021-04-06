@@ -1,5 +1,4 @@
-For add-on descriptions, please see [DESCRIPTION.html](./DESCRIPTION.html). 
-[AnkiWeb Link](https://ankiweb.net/shared/info/385888438)
+For add-on description, please see [AnkiWeb page](https://ankiweb.net/shared/info/385888438) or the [FAQ](./FAQ.md)
 # Development
 ## Setup
 After cloning the project, run the following command
