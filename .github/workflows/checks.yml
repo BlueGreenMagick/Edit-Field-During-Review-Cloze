@@ -26,4 +26,4 @@ jobs:
         run: python -m pip install aqt pyqt5-stubs mypy
 
       - name: Run mypy
-        run: python -m mypy --no-strict-optional --disallow-untyped-defs .
+        run: python -m mypy .

@@ -16,7 +16,7 @@ After editing code in [./src/ts](./src/ts), run `npx tsc` to compile it to [./sr
 This project uses [mypy](https://github.com/python/mypy) type checking for Python, and [standardjs](https://github.com/standard/standard) for formatting Javascript.
 
 ```
-python -m mypy --no-strict-optional --disallow-untyped-defs .
+python -m mypy .
 npx standard --fix
 ```
 
