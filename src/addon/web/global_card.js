@@ -180,6 +180,7 @@
     scutInfo.handler = handler
     EFDRC.shortcuts.push(scutInfo)
   }
+  EFDRC.registerShortcut = registerShortcut
 
   const matchShortcut = function (event, scutInfo) {
     if (scutInfo.key !== event.code.toLowerCase()) return false
