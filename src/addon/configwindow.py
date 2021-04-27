@@ -293,8 +293,7 @@ def about_tab(conf_window: ConfigWindow) -> None:
         "Found a bug?"
         " <a href='https://github.com/BlueGreenMagick/Edit-Field-During-Review-Cloze/issues'>"
         "Report issues here"
-        "</a>."
-    )
+        "</a>.", html=True)
     tab.space(15)
     tab.text("License", bold=True)
     tab.text(
