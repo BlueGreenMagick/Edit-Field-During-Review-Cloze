@@ -196,7 +196,7 @@ def fields_tab(conf_window: ConfigWindow) -> None:
     tab = conf_window.add_tab("Fields")
     dropdown = QComboBox()
     tab.addWidget(dropdown)
-    tab.space(15)
+    tab.space(10)
     tab.text("Check the boxes to make the fields editable while reviewing")
     qlist = QListWidget()
     qlist.setStyleSheet("QListWidget{border: 1px solid; padding: 6px;}")
@@ -276,11 +276,14 @@ def fields_tab(conf_window: ConfigWindow) -> None:
             update_label_status(idx)
         switch_template(dropdown.currentIndex())
 
-    tab.space(25)
+    tab.space(10)
+    button_layout = tab.hlayout()
+    button_layout.space(15)
     button = QPushButton("Make every field in every note type editable ✅")
     button.clicked.connect(make_every_field_editable)
-    tab.addWidget(button)
-    tab.space(5)
+    button_layout.addWidget(button)
+    button_layout.space(15)
+    tab.space(15)
 
 
 def about_tab(conf_window: ConfigWindow) -> None:
