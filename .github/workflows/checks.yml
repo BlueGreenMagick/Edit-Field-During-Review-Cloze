@@ -26,4 +26,4 @@ jobs:
         run: python -m pip install aqt pyqt5-stubs mypy
 
       - name: Run mypy
-        run: python -m mypy .
+        run: python -m mypy ./src/addon
