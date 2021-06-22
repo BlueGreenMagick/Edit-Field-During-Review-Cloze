@@ -16,15 +16,15 @@ class Version:
         self.minor = conf["version.minor"]
 
     def __eq__(self, other: str) -> bool:  # type: ignore
-        ver = other.split(".")
+        ver = [int(i) for i in other.split(".")]
         return self.major == ver[0] and self.minor == ver[1]
 
     def __gt__(self, other: str) -> bool:
-        ver = other.split(".")
+        ver = [int(i) for i in other.split(".")]
         return self.major > ver[0] or (self.major == ver[0] and self.minor > ver[1])
 
     def __lt__(self, other: str) -> bool:
-        ver = other.split(".")
+        ver = [int(i) for i in other.split(".")]
         return self.major < ver[0] or (self.major == ver[0] and self.minor < ver[1])
 
     def __ge__(self, other: str) -> bool:
