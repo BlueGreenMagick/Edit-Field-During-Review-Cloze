@@ -123,7 +123,7 @@ def initial_tutorial() -> None:
              title="Add-on Tutorial")
 
 
-if version == "-1.-1" or True:
+if version == "-1.-1":
     initial_tutorial()
 
 
