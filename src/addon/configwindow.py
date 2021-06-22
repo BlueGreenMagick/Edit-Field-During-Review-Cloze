@@ -300,11 +300,11 @@ def about_tab(conf_window: ConfigWindow) -> None:
     tab.space(15)
     tab.text("License", bold=True)
     tab.text(
-        "Edit Field During Review (Cloze) is a <b>Free and Open Source Software (FOSS)</b>"
+        "Edit Field During Review (Cloze) is a Free and Open Source Software (FOSS)"
         " distributed under the GNU AGPL v3 license."
         " It may also contain code that are licensed under a different license."
         " Please see the LICENSE file for more information.",
-        multiline=True,
+        multiline=True
     )
     tab.stretch()
 
