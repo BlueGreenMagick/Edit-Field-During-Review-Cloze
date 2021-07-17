@@ -14,6 +14,11 @@ class Version:
     def load(self) -> None:
         self.major = conf["version.major"]
         self.minor = conf["version.minor"]
+        # v6.x has string version
+        if isinstance(self.major, str):
+            self.major = int(self.major)
+        if isinstance(self.minor, str):
+            self.major = int(self.minor)
 
     def __eq__(self, other: str) -> bool:  # type: ignore
         ver = [int(i) for i in other.split(".")]
@@ -132,6 +137,6 @@ addon_dir = mw.addonManager.addonFromModule(__name__)
 meta = mw.addonManager.addonMeta(addon_dir)
 
 version_string = meta["human_version"]
-conf["version.major"] = version_string.split(".")[0]
-conf["version.minor"] = version_string.split(".")[1]
+conf["version.major"] = int(version_string.split(".")[0])
+conf["version.minor"] = int(version_string.split(".")[1])
 conf.save()
