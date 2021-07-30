@@ -208,9 +208,6 @@ def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]) -> N
         js_contents = ["global_card.js", "resize.js"]
         for file_name in js_contents:
             web_content.js.append(url_from_fname(file_name))
-        jquery = "js/vendor/jquery.min.js"
-        if jquery not in web_content.js:
-            web_content.js.append(jquery)
         jquery_ui = "js/vendor/jquery-ui.min.js"
         if jquery_ui not in web_content.js:
             web_content.js.append(jquery_ui)
