@@ -150,10 +150,10 @@ def handle_pycmd_message(
             var elems = document.querySelectorAll("[data-EFDRCfield='%s']")
             for(var e = 0; e < elems.length; e++){
                 var elem = elems[e];
-                elem.setAttribute("data-EFDRCnid", nid);
                 if(elem.innerHTML != val){
                     elem.innerHTML = val;
                 }
+                elem.setAttribute("data-EFDRCnid", nid);
             }
             EFDRC.maybeResizeOrClean(true);
         })()
