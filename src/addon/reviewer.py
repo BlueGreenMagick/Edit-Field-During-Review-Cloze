@@ -1,10 +1,9 @@
 import base64
 import json
-from typing import Any, Callable, Optional, Tuple
+from typing import Any,  Optional, Tuple
 
 import anki
-from anki import version as ankiversion
-from anki.hooks import wrap
+from anki.buildinfo import version as ankiversion
 from anki.template import TemplateRenderContext
 from anki.notes import Note
 import aqt
@@ -88,7 +87,10 @@ def saveField(note: Note, fld: str, val: str) -> None:
 
 def get_value(note: Note, fld: str) -> str:
     if fld == "Tags":
-        return note.stringTags().strip(" ")
+        if ankiver_minor >= 45:
+            return note.string_tags().strip(" ")
+        else:
+            return note.stringTags().strip(" ")  # type: ignore
     if fld in note:
         return note[fld]
     raise FldNotFoundError(fld)
@@ -96,9 +98,15 @@ def get_value(note: Note, fld: str) -> str:
 
 def reload_reviewer(reviewer: Reviewer) -> None:
     cid = reviewer.card.id
-    timerStarted = reviewer.card.timerStarted
+    if ankiver_minor >= 45:
+        timer_started = reviewer.card.timer_started
+    else:
+        timerStarted = reviewer.card.timerStarted  # type: ignore
     reviewer.card = mw.col.getCard(cid)
-    reviewer.card.timerStarted = timerStarted
+    if ankiver_minor >= 45:
+        reviewer.card.timer_started = timer_started
+    else:
+        reviewer.card.timerStarted = timerStarted  # type: ignore
     if reviewer.state == "question":
         reviewer._showQuestion()
     elif reviewer.state == "answer":
@@ -182,7 +190,8 @@ def handle_pycmd_message(
         html, internal = editorwv._processMime(mime)
         html = editorwv.editor._pastePreFilter(html, internal)
         reviewer.web.eval(
-            "EFDRC.pasteHTML(%s, %s);" % (json.dumps(html), json.dumps(internal))
+            "EFDRC.pasteHTML(%s, %s);" % (
+                json.dumps(html), json.dumps(internal))
         )
         return (True, None)
 
