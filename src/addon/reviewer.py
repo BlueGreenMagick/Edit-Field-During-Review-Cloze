@@ -1,6 +1,6 @@
 import base64
 import json
-from typing import Any,  Optional, Tuple
+from typing import Any, Optional, Tuple
 
 import anki
 from anki.buildinfo import version as ankiversion
@@ -190,8 +190,7 @@ def handle_pycmd_message(
         html, internal = editorwv._processMime(mime)
         html = editorwv.editor._pastePreFilter(html, internal)
         reviewer.web.eval(
-            "EFDRC.pasteHTML(%s, %s);" % (
-                json.dumps(html), json.dumps(internal))
+            "EFDRC.pasteHTML(%s, %s);" % (json.dumps(html), json.dumps(internal))
         )
         return (True, None)
 

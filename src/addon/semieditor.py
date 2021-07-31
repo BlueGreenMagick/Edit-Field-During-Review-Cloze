@@ -16,7 +16,7 @@ myprogress = False
 class semiEditor(Editor):
     def __init__(self) -> None:
         self.mw = mw
-        self.parentWindow = "EFDRCsemiedit" # type: ignore
+        self.parentWindow = "EFDRCsemiedit"  # type: ignore
 
 
 class semiEditorWebView(EditorWebView):
@@ -55,5 +55,5 @@ def myfinish(self: ProgressManager, _old: Callable) -> None:
         return _old(self)
 
 
-ProgressManager.start = wrap(ProgressManager.start, mystart, "around") # type: ignore
-ProgressManager.finish = wrap(ProgressManager.finish, myfinish, "around") # type: ignore
+ProgressManager.start = wrap(ProgressManager.start, mystart, "around")  # type: ignore
+ProgressManager.finish = wrap(ProgressManager.finish, myfinish, "around")  # type: ignore

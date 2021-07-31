@@ -29,9 +29,11 @@ def general_tab(conf_window: ConfigWindow) -> None:
         "HTML tag to use for editable field:",
         tooltip="div is recommended",
     )
-    tab.text_input("shortcuts.cloze-alt",
-                   "Shortcut for same number cloze:",
-                   tooltip="Default is Ctrl+Shift+Alt+C")
+    tab.text_input(
+        "shortcuts.cloze-alt",
+        "Shortcut for same number cloze:",
+        tooltip="Default is Ctrl+Shift+Alt+C",
+    )
 
     tab.space(20)
     tab.text("Image Resizing", bold=True)
@@ -52,9 +54,11 @@ def general_tab(conf_window: ConfigWindow) -> None:
         option_values,
         "Image resizing mode:",
     )
-    tab.text_input("shortcuts.image-resize",
-                   "Shortcut for image resize mode:",
-                   tooltip="Pressing this shortcut toggles the image resize mode")
+    tab.text_input(
+        "shortcuts.image-resize",
+        "Shortcut for image resize mode:",
+        tooltip="Pressing this shortcut toggles the image resize mode",
+    )
     tab.stretch()
 
 
@@ -117,7 +121,9 @@ class NoteTypeFields(TypedDict):
     fields: List[FieldIsEditable]
 
 
-def modify_field_editability(note_type: "NoteType", field: FieldIsEditable) -> "NoteType":
+def modify_field_editability(
+    note_type: "NoteType", field: FieldIsEditable
+) -> "NoteType":
     for template in note_type["tmpls"]:
         for side in ["qfmt", "afmt"]:
             if field["edit"] == Editability.ALL:
@@ -252,8 +258,9 @@ def fields_tab(conf_window: ConfigWindow) -> None:
             try:  # 2.1.45
                 note_type = mw.col.models.by_name(note_type_fields["name"])
             except:  # 2.1.41-44
-                note_type = mw.col.models.byName(
-                    note_type_fields["name"])  # type: ignore
+                note_type = mw.col.models.byName(  # type: ignore
+                    note_type_fields["name"]
+                )
             for field in note_type_fields["fields"]:
                 if field["edit"] != field["orig_edit"]:
                     modified = True
@@ -299,7 +306,9 @@ def about_tab(conf_window: ConfigWindow) -> None:
         "Found a bug?"
         " <a href='https://github.com/BlueGreenMagick/Edit-Field-During-Review-Cloze/issues'>"
         "Report issues here"
-        "</a>.", html=True)
+        "</a>.",
+        html=True,
+    )
     tab.space(15)
     tab.text("License", bold=True)
     tab.text(
@@ -307,7 +316,7 @@ def about_tab(conf_window: ConfigWindow) -> None:
         " distributed under the GNU AGPL v3 license."
         " It may also contain code that are licensed under a different license."
         " Please see the LICENSE file for more information.",
-        multiline=True
+        multiline=True,
     )
     tab.stretch()
 

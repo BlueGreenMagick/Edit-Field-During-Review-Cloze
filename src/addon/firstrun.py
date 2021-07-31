@@ -114,24 +114,24 @@ remove_undo()
 
 
 def initial_tutorial() -> None:
-    tutorial = "<br>".join([
-        "<center><h3>Edit Field During Review (Cloze)",
-        "How to Use</h3></center>"
-        "<h4>Initial Setup</h4>"
-        "1. Open the add-on config and go to the <i>Fields</i> tab.",
-        "2. For each note type, <i>check</i> the fields you want editable.",
-        "3. Remember to do this whenever you add or modify a note type!",
-        "4. And it's done! Now you can <b>Ctrl + Click</b> on the field content to edit it."
-
-    ])
-    showText(tutorial, type="html",
-             title="Add-on Tutorial")
+    tutorial = "<br>".join(
+        [
+            "<center><h3>Edit Field During Review (Cloze)",
+            "How to Use</h3></center>"
+            "<h4>Initial Setup</h4>"
+            "1. Open the add-on config and go to the <i>Fields</i> tab.",
+            "2. For each note type, <i>check</i> the fields you want editable.",
+            "3. Remember to do this whenever you add or modify a note type!",
+            "4. And it's done! Now you can <b>Ctrl + Click</b> on the field content to edit it.",
+        ]
+    )
+    showText(tutorial, type="html", title="Add-on Tutorial")
 
 
 if version == "-1.-1":
     initial_tutorial()
 
-
+initial_tutorial()
 # Save current version
 addon_dir = mw.addonManager.addonFromModule(__name__)
 meta = mw.addonManager.addonMeta(addon_dir)
