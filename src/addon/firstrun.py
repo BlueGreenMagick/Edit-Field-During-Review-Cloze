@@ -131,7 +131,6 @@ def initial_tutorial() -> None:
 if version == "-1.-1":
     initial_tutorial()
 
-initial_tutorial()
 # Save current version
 addon_dir = mw.addonManager.addonFromModule(__name__)
 meta = mw.addonManager.addonMeta(addon_dir)
