@@ -2,8 +2,7 @@ import re
 from enum import Enum
 from typing import List, TypedDict, Set, TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from anki.models import Template, NoteType
+from anki.models import NoteType
 from aqt import mw
 from aqt.qt import *
 
@@ -159,7 +158,7 @@ def get_fields_in_every_notetype(fields_in_note_type: List[NoteTypeFields]) -> N
     models = mw.col.models
     note_types = models.all()
     for note_type in note_types:
-        templates: List["Template"] = note_type["tmpls"]
+        templates = note_type["tmpls"]
         editable_field_names: Set[str] = set()
         uneditable_field_names: Set[str] = set()
 
@@ -250,7 +249,11 @@ def fields_tab(conf_window: ConfigWindow) -> None:
     def on_save() -> None:
         for note_type_fields in fields_in_note_type:
             modified = False
-            note_type = mw.col.models.byName(note_type_fields["name"])
+            try:  # 2.1.45
+                note_type = mw.col.models.by_name(note_type_fields["name"])
+            except:  # 2.1.41-44
+                note_type = mw.col.models.byName(
+                    note_type_fields["name"])  # type: ignore
             for field in note_type_fields["fields"]:
                 if field["edit"] != field["orig_edit"]:
                     modified = True
