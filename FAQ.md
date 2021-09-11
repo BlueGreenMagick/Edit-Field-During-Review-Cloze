@@ -31,3 +31,14 @@ You will need to go to the Advanced config editor. In `special_formatting`, copy
 Edit the entry name (`fontcolor`) to any unique name, then exit. If you exit the addon config and reopen it, your new entry should be there in the list of formatting shortcuts.
 
 Before editing in the Advanced config editor, you should probably save the existing config in another place. If you modify the config incorrectly, you will be able to restore your previous config.
+
+## How do I apply styles to editable field html?
+You can use the css selector `div["data-efdrcfield"]` (or `span["data-efdrcfield"]` depending on your config)
+
+## How do I align fields next to each other? (Instead of field going to a new line)
+For now, please put the following line into note type template styling:
+```css
+div["data-efdrcfield"] {
+    display: inline-block;
+}
+```
