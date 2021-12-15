@@ -94,19 +94,19 @@ class Editability(Enum):
 
     @classmethod
     def from_check_state(cls, check_state: Qt.CheckState) -> "Editability":
-        if check_state == Qt.Unchecked:
+        if check_state == Qt.CheckState.Unchecked:
             return cls.NONE
-        if check_state == Qt.Checked:
+        if check_state == Qt.CheckState.Checked:
             return cls.ALL
         return cls.PARTIAL
 
     @classmethod
     def to_check_state(cls, val: "Editability") -> Qt.CheckState:
         if val == cls.NONE:
-            return Qt.Unchecked
+            return Qt.CheckState.Unchecked
         if val == cls.ALL:
-            return Qt.Checked
-        return Qt.PartiallyChecked
+            return Qt.CheckState.Checked
+        return Qt.CheckState.PartiallyChecked
 
 
 class FieldIsEditable(TypedDict):
@@ -231,10 +231,10 @@ def fields_tab(conf_window: ConfigWindow) -> None:
 
     def on_double_click(item: QListWidgetItem) -> None:
         curr_check = item.checkState()
-        if curr_check == Qt.Checked:
-            item.setCheckState(Qt.Unchecked)
+        if curr_check == Qt.CheckState.Checked:
+            item.setCheckState(Qt.CheckState.Unchecked)
         else:  # Partially checked or unchecked
-            item.setCheckState(Qt.Checked)
+            item.setCheckState(Qt.CheckState.Checked)
 
     def switch_template(idx: int) -> None:
         if idx == -1:
@@ -242,7 +242,7 @@ def fields_tab(conf_window: ConfigWindow) -> None:
         qlist.clear()
         fields = fields_in_note_type[idx]["fields"]
         for field in fields:
-            item = QListWidgetItem(field["name"], qlist, QListWidgetItem.Type)
+            item = QListWidgetItem(field["name"], qlist, QListWidgetItem.ItemType.Type)
             qlist.addItem(item)
             item.setCheckState(Editability.to_check_state(field["edit"]))
 
