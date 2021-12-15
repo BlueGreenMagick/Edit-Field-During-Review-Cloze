@@ -1,3 +1,5 @@
+import os
+
 from aqt import mw
 from aqt.utils import showText
 
@@ -132,10 +134,12 @@ if version == "-1.-1":
     initial_tutorial()
 
 # Save current version
-addon_dir = mw.addonManager.addonFromModule(__name__)
-meta = mw.addonManager.addonMeta(addon_dir)
+version_string = os.environ.get("EFDRC_VERSION")
+if not version_string:
+    addon_dir = mw.addonManager.addonFromModule(__name__)
+    meta = mw.addonManager.addonMeta(addon_dir)
+    version_string = meta["human_version"]
 
-version_string = meta["human_version"]
 conf["version.major"] = int(version_string.split(".")[0])
 conf["version.minor"] = int(version_string.split(".")[1])
 conf.save()
