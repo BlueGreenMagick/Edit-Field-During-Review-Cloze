@@ -71,7 +71,7 @@ def formatting_tab(conf_window: ConfigWindow) -> None:
         hlayout = scroll_layout.hlayout()
         item_key = f"special_formatting.{formatting}"
         hlayout.checkbox(f"{item_key}.enabled")
-        label_width = conf_window.fontMetrics().width("A" * 15)
+        label_width = 8 * 15
         hlayout.text(formatting).setFixedWidth(label_width)
         hlayout.text_input(f"{item_key}.shortcut").setFixedWidth(label_width)
         if conf[f"{item_key}.arg"] is not None:
