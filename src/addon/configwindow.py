@@ -18,8 +18,7 @@ def general_tab(conf_window: ConfigWindow) -> None:
         "Ctrl + Click to edit field (Cmd on mac)",
         tooltip="If not checked, there is no need to press Ctrl",
     )
-    tab.checkbox(
-        "outline", "Show a blue outline around the field when editing")
+    tab.checkbox("outline", "Show a blue outline around the field when editing")
     tab.checkbox("process_paste", "Process pasted content for images and HTML")
     tag_options = ["div", "span"]
     tab.dropdown(
@@ -188,8 +187,7 @@ def get_fields_in_every_notetype(fields_in_note_type: List[NoteTypeFields]) -> N
                     (False, True): Editability.NONE,
                 }[(fldname in editable_field_names, fldname in uneditable_field_names)]
 
-                field = FieldIsEditable(
-                    name=fldname, edit=editable, orig_edit=editable)
+                field = FieldIsEditable(name=fldname, edit=editable, orig_edit=editable)
                 fields_list.append(field)
             except:
                 pass
@@ -211,11 +209,7 @@ def fields_tab(conf_window: ConfigWindow) -> None:
 
     def update_label_status(idx: int) -> None:
         notetype = fields_in_note_type[idx]
-        editable = {
-            Editability.NONE: 0,
-            Editability.PARTIAL: 0,
-            Editability.ALL: 0
-        }
+        editable = {Editability.NONE: 0, Editability.PARTIAL: 0, Editability.ALL: 0}
         for field in notetype["fields"]:
             editable[field["edit"]] += 1
         if editable[Editability.ALL] + editable[Editability.PARTIAL] == 0:
@@ -322,8 +316,7 @@ def about_tab(conf_window: ConfigWindow) -> None:
 
 
 def with_window(conf_window: ConfigWindow) -> None:
-    conf_window.set_footer(
-        "Changes will take effect when you start a review session")
+    conf_window.set_footer("Changes will take effect when you start a review session")
 
 
 conf.use_custom_window()
