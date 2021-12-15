@@ -162,6 +162,19 @@
   }
 
   /* Shortcuts */
+  const specialCharCodes = {
+    '-': 'minus',
+    '=': 'equal',
+    '[': 'bracketleft',
+    ']': 'bracketright',
+    ';': 'semicolon',
+    "'": 'quote',
+    '`': 'backquote',
+    '\\': 'backslash',
+    ',': 'comma',
+    '.': 'period',
+    '/': 'slash'
+  }
 
   const registerShortcut = function (shortcut, handler) {
     const shortcutKeys = shortcut.toLowerCase().split(/[+]/).map(key => key.trim())
@@ -172,8 +185,13 @@
     if (mainKey.length === 1) {
       if (/\d/.test(mainKey)) {
         mainKey = 'digit' + mainKey
-      } else {
+      } else if (/[a-zA-Z]/.test(mainKey)) {
         mainKey = 'key' + mainKey
+      } else {
+        const code = specialCharCodes[mainKey]
+        if (code) {
+          mainKey = code
+        }
       }
     }
     scutInfo.key = mainKey
