@@ -282,12 +282,12 @@ def fields_tab(conf_window: ConfigWindow) -> None:
 
     tab.space(10)
     button_layout = tab.hlayout()
-    button_layout.space(15)
+    button_layout.stretch()
     button = QPushButton("Make every field in every note type editable ✅")
     button.clicked.connect(make_every_field_editable)
     button_layout.addWidget(button)
-    button_layout.space(15)
-    tab.space(15)
+    button_layout.stretch()
+    tab.space(5)
 
 
 def about_tab(conf_window: ConfigWindow) -> None:
