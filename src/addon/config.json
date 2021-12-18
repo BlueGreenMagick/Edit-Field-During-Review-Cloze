@@ -7,9 +7,9 @@
   "resize_image_default_state": true,
   "resize_image_preserve_ratio": 2,
   "shortcuts" : {
-    "cloze": "Ctrl+Shift+C",
-    "cloze-alt": "Ctrl+Shift+Alt+C",
-    "image-resize": "Alt+S"
+    "cloze": "Ctrl + Shift + C",
+    "cloze-alt": "Ctrl + Shift + Alt + C",
+    "image-resize": "Alt + S"
   },
   "special_formatting": {
     "fontcolor": {
@@ -24,7 +24,7 @@
     "formatblock": {
       "enabled": false,
       "command": "formatBlock",
-      "shortcut": "Ctrl+Period",
+      "shortcut": "Ctrl + .",
       "arg": {
         "type": "text",
         "value": "pre"
@@ -33,7 +33,7 @@
     "highlight": {
       "enabled": false,
       "command": "hiliteColor",
-      "shortcut": "Ctrl+Shift+B",
+      "shortcut": "Ctrl + Shift + B",
       "arg": {
         "type": "color",
         "value": "#00f"
@@ -42,85 +42,85 @@
     "hyperlink": {
       "enabled": false,
       "command": "createLink",
-      "shortcut": "Ctrl+Shift+H",
+      "shortcut": "Ctrl + Shift + H",
       "arg": null
     },
     "indent": {
       "enabled": false,
       "command": "indent",
-      "shortcut": "Ctrl+Shift+BracketRight",
+      "shortcut": "Ctrl + Shift + ]",
       "arg": null
     },
     "justifyCenter": {
       "enabled": false,
       "command": "justifyCenter",
-      "shortcut": "Ctrl+Shift+Alt+S",
+      "shortcut": "Ctrl + Shift + Alt + S",
       "arg": null
     },
     "justifyFull": {
       "enabled": false,
       "command": "justifyFull",
-      "shortcut": "Ctrl+Shift+Alt+B",
+      "shortcut": "Ctrl + Shift + Alt + B",
       "arg": null
     },
     "justifyLeft": {
       "enabled": false,
       "command": "justifyLeft",
-      "shortcut": "Ctrl+Shift+Alt+L",
+      "shortcut": "Ctrl + Shift + Alt + L",
       "arg": null
     },
     "justifyRight": {
       "enabled": false,
       "command": "justifyRight",
-      "shortcut": "Ctrl+Shift+Alt+R",
+      "shortcut": "Ctrl + Shift + Alt + R",
       "arg": null
     },
     "orderedlist": {
       "enabled": false,
       "command": "insertOrderedList",
-      "shortcut": "Ctrl+BracketRight",
+      "shortcut": "Ctrl + ]",
       "arg": null
     },
     "outdent": {
       "enabled": false,
       "command": "outdent",
-      "shortcut": "Ctrl+Shift+BracketLeft",
+      "shortcut": "Ctrl + Shift + [",
       "arg": null
     },
     "removeformat": {
       "enabled": true,
       "command": "removeFormat",
-      "shortcut": "Ctrl+R",
+      "shortcut": "Ctrl + R",
       "arg": null
     },
     "strikethrough": {
       "enabled": false,
       "command": "strikeThrough",
-      "shortcut": "Ctrl+Shift+Alt+5",
+      "shortcut": "Ctrl + Shift + Alt + 5",
       "arg": null
     },
     "subscript": {
       "enabled": false,
       "command": "subscript",
-      "shortcut": "Ctrl+Equal",
+      "shortcut": "Ctrl + =",
       "arg": null
     },
     "superscript": {
       "enabled": false,
       "command": "superscript",
-      "shortcut": "Ctrl+Shift+Equal",
+      "shortcut": "Ctrl + Shift + =",
       "arg": null
     },
     "unhyperlink": {
       "enabled": false,
       "command": "createLink",
-      "shortcut": "Ctrl+Shift+Alt+H",
+      "shortcut": "Ctrl + Shift + Alt + H",
       "arg": null
     },
     "unorderedlist": {
       "enabled": false,
       "command": "insertUnorderedList",
-      "shortcut": "Ctrl+BracketLeft",
+      "shortcut": "Ctrl + [",
       "arg": null
     }
   },

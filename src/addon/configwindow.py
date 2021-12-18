@@ -70,9 +70,8 @@ def formatting_tab(conf_window: ConfigWindow) -> None:
         hlayout = scroll_layout.hlayout()
         item_key = f"special_formatting.{formatting}"
         hlayout.checkbox(f"{item_key}.enabled")
-        label_width = 8 * 15
-        hlayout.text(formatting).setFixedWidth(label_width)
-        hlayout.text_input(f"{item_key}.shortcut").setFixedWidth(label_width)
+        hlayout.text(formatting).setFixedWidth(120)
+        hlayout.text_input(f"{item_key}.shortcut").setFixedWidth(160)
         if conf[f"{item_key}.arg"] is not None:
             if conf[f"{item_key}.arg.type"] == "color":
                 hlayout.color_input(f"{item_key}.arg.value")
