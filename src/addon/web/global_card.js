@@ -66,7 +66,8 @@
   const addListener = function (handlerInfo) {
     const eventName = handlerInfo[0]
     const handler = handlerInfo[1]
-    window.addEventListener(eventName, function (event) {
+    const main = document.getElementById('qa')
+    main.addEventListener(eventName, function (event) {
       const target = isInsideEfdrcDiv(event.target)
       if (target) {
         handler(event, target)
@@ -102,11 +103,14 @@
         const handled = scutInfo.handler(event, target)
         if (handled !== -1) {
           event.preventDefault()
-          event.stopPropagation()
         }
       }
     }
+    event.stopPropagation()
   }
+
+  const handleKeyUp = (event, target) => { event.stopPropagation() }
+  const handleKeyPress = (event, target) => { event.stopPropagation() }
 
   const handleFocus = function (event, target) {
     if (typeof window.showTooltip === 'function' && typeof window.showTooltip2 === 'undefined') {
@@ -260,7 +264,9 @@
       ['paste', handlePaste],
       ['focusin', handleFocus],
       ['focusout', handleBlur],
-      ['keydown', handleKeydown]
+      ['keydown', handleKeydown],
+      ['keyup', handleKeyUp],
+      ['keypress', handleKeyPress]
     ]
     for (let i = 0; i < handlers.length; i++) {
       addListener(handlers[i])
@@ -281,10 +287,6 @@
   EFDRC.serveCard = function (fld) { // fld: string
     const els = document.querySelectorAll("[data-EFDRCfield='" + fld + "']")
     for (const el of els) {
-      el.addEventListener('keydown', (ev) => ev.stopPropagation())
-      el.addEventListener('keyup', (ev) => ev.stopPropagation())
-      el.addEventListener('keypress', (ev) => ev.stopPropagation())
-
       if (EFDRC.CONF.ctrl_click) {
         const fldName = EFDRC.b64DecodeUnicode(el.getAttribute('data-EFDRCfield'))
         el.setAttribute('data-placeholder', fldName)
