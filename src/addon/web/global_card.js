@@ -286,14 +286,14 @@
     const els = document.querySelectorAll("[data-EFDRCfield='" + fld + "']")
     for (let e = 0; e < els.length; e++) {
       const el = els[e]
+      el.addEventListener('keydown', (ev) => ev.stopPropagation())
+      el.addEventListener('keyup', (ev) => ev.stopPropagation())
+      el.addEventListener('keypress', (ev) => ev.stopPropagation())
+
       if (EFDRC.CONF.ctrl_click) {
         const fldName = EFDRC.b64DecodeUnicode(el.getAttribute('data-EFDRCfield'))
         el.setAttribute('data-placeholder', fldName)
-      }
-    }
-
-    if (!EFDRC.CONF.ctrl_click) {
-      for (let e = 0; e < els.length; e++) {
+      } else {
         els[e].setAttribute('contenteditable', 'true')
       }
     }
