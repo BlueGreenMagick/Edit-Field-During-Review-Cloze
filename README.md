@@ -22,7 +22,7 @@ npx standard --fix
 
 You will need to install the following python packages to run mypy: 
 ```
-python -m pip install aqt PyQt5-stubs mypy
+python -m pip install aqt PyQt5-stubs mypy types-simplejson
 ```
 
 This project doesn't use a strict python formatter. Even so, please make it look pretty enough :)
