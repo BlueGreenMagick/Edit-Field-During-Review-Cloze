@@ -124,9 +124,9 @@
       $(resizables[x]).resizable('destroy')
     }
     const imgs = field.querySelectorAll('[data-EFDRCImgId]')
-    for (let x = 0; x < imgs.length; x++) {
-      maybeRemoveHeight(imgs[x], $(imgs[x]))
-      restorePriorImg(imgs[x])
+    for (const img of imgs) {
+      maybeRemoveHeight(img, $(img))
+      restorePriorImg(img)
     }
     EFDRC.priorImgs = []
   }

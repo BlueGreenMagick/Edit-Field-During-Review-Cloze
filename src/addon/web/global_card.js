@@ -36,16 +36,14 @@
 
   const ctrlLinkEnable = function () {
     const links = document.querySelectorAll('[data-EFDRCfield] a')
-    for (let x = 0; x < links.length; x++) {
-      const el = links[x]
+    for (const el of links) {
       el.setAttribute('contenteditable', 'false')
     }
   }
 
   const ctrlLinkDisable = function () {
     const links = document.querySelectorAll("[data-EFDRCfield] a[contenteditable='false']")
-    for (let x = 0; x < links.length; x++) {
-      const el = links[x]
+    for (const el of links) {
       el.removeAttribute('contenteditable')
     }
   }
@@ -80,13 +78,12 @@
     if (!EFDRC.CONF.process_paste) {
       return
     }
-    const mimetype = ['text/html', 'image/', 'video/', 'audio/', 'application/']
+    const mimetypes = ['text/html', 'image/', 'video/', 'audio/', 'application/']
     const paste = (e.clipboardData || window.clipboardData)
-    for (let x = 0; x < paste.types.length; x++) {
-      const mtype = paste.types[x]
+    for (const mtype of paste.types) {
       let toSend = false
-      for (let y = 0; y < mimetype.length; y++) {
-        if (mtype.indexOf(mimetype[y]) !== -1) {
+      for (const mimetype of mimetypes) {
+        if (mtype.indexOf(mimetype) !== -1) {
           toSend = true
           break
         }
@@ -100,10 +97,9 @@
   }
 
   const handleKeydown = function (event, target) {
-    for (let i = 0; i < EFDRC.shortcuts.length; i++) {
-      const scutInfo = EFDRC.shortcuts[i]
+    for (const scutInfo of EFDRC.shortcuts) {
       if (matchShortcut(event, scutInfo)) {
-        const handled = EFDRC.shortcuts[i].handler(event, target)
+        const handled = scutInfo.handler(event, target)
         if (handled !== -1) {
           event.preventDefault()
           event.stopPropagation()
@@ -284,8 +280,7 @@
 
   EFDRC.serveCard = function (fld) { // fld: string
     const els = document.querySelectorAll("[data-EFDRCfield='" + fld + "']")
-    for (let e = 0; e < els.length; e++) {
-      const el = els[e]
+    for (const el of els) {
       el.addEventListener('keydown', (ev) => ev.stopPropagation())
       el.addEventListener('keyup', (ev) => ev.stopPropagation())
       el.addEventListener('keypress', (ev) => ev.stopPropagation())
@@ -294,7 +289,7 @@
         const fldName = EFDRC.b64DecodeUnicode(el.getAttribute('data-EFDRCfield'))
         el.setAttribute('data-placeholder', fldName)
       } else {
-        els[e].setAttribute('contenteditable', 'true')
+        el.setAttribute('contenteditable', 'true')
       }
     }
   }
@@ -303,8 +298,7 @@
     ctrlLinkEnable()
     if (EFDRC.CONF.ctrl_click) {
       const els = document.querySelectorAll('[data-EFDRCfield]')
-      for (let e = 0; e < els.length; e++) {
-        const el = els[e]
+      for (const el of els) {
         el.setAttribute('contenteditable', 'true')
         if (el.hasAttribute('data-EFDRCnotctrl')) {
           el.removeAttribute('data-EFDRCnotctrl')
@@ -317,8 +311,7 @@
     ctrlLinkDisable()
     if (EFDRC.CONF.ctrl_click) {
       const els = document.querySelectorAll('[data-EFDRCfield]')
-      for (let e = 0; e < els.length; e++) {
-        const el = els[e]
+      for (const el of els) {
         if (el === document.activeElement) {
           el.setAttribute('data-EFDRCnotctrl', 'true')
         } else {
