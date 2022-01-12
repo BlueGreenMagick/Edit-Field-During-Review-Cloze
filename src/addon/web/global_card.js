@@ -79,22 +79,12 @@
     if (!EFDRC.CONF.process_paste) {
       return
     }
-    const mimetypes = ['text/html', 'image/', 'video/', 'audio/', 'application/']
     const paste = (e.clipboardData || window.clipboardData)
-    for (const mtype of paste.types) {
-      let toSend = false
-      for (const mimetype of mimetypes) {
-        if (mtype.indexOf(mimetype) !== -1) {
-          toSend = true
-          break
-        }
-      }
-      if (toSend) {
-        e.preventDefault()
-        window.pycmd('EFDRC!paste') // python code accesses clipboard
-        break
-      }
+    if (paste.types.length === 0 || (paste.types.length === 1 && paste.types[0] === 'text/plain')) {
+      return
     }
+    e.preventDefault()
+    window.pycmd('EFDRC!paste') // python code accesses clipboard
   }
 
   const handleKeydown = function (event, target) {
