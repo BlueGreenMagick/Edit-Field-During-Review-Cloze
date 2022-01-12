@@ -50,31 +50,6 @@
 
   /* Handlers */
 
-  const isInsideEfdrcDiv = function (el) {
-    const hardBreak = 100
-    let currentEl = el
-    let i = 0
-    while (currentEl instanceof window.Element && i < hardBreak) {
-      if (currentEl.hasAttribute('data-EFDRCfield')) {
-        return currentEl
-      }
-      currentEl = el.parentNode
-      i++
-    }
-  }
-
-  const addListener = function (handlerInfo) {
-    const eventName = handlerInfo[0]
-    const handler = handlerInfo[1]
-    const main = document.getElementById('qa')
-    main.addEventListener(eventName, function (event) {
-      const target = isInsideEfdrcDiv(event.target)
-      if (target) {
-        handler(event, target)
-      }
-    })
-  }
-
   const handlePaste = function (e) {
     if (!EFDRC.CONF.process_paste) {
       return
@@ -250,18 +225,6 @@
     })
     registerFormattingShortcut()
 
-    const handlers = [
-      ['paste', handlePaste],
-      ['focusin', handleFocus],
-      ['focusout', handleBlur],
-      ['keydown', handleKeydown],
-      ['keyup', handleKeyUp],
-      ['keypress', handleKeyPress]
-    ]
-    for (let i = 0; i < handlers.length; i++) {
-      addListener(handlers[i])
-    }
-
     window.addEventListener('keydown', function (event) {
       if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
         EFDRC.ctrldown()
@@ -274,6 +237,15 @@
     })
   }
 
+  const handlers = [
+    ['paste', handlePaste],
+    ['focusin', handleFocus],
+    ['focusout', handleBlur],
+    ['keydown', handleKeydown],
+    ['keyup', handleKeyUp],
+    ['keypress', handleKeyPress]
+  ]
+
   EFDRC.serveCard = function (fld) { // fld: string
     const els = document.querySelectorAll("[data-EFDRCfield='" + fld + "']")
     for (const el of els) {
@@ -282,6 +254,11 @@
         el.setAttribute('data-placeholder', fldName)
       } else {
         el.setAttribute('contenteditable', 'true')
+      }
+      for (const handlerInfo of handlers) {
+        el.addEventListener(handlerInfo[0], (event) => {
+          handlerInfo[1](event, el)
+        })
       }
     }
   }
