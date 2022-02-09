@@ -50,7 +50,7 @@
 
   /* Handlers */
 
-  const handlePaste = function (e) {
+  EFDRC.handlePaste = function (e) {
     if (!EFDRC.CONF.process_paste) {
       return
     }
@@ -62,7 +62,7 @@
     window.pycmd('EFDRC!paste') // python code accesses clipboard
   }
 
-  const handleKeydown = function (event, target) {
+  EFDRC.handleKeydown = function (event, target) {
     for (const scutInfo of EFDRC.shortcuts) {
       if (matchShortcut(event, scutInfo)) {
         const handled = scutInfo.handler(event, target)
@@ -74,10 +74,10 @@
     event.stopPropagation()
   }
 
-  const handleKeyUp = (event, target) => { event.stopPropagation() }
-  const handleKeyPress = (event, target) => { event.stopPropagation() }
+  EFDRC.handleKeyUp = (event, target) => { event.stopPropagation() }
+  EFDRC.handleKeyPress = (event, target) => { event.stopPropagation() }
 
-  const handleFocus = function (event, target) {
+  EFDRC.handleFocus = function (event, target) {
     if (typeof window.showTooltip === 'function' && typeof window.showTooltip2 === 'undefined') {
       // Disable Popup Dictionary addon tooltip on double mouse click.
       // Using hotkey should still work however.
@@ -100,7 +100,7 @@
     window.pycmd('EFDRC!focuson#' + fld)
   }
 
-  const handleBlur = function (event, target) {
+  EFDRC.handleBlur = function (event, target) {
     if (typeof showTooltip2 === 'function') {
       // Restore Popup Dictionary
       window.showTooltip = window.showTooltip2
@@ -238,12 +238,12 @@
   }
 
   const handlers = [
-    ['paste', handlePaste],
-    ['focusin', handleFocus],
-    ['focusout', handleBlur],
-    ['keydown', handleKeydown],
-    ['keyup', handleKeyUp],
-    ['keypress', handleKeyPress]
+    ['onpaste', 'handlePaste'],
+    ['onfocus', 'handleFocus'],
+    ['onblur', 'handleBlur'],
+    ['onkeydown', 'handleKeydown'],
+    ['onkeyup', 'handleKeyUp'],
+    ['onkeypress', 'handleKeyPress']
   ]
 
   EFDRC.serveCard = function (fld) { // fld: string
@@ -256,9 +256,7 @@
         el.setAttribute('contenteditable', 'true')
       }
       for (const handlerInfo of handlers) {
-        el.addEventListener(handlerInfo[0], (event) => {
-          handlerInfo[1](event, el)
-        })
+        el.setAttribute(handlerInfo[0], `EFDRC.${handlerInfo[1]}(event, this)`)
       }
     }
   }
