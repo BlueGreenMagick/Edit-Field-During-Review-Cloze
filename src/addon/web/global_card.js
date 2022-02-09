@@ -264,7 +264,6 @@
   }
 
   EFDRC.ctrldown = function () {
-    ctrlLinkEnable()
     if (EFDRC.CONF.ctrl_click) {
       const els = document.querySelectorAll('[data-EFDRCfield]')
       for (const el of els) {
@@ -273,11 +272,12 @@
           el.removeAttribute('data-EFDRCnotctrl')
         }
       }
+    } else {
+      ctrlLinkEnable() // Ctrl + Click on a link to click a link
     }
   }
 
   EFDRC.ctrlup = function () {
-    ctrlLinkDisable()
     if (EFDRC.CONF.ctrl_click) {
       const els = document.querySelectorAll('[data-EFDRCfield]')
       for (const el of els) {
@@ -287,6 +287,8 @@
           el.setAttribute('contenteditable', 'false')
         }
       }
+    } else {
+      ctrlLinkDisable()
     }
   }
 })()
