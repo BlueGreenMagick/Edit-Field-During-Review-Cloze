@@ -118,17 +118,12 @@
     if (EFDRC.CONF.remove_span) {
       removeSpan(el)
     }
-    if (el.hasAttribute('data-EFDRCnotctrl')) {
-      el.removeAttribute('data-EFDRCnotctrl')
-      el.setAttribute('contenteditable', 'false')
-    }
+    el.setAttribute('contenteditable', 'false')
     if (el.hasAttribute('data-EFDRCnid')) {
       EFDRC.cleanResize(el)
       window.pycmd('EFDRC#' + el.getAttribute('data-EFDRCnid') + '#' + el.getAttribute('data-EFDRCfield') + '#' + el.innerHTML)
-      window.pycmd('EFDRC!reload')
-    } else {
-      window.pycmd('EFDRC!reload')
     }
+    window.pycmd('EFDRC!reload')
   }
 
   /* Shortcuts */
@@ -168,6 +163,7 @@
     scutInfo.handler = handler
     EFDRC.shortcuts.push(scutInfo)
   }
+  // Expose registerShortcut to notetype JS
   EFDRC.registerShortcut = registerShortcut
 
   const matchShortcut = function (event, scutInfo) {
@@ -267,9 +263,6 @@
       const els = document.querySelectorAll('[data-EFDRCfield]')
       for (const el of els) {
         el.setAttribute('contenteditable', 'true')
-        if (el.hasAttribute('data-EFDRCnotctrl')) {
-          el.removeAttribute('data-EFDRCnotctrl')
-        }
       }
     } else {
       ctrlLinkEnable() // Ctrl + Click on a link to click a link
@@ -280,9 +273,7 @@
     if (EFDRC.CONF.ctrl_click) {
       const els = document.querySelectorAll('[data-EFDRCfield]')
       for (const el of els) {
-        if (el === document.activeElement) {
-          el.setAttribute('data-EFDRCnotctrl', 'true')
-        } else {
+        if (el !== document.activeElement) {
           el.setAttribute('contenteditable', 'false')
         }
       }
