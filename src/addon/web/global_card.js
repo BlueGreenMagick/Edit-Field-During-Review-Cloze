@@ -291,4 +291,17 @@
       ctrlLinkDisable()
     }
   }
+
+  EFDRC.showRawField = function (encoded, nid, fld) {
+    const val = EFDRC.b64DecodeUnicode(encoded)
+    const elems = document.querySelectorAll(`[data-EFDRCfield='${fld}']`)
+    for (let e = 0; e < elems.length; e++) {
+      const elem = elems[e]
+      if (elem.innerHTML !== val) {
+        elem.innerHTML = val
+      }
+      elem.setAttribute('data-EFDRCnid', nid)
+    }
+    EFDRC.maybeResizeOrClean(true)
+  }
 })()

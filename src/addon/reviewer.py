@@ -149,25 +149,7 @@ def handle_pycmd_message(
             tooltip(ERROR_MSG.format(str(e)))
             return (True, None)
         encoded_val = base64.b64encode(val.encode("utf-8")).decode("ascii")
-        reviewer.web.eval(
-            """
-        (function(){
-            var encoded_val = "%s";
-            var nid = %d;
-            var val = EFDRC.b64DecodeUnicode(encoded_val);
-            var elems = document.querySelectorAll("[data-EFDRCfield='%s']")
-            for(var e = 0; e < elems.length; e++){
-                var elem = elems[e];
-                if(elem.innerHTML != val){
-                    elem.innerHTML = val;
-                }
-                elem.setAttribute("data-EFDRCnid", nid);
-            }
-            EFDRC.maybeResizeOrClean(true);
-        })()
-        """
-            % (encoded_val, note.id, fld)
-        )
+        reviewer.web.eval(f"EFDRC.showRawField('{encoded_val}', '{note.id}', '{fld}')")
 
         # Reset timer from Speed Focus Mode add-on.
         reviewer.bottom.web.eval("window.EFDRCResetTimer()")
