@@ -48,8 +48,13 @@
     }
   }
 
-  /* Handlers */
+  const b64DecodeUnicode = function (str) {
+    return decodeURIComponent(window.atob(str).split('').map(function (c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+    }).join(''))
+  }
 
+  /* Event Handlers */
   EFDRC.handlePaste = function (e) {
     if (!EFDRC.CONF.process_paste) {
       return
@@ -190,18 +195,25 @@
     }
   }
 
-  /* Called from reviewer.py */
+  window.addEventListener('keydown', function (event) {
+    if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
+      EFDRC.ctrldown()
+    }
+  })
 
-  EFDRC.b64DecodeUnicode = function (str) {
-    return decodeURIComponent(window.atob(str).split('').map(function (c) {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
-    }).join(''))
-  }
+  window.addEventListener('keyup', function (event) {
+    if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
+      EFDRC.ctrlup()
+    }
+  })
+
+  /* Called from reviewer.py */
   EFDRC.registerConfig = function (confStr) {
     EFDRC.CONF = JSON.parse(confStr)
     EFDRC.CONF.span = (EFDRC.CONF.tag === 'span')
     EFDRC.resizeImageMode = EFDRC.CONF.resize_image_default_state
   }
+
   EFDRC.setupReviewer = function () {
     // image resizer
     registerShortcut(EFDRC.CONF.shortcuts['image-resize'], (event) => {
@@ -224,17 +236,6 @@
       return -1
     })
     registerFormattingShortcut()
-
-    window.addEventListener('keydown', function (event) {
-      if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
-        EFDRC.ctrldown()
-      }
-    })
-    window.addEventListener('keyup', function (event) {
-      if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
-        EFDRC.ctrlup()
-      }
-    })
   }
 
   const handlers = [
@@ -250,7 +251,7 @@
     const els = document.querySelectorAll("[data-EFDRCfield='" + fld + "']")
     for (const el of els) {
       if (EFDRC.CONF.ctrl_click) {
-        const fldName = EFDRC.b64DecodeUnicode(el.getAttribute('data-EFDRCfield'))
+        const fldName = b64DecodeUnicode(el.getAttribute('data-EFDRCfield'))
         el.setAttribute('data-placeholder', fldName)
       } else {
         el.setAttribute('contenteditable', 'true')
@@ -291,7 +292,7 @@
   }
 
   EFDRC.showRawField = function (encoded, nid, fld) {
-    const val = EFDRC.b64DecodeUnicode(encoded)
+    const val = b64DecodeUnicode(encoded)
     const elems = document.querySelectorAll(`[data-EFDRCfield='${fld}']`)
     for (let e = 0; e < elems.length; e++) {
       const elem = elems[e]
