@@ -67,20 +67,26 @@
     window.pycmd('EFDRC!paste') // python code accesses clipboard
   }
 
-  EFDRC.handleKeydown = function (event, target) {
+  EFDRC.handleKeydown = function (ev, target) {
     for (const scutInfo of EFDRC.shortcuts) {
-      if (matchShortcut(event, scutInfo)) {
-        const handled = scutInfo.handler(event, target)
+      if (matchShortcut(ev, scutInfo)) {
+        const handled = scutInfo.handler(ev, target)
         if (handled !== -1) {
-          event.preventDefault()
+          ev.preventDefault()
         }
       }
     }
-    event.stopPropagation()
+    if (isCtrlKey(ev.code)) EFDRC.ctrldown()
+    ev.stopPropagation()
   }
 
-  EFDRC.handleKeyUp = (event, target) => { event.stopPropagation() }
-  EFDRC.handleKeyPress = (event, target) => { event.stopPropagation() }
+  EFDRC.handleKeyUp = (ev, target) => {
+    if (isCtrlKey(ev.code)) EFDRC.ctrlup()
+    ev.stopPropagation()
+  }
+  EFDRC.handleKeyPress = (ev, target) => {
+    ev.stopPropagation()
+  }
 
   EFDRC.handleFocus = function (event, target) {
     if (typeof window.showTooltip === 'function' && typeof window.showTooltip2 === 'undefined') {
@@ -191,14 +197,18 @@
     }
   }
 
-  window.addEventListener('keydown', function (event) {
-    if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
+  const isCtrlKey = function (keycode) {
+    return ['ControlLeft', 'MetaLeft'].includes(keycode)
+  }
+
+  window.addEventListener('keydown', function (ev) {
+    if (isCtrlKey(ev.code)) {
       EFDRC.ctrldown()
     }
   })
 
-  window.addEventListener('keyup', function (event) {
-    if (['ControlLeft', 'MetaLeft'].includes(event.code)) {
+  window.addEventListener('keyup', function (ev) {
+    if (isCtrlKey(ev.code)) {
       EFDRC.ctrlup()
     }
   })
