@@ -12,15 +12,19 @@
     "url": "https://github.com/BlueGreenMagick/Edit-Field-During-Review-Cloze/issues"
   },
   "homepage": "https://github.com/BlueGreenMagick/Edit-Field-During-Review-Cloze#readme",
+  "scripts": {
+    "build": "rollup -c"
+  },
   "standard": {
     "ignore": [
       "src/addon/web/editor",
       "*.ts"
     ]
   },
-  "dependencies": {},
   "devDependencies": {
     "standard": "^16.0.3",
-    "typescript": "^4.2.3"
+    "typescript": "^4.2.3",
+    "@rollup/plugin-typescript": "^8.3.2",
+    "rollup": "^2.74.1"
   }
 }

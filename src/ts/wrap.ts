@@ -1,42 +1,59 @@
-/* Copyright: Ankitects Pty Ltd and contributors
- * License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html */
+// Copyright: Ankitects Pty Ltd and contributors
+// License: GNU AGPL, version 3 or later; http://www.gnu.org/licenses/agpl.html
 
-import { setFormat } from "./index.js";
+import { getRange, getSelection } from "./cross-browser";
 
-function wrappedExceptForWhitespace(text: string, front: string, back: string): string {
-    const match = text.match(/^(\s*)([^]*?)(\s*)$/)!;
-    return match[1] + front + match[2] + back + match[3];
+function wrappedExceptForWhitespace(
+  text: string,
+  front: string,
+  back: string
+): string {
+  const match = text.match(/^(\s*)([^]*?)(\s*)$/)!;
+  return match[1] + front + match[2] + back + match[3];
 }
 
-function moveCursorPastPostfix(selection: Selection, postfix: string): void {
-    const range = selection.getRangeAt(0);
-    range.setStart(range.startContainer, range.startOffset - postfix.length);
-    range.collapse(true);
-    selection.removeAllRanges();
-    selection.addRange(range);
+function moveCursorInside(selection: Selection, postfix: string): void {
+  const range = getRange(selection)!;
+
+  range.setEnd(range.endContainer, range.endOffset - postfix.length);
+  range.collapse(false);
+
+  selection.removeAllRanges();
+  selection.addRange(range);
 }
 
-function wrapInternal(front: string, back: string, plainText: boolean): void {
-    // modified - assign window.getSelection() to selection
-    const selection = window.getSelection()!;
-    const range = selection.getRangeAt(0);
-    const content = range.cloneContents();
-    const span = document.createElement("span");
-    span.appendChild(content);
+export function wrapInternal(
+  base: Element,
+  front: string,
+  back: string,
+  plainText: boolean
+): void {
+  const selection = getSelection(base)!;
+  const range = getRange(selection);
 
-    if (plainText) {
-        const new_ = wrappedExceptForWhitespace(span.innerText, front, back);
-        setFormat("inserttext", new_);
-    } else {
-        const new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
-        setFormat("inserthtml", new_);
-    }
+  if (!range) {
+    return;
+  }
 
-    if (!span.innerHTML) {
-        moveCursorPastPostfix(selection, back);
-    }
-}
+  const wasCollapsed = range.collapsed;
+  const content = range.cloneContents();
+  const span = document.createElement("span");
+  span.appendChild(content);
 
-export function wrap(front: string, back: string): void {
-    wrapInternal(front, back, false);
+  if (plainText) {
+    const new_ = wrappedExceptForWhitespace(span.innerText, front, back);
+    document.execCommand("inserttext", false, new_);
+  } else {
+    const new_ = wrappedExceptForWhitespace(span.innerHTML, front, back);
+    document.execCommand("inserthtml", false, new_);
+  }
+
+  if (
+    wasCollapsed &&
+    /* ugly solution: treat <anki-mathjax> differently than other wraps */ !front.includes(
+      "<anki-mathjax"
+    )
+  ) {
+    moveCursorInside(selection, back);
+  }
 }

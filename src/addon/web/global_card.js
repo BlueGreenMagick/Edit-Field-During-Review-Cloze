@@ -30,7 +30,7 @@
       highest += 1
     }
     highest = Math.max(1, highest)
-    EFDRC.wrap('{{c' + highest + '::', '}}')
+    EFDRC.wrapInternal(document, '{{c' + highest + '::', '}}', false)
     event.preventDefault()
   }
 

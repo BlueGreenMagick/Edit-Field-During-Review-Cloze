@@ -170,7 +170,9 @@ def handle_pycmd_message(
         # From aqt.editor.Editor._onPaste, doPaste.
         mime = mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
         html, internal = editorwv._processMime(mime)
+        print(internal)
         html = editorwv.editor._pastePreFilter(html, internal)
+        print(html)
         reviewer.web.eval(
             "EFDRC.pasteHTML(%s, %s);" % (json.dumps(html), json.dumps(internal))
         )
@@ -192,9 +194,7 @@ def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]) -> N
 
     if isinstance(context, Reviewer):
         web_content.body += myRevHtml()
-        web_content.body += (
-            f'<script type="module" src="{url_from_fname("editor/index.js")}"></script>'
-        )
+        web_content.body += f'<script type="module" src="{url_from_fname("editor/editor.js")}"></script>'
         js_contents = ["global_card.js", "resize.js"]
         for file_name in js_contents:
             web_content.js.append(url_from_fname(file_name))

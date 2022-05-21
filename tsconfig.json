@@ -1,14 +1,22 @@
 {
     "compilerOptions": {
-        "outDir": "src/addon/web/editor",
-        "target": "es6",
+        "target": "es2019",
         "module": "es6",
         "lib": [
             "es2017",
+            "es2018.intl",
+            "es2018.promise",
             "es2019.array",
+            "es2019.object",
+            "es2019.string",
+            "es2020.promise",
             "dom",
             "dom.iterable"
         ],
+        "baseUrl": ".",
+        "paths": {},
+        "types": [],
+        "importsNotUsedAsValues": "error",
         /* Strict Type-Checking Options */
         "strict": true /* Enable all strict type-checking options. */,
         "noImplicitAny": false /* Raise error on expressions and declarations with an implied 'any' type. */,
@@ -22,6 +30,7 @@
         "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
         "allowSyntheticDefaultImports": true /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */,
         "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
+        "jsx": "react",
         "noEmitHelpers": true,
         "importHelpers": true
     },

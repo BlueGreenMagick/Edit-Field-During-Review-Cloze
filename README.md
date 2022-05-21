@@ -10,7 +10,7 @@ The first command installs [ankiaddonconfig](https://github.com/BlueGreenMagick/
 
 ## Updating typescript code
 
-After editing code in [./src/ts](./src/ts), run `npx tsc` to compile it to [./src/addon/web/editor](./src/addon/web/editor).
+After editing code in [./src/ts](./src/ts), run `npm run build` to compile it to [./src/addon/web/editor/editor.js](./src/addon/web/editor/editor.js).
 
 ## Tests & Formatting
 This project uses [mypy](https://github.com/python/mypy) type checking for Python, and [standardjs](https://github.com/standard/standard) for formatting Javascript.
