@@ -49,3 +49,17 @@ div[data-efdrcfield] {
   display: inline-block;
 }
 ```
+
+## How to add a custom shortcut action
+
+You can customize the note type to add a custom shortcut action during edit. You will need to know JavaScript. 
+
+Add the following code to your note type. The handler will only be triggered when you press the shortcut while editing.
+Any edits to elem.innerHTML is saved to note field when 'blur' event is triggered on elem.
+
+```javascript
+EFDRC.registerShortcut("Ctrl+Shift+Alt+R", (event, elem) => {
+  // event: KeyEvent, elem: contenteditable field element that is being edited
+  // Write code to do whatever you want.
+}
+```
