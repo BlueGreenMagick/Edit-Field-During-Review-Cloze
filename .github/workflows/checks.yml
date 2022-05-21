@@ -28,7 +28,7 @@ jobs:
         run: npx standard
 
       - name: Install Python dependencies
-        run: python -m pip install aqt mypy pyqt5-stubs pyqt6-stubs types-simplejson
+        run: python -m pip install aqt mypy pyqt5-stubs PyQt6 PyQt6-WebEngine types-simplejson
 
       - name: Run mypy
-        run: python -m mypy .
+        run: python -m mypy --install-types --non-interactive .
