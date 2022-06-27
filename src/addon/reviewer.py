@@ -6,6 +6,7 @@ import anki
 from anki.buildinfo import version as ankiversion
 from anki.template import TemplateRenderContext
 from anki.notes import Note
+from anki.cards import Card
 import aqt
 from aqt import mw, gui_hooks
 from aqt.editor import Editor
@@ -62,8 +63,11 @@ def edit_filter(txt: str, field: str, filt: str, ctx: TemplateRenderContext) -> 
         txt,
         conf["tag"],
     )
-    txt += "<script>EFDRC.serveCard('{}')</script>".format(field)
     return txt
+
+
+def serve_card(txt: str, card: Card, kind: str) -> str:
+    return txt + "<script>EFDRC.serveCard()</script>"
 
 
 def saveField(note: Note, fld: str, val: str) -> None:
@@ -210,6 +214,5 @@ def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]) -> N
 mw.addonManager.setWebExports(__name__, r"web/.*")
 gui_hooks.webview_will_set_content.append(on_webview)
 gui_hooks.webview_did_receive_js_message.append(handle_pycmd_message)
+gui_hooks.card_will_show.append(serve_card)
 anki.hooks.field_filter.append(edit_filter)
-
-# gui_hooks.card_will_show.append(lambda t, c, k: print(t))

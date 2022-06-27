@@ -253,8 +253,8 @@
     ['onkeypress', 'handleKeyPress']
   ]
 
-  EFDRC.serveCard = function (fld) { // fld: string
-    const els = document.querySelectorAll("[data-EFDRCfield='" + fld + "']")
+  EFDRC.serveCard = function () { // fld: string
+    const els = document.querySelectorAll('[data-EFDRCfield]')
     for (const el of els) {
       if (EFDRC.CONF.ctrl_click) {
         const fldName = b64DecodeUnicode(el.getAttribute('data-EFDRCfield'))
