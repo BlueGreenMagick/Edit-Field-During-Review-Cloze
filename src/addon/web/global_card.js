@@ -241,6 +241,9 @@
       if (EFDRC.CONF.remove_span) setTimeout(() => removeSpan(el), 0)
       return -1
     })
+    registerShortcut('Escape', (event, el) => {
+      el.blur()
+    })
     registerFormattingShortcut()
   }
 
