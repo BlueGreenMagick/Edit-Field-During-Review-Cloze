@@ -198,7 +198,7 @@
   }
 
   const isCtrlKey = function (keycode) {
-    return ['ControlLeft', 'MetaLeft'].includes(keycode)
+    return ['ControlLeft', 'MetaLeft', 'ControlRight', 'MetaRight'].includes(keycode)
   }
 
   window.addEventListener('keydown', function (ev) {
