@@ -3,7 +3,6 @@ import json
 from typing import Any, Optional, Tuple
 
 import anki
-from anki.buildinfo import version as ankiversion
 from anki.template import TemplateRenderContext
 from anki.notes import Note
 from anki.cards import Card
@@ -19,9 +18,6 @@ from .semieditor import semiEditorWebView
 from .ankiaddonconfig import ConfigManager
 
 ERROR_MSG = "ERROR - Edit Field During Review Cloze\n{}"
-
-ankiver_minor = int(ankiversion.split(".")[2])
-ankiver_major = ankiversion[0:3]
 
 editorwv = semiEditorWebView()
 
@@ -91,10 +87,11 @@ def saveField(note: Note, fld: str, val: str) -> None:
 
 def get_value(note: Note, fld: str) -> str:
     if fld == "Tags":
-        if ankiver_minor >= 45:
-            return note.string_tags().strip(" ")
-        else:
-            return note.stringTags().strip(" ")  # type: ignore
+        try:
+            string_tags = note.string_tags()
+        except:
+            string_tags = note.stringTags()
+        return string_tags.strip(" ")
     if fld in note:
         return note[fld]
     raise FldNotFoundError(fld)
@@ -102,15 +99,18 @@ def get_value(note: Note, fld: str) -> str:
 
 def reload_reviewer(reviewer: Reviewer) -> None:
     cid = reviewer.card.id
-    if ankiver_minor >= 45:
+    try:
         timer_started = reviewer.card.timer_started
-    else:
-        timerStarted = reviewer.card.timerStarted  # type: ignore
+        timer_started_snake_case = True
+    except:
+        timer_started = reviewer.card.timerStarted  # type: ignore
+        timer_started_snake_case = False
     reviewer.card = mw.col.getCard(cid)
-    if ankiver_minor >= 45:
+    if timer_started_snake_case:
         reviewer.card.timer_started = timer_started
     else:
-        reviewer.card.timerStarted = timerStarted  # type: ignore
+        reviewer.card.timerStarted = timer_started  # type: ignore
+
     if reviewer.state == "question":
         reviewer._showQuestion()
     elif reviewer.state == "answer":
@@ -195,7 +195,6 @@ def url_from_fname(file_name: str) -> str:
 
 
 def on_webview(web_content: aqt.webview.WebContent, context: Optional[Any]) -> None:
-
     if isinstance(context, Reviewer):
         web_content.body += myRevHtml()
         web_content.body += f'<script type="module" src="{url_from_fname("editor/editor.js")}"></script>'
