@@ -126,13 +126,13 @@ def modify_field_editability(
         for side in ["qfmt", "afmt"]:
             if field["edit"] == Editability.ALL:
                 template[side] = re.sub(
-                    "{{((?:(?!edit:)[^#/:}]+:)*%s)}}" % field["name"],
+                    "{{((?:(?!edit:)[^#/:}]+:)*%s)}}" % re.escape(field["name"]),
                     r"{{edit:\1}}",
                     template[side],
                 )
             elif field["edit"] == Editability.NONE:
                 template[side] = re.sub(
-                    "{{((?:[^#/:}]+:)*)edit:((?:[^#/:}]+:)*%s)}}" % field["name"],
+                    "{{((?:[^#/:}]+:)*)edit:((?:[^#/:}]+:)*%s)}}" % re.escape(field["name"]),
                     r"{{\1\2}}",
                     template[side],
                 )
