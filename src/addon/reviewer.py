@@ -172,7 +172,7 @@ def handle_pycmd_message(
 
     elif message == "EFDRC!paste":
         # From aqt.editor.Editor._onPaste, doPaste.
-        mime = mw.app.clipboard().mimeData(mode=QClipboard.Clipboard)
+        mime = mw.app.clipboard().mimeData(mode=QClipboard.Mode.Clipboard)
         html, internal = editorwv._processMime(mime)
         print(internal)
         html = editorwv.editor._pastePreFilter(html, internal)

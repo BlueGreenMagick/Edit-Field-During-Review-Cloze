@@ -38,7 +38,7 @@ def mystart(*args: Any, **kwargs: Any) -> Optional[ProgressDialog]:
     if parent == "EFDRCsemiedit":
         # Don't show progress window when pasting images while in review.
         myprogress = True
-        mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
+        mw.app.setOverrideCursor(QCursor(Qt.CursorShape.WaitCursor))
         return None
     else:
         myprogress = False
