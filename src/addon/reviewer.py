@@ -90,7 +90,7 @@ def get_value(note: Note, fld: str) -> str:
         try:
             string_tags = note.string_tags()
         except:
-            string_tags = note.stringTags()
+            string_tags = note.stringTags() # type:ignore
         return string_tags.strip(" ")
     if fld in note:
         return note[fld]
@@ -105,7 +105,7 @@ def reload_reviewer(reviewer: Reviewer) -> None:
     except:
         timer_started = reviewer.card.timerStarted  # type: ignore
         timer_started_snake_case = False
-    reviewer.card = mw.col.getCard(cid)
+    reviewer.card = mw.col.getCard(cid) # type: ignore
     if timer_started_snake_case:
         reviewer.card.timer_started = timer_started
     else:
