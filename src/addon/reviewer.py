@@ -81,8 +81,7 @@ def saveField(note: Note, fld: str, val: str) -> None:
         if note[fld] == txt:
             return
         note[fld] = txt
-    mw.checkpoint("Edit Field")
-    note.flush()
+    mw.col.update_note(note)
 
 
 def get_value(note: Note, fld: str) -> str:
