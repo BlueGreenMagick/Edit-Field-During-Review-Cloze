@@ -12,6 +12,7 @@ from aqt.editor import Editor
 from aqt.qt import QClipboard
 from aqt.reviewer import Reviewer, ReviewerBottomBar
 from aqt.utils import showText, tooltip
+from aqt.operations.note import update_note
 
 
 from .semieditor import semiEditorWebView
@@ -81,8 +82,8 @@ def saveField(note: Note, fld: str, val: str) -> None:
         if note[fld] == txt:
             return
         note[fld] = txt
-    mw.checkpoint("Edit Field")
-    note.flush()
+    # 2.1.45+
+    update_note(parent=mw, note=note).run_in_background()
 
 
 def get_value(note: Note, fld: str) -> str:
