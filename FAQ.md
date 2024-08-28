@@ -63,3 +63,32 @@ EFDRC.registerShortcut("Ctrl+Shift+Alt+R", (event, elem) => {
   // Write code to do whatever you want.
 }
 ```
+
+## How to edit conditionally hidden field?
+
+When you use conitional replacement in Anki notetype template to hide fields when empty,
+you need to modify your note type to be able to edit it during review.
+
+If you want to hide `{{Field}}` if it is empty, write the below code in your notetype:
+
+```html
+<div class="{{^Field}}hidden{{/Field}}">
+  {{Field}}
+</div>
+```
+
+Then add the following code into the Styling of the note type:
+
+```css
+.hidden {
+  display: none;
+}
+
+[data-efdrc-ctrl] .hidden,
+[data-efdrc-editing] .hidden {
+  display: block;
+}
+```
+
+This works because the add-on adds `data-efdrc-ctrl` attribute to card container div while ctrl is pressed,
+and `data-efdrc-editing` while you are editing a field.

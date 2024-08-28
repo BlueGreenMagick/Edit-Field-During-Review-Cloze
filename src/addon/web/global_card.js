@@ -107,6 +107,10 @@
         window.showTooltip2(EFDRC.tooltip.ev, EFDRC.tooltip.tt, EFDRC.tooltip.el)
       }
     }
+
+    const qEl = document.getElementById('qa');
+    qEl?.setAttribute('data-efdrc-editing', 'true');
+    
     const fld = target.getAttribute('data-EFDRCfield')
     window.pycmd('EFDRC!focuson#' + fld)
   }
@@ -119,6 +123,9 @@
       window.invokeTooltipAtSelectedElm = window.invokeTooltipAtSelectedElm2
       delete window.invokeTooltipAtSelectedElm2
     }
+
+    const qEl = document.getElementById('qa');
+    qEl?.removeAttribute('data-efdrc-editing');
 
     const el = target
     if (EFDRC.CONF.remove_span) {
@@ -273,6 +280,12 @@
 
   EFDRC.ctrldown = function () {
     if (EFDRC.CONF.ctrl_click) {
+      // Set 'data-EFDRC-ctrl' attribute on '#q' element
+      // which is reset when card or side changes.
+      // It can be used for styling in note type templates
+      const qEl = document.getElementById('qa');
+      qEl?.setAttribute('data-efdrc-ctrl', 'true')
+
       const els = document.querySelectorAll('[data-EFDRCfield]')
       for (const el of els) {
         el.setAttribute('contenteditable', 'true')
@@ -284,6 +297,9 @@
 
   EFDRC.ctrlup = function () {
     if (EFDRC.CONF.ctrl_click) {
+      const qEl = document.getElementById('qa');
+      qEl?.removeAttribute('data-efdrc-ctrl')
+
       const els = document.querySelectorAll('[data-EFDRCfield]')
       for (const el of els) {
         if (el !== document.activeElement) {
