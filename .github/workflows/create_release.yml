@@ -42,7 +42,7 @@ jobs:
         run: cd src/addon ; zip -r ../../efdrc_v${{ github.event.inputs.version }}.ankiaddon * ; cd ../../
 
       - name: Create github release and upload ankiaddon file
-        uses: svenstaro/upload-release-action@2.2.1
+        uses: svenstaro/upload-release-action@2.9.0
         with:
           repo_token: ${{ github.token }}
           file: "efdrc_v${{ github.event.inputs.version }}.ankiaddon"
