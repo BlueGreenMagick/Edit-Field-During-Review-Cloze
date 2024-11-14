@@ -15,12 +15,12 @@ from aqt.browser.previewer import MultiCardPreviewer
 from aqt.utils import showText, tooltip
 from aqt.operations.note import update_note
 
-from .semieditor import semiEditorWebView
+from .semieditor import SemiEditorWebView
 from .ankiaddonconfig import ConfigManager
 
 ERROR_MSG = "ERROR - Edit Field During Review Cloze\n{}"
 
-editorwv = semiEditorWebView()
+editorwv = SemiEditorWebView()
 
 
 class FldNotFoundError(Exception):
