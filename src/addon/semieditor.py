@@ -17,6 +17,11 @@ class semiEditor(Editor):
     def __init__(self) -> None:
         self.mw = mw
         self.parentWindow = "EFDRCsemiedit"  # type: ignore
+        
+        # For compatibility with other addons (GH#125)
+        self.currentField = None
+        self.last_field_index = None
+        self.card = None
 
 
 class semiEditorWebView(EditorWebView):
