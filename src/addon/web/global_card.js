@@ -109,7 +109,9 @@
     }
 
     const qEl = document.getElementById('qa')
-    qEl?.setAttribute('data-efdrc-editing', 'true')
+    if (qEl !== null) {
+      qEl.setAttribute('data-efdrc-editing', 'true')
+    }
 
     const fld = target.getAttribute('data-EFDRCfield')
     window.pycmd('EFDRC!focuson#' + fld)
@@ -125,7 +127,9 @@
     }
 
     const qEl = document.getElementById('qa')
-    qEl?.removeAttribute('data-efdrc-editing')
+    if (qEl !== null) {
+      qEl.removeAttribute('data-efdrc-editing')
+    }
 
     const el = target
     if (EFDRC.CONF.remove_span) {
@@ -284,7 +288,9 @@
       // which is reset when card or side changes.
       // It can be used for styling in note type templates
       const qEl = document.getElementById('qa')
-      qEl?.setAttribute('data-efdrc-ctrl', 'true')
+      if (qEl !== null) {
+        qEl.setAttribute('data-efdrc-ctrl', 'true')
+      }
 
       const els = document.querySelectorAll('[data-EFDRCfield]')
       for (const el of els) {
@@ -298,7 +304,9 @@
   EFDRC.ctrlup = function () {
     if (EFDRC.CONF.ctrl_click) {
       const qEl = document.getElementById('qa')
-      qEl?.removeAttribute('data-efdrc-ctrl')
+      if (qEl !== null) {
+        qEl.removeAttribute('data-efdrc-ctrl')
+      }
 
       const els = document.querySelectorAll('[data-EFDRCfield]')
       for (const el of els) {
