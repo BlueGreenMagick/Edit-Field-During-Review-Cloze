@@ -1,5 +1,8 @@
 meta.json
 
+# VSCode
+.vscode/
+
 # JS related 
 node_modules
 
