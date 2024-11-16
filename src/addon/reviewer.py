@@ -118,6 +118,8 @@ def reload_reviewer(reviewer: Reviewer) -> None:
         reviewer._showAnswer()
 
 def reload_previewer(previewer: MultiCardPreviewer) -> None:
+    # previewer may skip rendering if modified note's mtime has not changed
+    previewer._last_state = None
     previewer.render_card()
 
 def reload_review_context(context: Union[Reviewer, MultiCardPreviewer]) -> None:
