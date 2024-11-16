@@ -6,6 +6,7 @@ import anki
 from anki.template import TemplateRenderContext
 from anki.notes import Note
 from anki.cards import Card
+from anki.collection import OpChanges
 import aqt
 from aqt import mw, gui_hooks
 from aqt.editor import Editor
@@ -67,7 +68,12 @@ def serve_card(txt: str, card: Card, kind: str) -> str:
     return txt + "<script>EFDRC.serveCard()</script>"
 
 
-def saveField(note: Note, fld: str, val: str) -> None:
+def save_field_and_reload(
+        note: Note, 
+        fld: str, 
+        val: str, 
+        context: Union[Reviewer, MultiCardPreviewer]
+) -> None:
     if fld == "Tags":
         # aqt.editor.Editor.saveTags
         tags = mw.col.tags.split(val)
@@ -83,7 +89,17 @@ def saveField(note: Note, fld: str, val: str) -> None:
             return
         note[fld] = txt
     # 2.1.45+
-    update_note(parent=mw, note=note).run_in_background()
+
+    def on_success(changes: OpChanges) -> None:
+        reload_review_context(context)
+    
+    def on_failure(exc: Exception) -> None:
+        reload_review_context(context)
+        raise exc
+
+    update_note(
+        parent=mw, note=note
+    ).success(on_success).failure(on_failure).run_in_background()
 
 
 def get_value(note: Note, fld: str) -> str:
@@ -157,8 +173,7 @@ def handle_pycmd_message(
             return (True, None)
         fld = base64.b64decode(fld, validate=True).decode("utf-8")
         try:
-            saveField(note, fld, new_val)
-            reload_review_context(context)
+            save_field_and_reload(note, fld, new_val, context)
             return (True, None)
         except FldNotFoundError as e:
             tooltip(ERROR_MSG.format(str(e)))
