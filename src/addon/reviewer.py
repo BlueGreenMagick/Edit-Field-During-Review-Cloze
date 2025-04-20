@@ -113,6 +113,8 @@ def get_value(note: Note, fld: str) -> str:
         return note[fld]
     raise FldNotFoundError(fld)
 
+def autoplay_false() -> bool:
+    return False
 
 def reload_reviewer(reviewer: Reviewer) -> None:
     cid = reviewer.card.id
@@ -128,10 +130,18 @@ def reload_reviewer(reviewer: Reviewer) -> None:
     else:
         reviewer.card.timerStarted = timer_started  # type: ignore
 
+    original_autoplay = reviewer.card.autoplay
+    will_disable_autoplay = conf.get("disable_autoplay_after_edit", False)
+    if will_disable_autoplay:
+        reviewer.card.autoplay = autoplay_false
+
     if reviewer.state == "question":
         reviewer._showQuestion()
     elif reviewer.state == "answer":
         reviewer._showAnswer()
+    
+    if will_disable_autoplay:
+        reviewer.card.autoplay = original_autoplay
 
 def reload_previewer(previewer: MultiCardPreviewer) -> None:
     # previewer may skip rendering if modified note's mtime has not changed

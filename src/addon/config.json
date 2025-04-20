@@ -6,6 +6,7 @@
   "tag": "div",
   "resize_image_default_state": true,
   "resize_image_preserve_ratio": 2,
+  "disable_autoplay_after_edit": false,
   "shortcuts" : {
     "cloze": "Ctrl + Shift + C",
     "cloze-alt": "Ctrl + Shift + Alt + C",

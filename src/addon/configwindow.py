@@ -20,6 +20,7 @@ def general_tab(conf_window: ConfigWindow) -> None:
     )
     tab.checkbox("outline", "Show a blue outline around the field when editing")
     tab.checkbox("process_paste", "Process pasted content for images and HTML")
+    tab.checkbox("disable_autoplay_after_edit", "Disable Autoplay after edit")
     tag_options = ["div", "span"]
     tab.dropdown(
         "tag",
