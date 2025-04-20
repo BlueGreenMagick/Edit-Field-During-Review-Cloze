@@ -133,15 +133,16 @@ def reload_reviewer(reviewer: Reviewer) -> None:
     original_autoplay = reviewer.card.autoplay
     will_disable_autoplay = conf.get("disable_autoplay_after_edit", False)
     if will_disable_autoplay:
-        reviewer.card.autoplay = autoplay_false
+        reviewer.card.autoplay = autoplay_false # type: ignore
 
-    if reviewer.state == "question":
-        reviewer._showQuestion()
-    elif reviewer.state == "answer":
-        reviewer._showAnswer()
-    
-    if will_disable_autoplay:
-        reviewer.card.autoplay = original_autoplay
+    try:
+        if reviewer.state == "question":
+            reviewer._showQuestion()
+        elif reviewer.state == "answer":
+            reviewer._showAnswer()
+    finally:    
+        if will_disable_autoplay:
+            reviewer.card.autoplay = original_autoplay # type: ignore
 
 def reload_previewer(previewer: MultiCardPreviewer) -> None:
     # previewer may skip rendering if modified note's mtime has not changed
