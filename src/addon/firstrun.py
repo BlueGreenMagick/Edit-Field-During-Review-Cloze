@@ -1,6 +1,7 @@
+import json
 import os
+from pathlib import Path
 
-from aqt import mw
 from aqt.utils import showText
 
 from .ankiaddonconfig import ConfigManager
@@ -136,9 +137,9 @@ if version == "-1.-1":
 # Save current version
 version_string = os.environ.get("EFDRC_VERSION")
 if not version_string:
-    addon_dir = mw.addonManager.addonFromModule(__name__)
-    meta = mw.addonManager.addonMeta(addon_dir)
-    version_string = meta["human_version"]
+    manifest_path = Path(__file__).resolve().with_name("manifest.json")
+    with manifest_path.open(encoding="utf-8") as file:
+        version_string = json.load(file)["human_version"]
 
 conf["version.major"] = int(version_string.split(".")[0])
 conf["version.minor"] = int(version_string.split(".")[1])
