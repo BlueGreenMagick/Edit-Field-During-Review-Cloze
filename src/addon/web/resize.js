@@ -2,6 +2,7 @@
 
 (function () {
   EFDRC.priorImgs = []
+  const resizedImgs = new WeakSet()
 
   const savePriorImg = function (img) {
     const id = EFDRC.priorImgs.length
@@ -10,19 +11,14 @@
   }
 
   const restorePriorImg = function (img) {
-    /*
-        only save changes to width and height
-        resizable img is guranteed to have the data-EFDRCImgId attribute.
-        if img was added during review, resizable isn't applied to it.
-        */
-    const width = img.style.width
-    const height = img.style.height
-
-    // apply stored style
+    // Preserve the original image unless the user resized or reset it.
     const id = img.getAttribute('data-EFDRCImgId')
     const priorImg = EFDRC.priorImgs[id]
-    priorImg.style.width = width
-    priorImg.style.height = height
+    if (resizedImgs.has(img)) {
+      maybeRemoveHeight(img, $(img))
+      priorImg.style.width = img.style.width
+      priorImg.style.height = img.style.height
+    }
 
     img.parentNode.replaceChild(priorImg, img)
   }
@@ -51,6 +47,7 @@
 
   const onDblClick = function () {
     const img = this
+    resizedImgs.add(img)
     const $img = $(img)
     $img.css('width', '')
     $img.css('height', '')
@@ -65,10 +62,9 @@
       await new Promise(resolve => setTimeout(resolve, 20))
     }
 
-    savePriorImg(img)
-
     const $img = $(img)
     if ($img.resizable('instance') === undefined) { // just in case?
+      savePriorImg(img)
       const aspRatio = (EFDRC.CONF.resize_image_preserve_ratio === 2)
       const computedStyle = window.getComputedStyle(img)
 
@@ -81,9 +77,12 @@
         },
         stop: function (event, ui) {
           $img.resizable('option', 'aspectRatio', false).data('ui-resizable')._aspectRatio = false
-          maybeRemoveHeight(img, $img, ui) // this might not be working
+          if (resizedImgs.has(img)) {
+            maybeRemoveHeight(img, $img, ui)
+          }
         },
         resize: function (event, ui) {
+          resizedImgs.add(img)
           if (ratioShouldBePreserved(event)) {
             maybeRemoveHeight(img, $img, ui)
           }
@@ -125,7 +124,6 @@
     }
     const imgs = field.querySelectorAll('[data-EFDRCImgId]')
     for (const img of imgs) {
-      maybeRemoveHeight(img, $(img))
       restorePriorImg(img)
     }
     EFDRC.priorImgs = []
