@@ -37,16 +37,18 @@ def general_tab(conf_window: ConfigWindow) -> None:
 
     tab.space(20)
     tab.text("Image Resizing", bold=True)
-    tab.checkbox(
+    use_resize_checkbox = tab.checkbox(
         "resize_image_default_state",
         "Use image resizing",
         tooltip="When unchecked, you can still show resize handles by pressing the below shortcut",
     )
-    tab.checkbox(
+    show_on_click_checkbox = tab.checkbox(
         "show_resize_on_click",
         "Show resize handles after clicking on image",
         tooltip="When unchecked, resize handles show on all images",
     )
+    use_resize_checkbox.toggled.connect(show_on_click_checkbox.setEnabled)
+    show_on_click_checkbox.setEnabled(use_resize_checkbox.isChecked())
     option_labels = [
         "Don't preserve ratio",
         "Preserve ratio when using corner",
