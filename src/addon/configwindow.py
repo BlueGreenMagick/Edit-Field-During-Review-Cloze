@@ -49,6 +49,14 @@ def general_tab(conf_window: ConfigWindow) -> None:
     )
     use_resize_checkbox.toggled.connect(show_on_click_checkbox.setEnabled)
     show_on_click_checkbox.setEnabled(use_resize_checkbox.isChecked())
+    # Anki's palette doesn't gray out disabled checkbox labels in native widget style.
+    palette = show_on_click_checkbox.palette()
+    palette.setColor(
+        QPalette.ColorGroup.Disabled,
+        QPalette.ColorRole.WindowText,
+        palette.color(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text),
+    )
+    show_on_click_checkbox.setPalette(palette)
     option_labels = [
         "Don't preserve ratio",
         "Preserve ratio when using corner",
