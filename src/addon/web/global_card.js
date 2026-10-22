@@ -228,14 +228,12 @@
   EFDRC.registerConfig = function (confStr) {
     EFDRC.CONF = JSON.parse(confStr)
     EFDRC.CONF.span = (EFDRC.CONF.tag === 'span')
-    EFDRC.resizeImageMode = EFDRC.CONF.resize_image_default_state
   }
 
   EFDRC.setupReviewer = function () {
     // image resizer
-    registerShortcut(EFDRC.CONF.shortcuts['image-resize'], (event) => {
-      EFDRC.resizeImageMode = !EFDRC.resizeImageMode
-      EFDRC.maybeResizeOrClean()
+    registerShortcut(EFDRC.CONF.shortcuts['image-resize'], (event, el) => {
+      EFDRC.toggleResize(el)
     })
     registerShortcut(EFDRC.CONF.shortcuts.cloze, (event, el) => {
       wrapCloze(event, el, false)
@@ -329,6 +327,6 @@
       }
       elem.setAttribute('data-EFDRCnid', nid)
     }
-    EFDRC.maybeResizeOrClean(true)
+    EFDRC.setupResize(document.activeElement)
   }
 })()

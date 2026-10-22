@@ -40,7 +40,12 @@ def general_tab(conf_window: ConfigWindow) -> None:
     tab.checkbox(
         "resize_image_default_state",
         "Use image resizing",
-        tooltip="Even when unchecked, you can toggle the 'image resize mode' with below shortcut",
+        tooltip="When unchecked, you can still show resize handles by pressing the below shortcut",
+    )
+    tab.checkbox(
+        "show_resize_on_click",
+        "Show resize handles after clicking on image",
+        tooltip="When unchecked, resize handles show on all images",
     )
     option_labels = [
         "Don't preserve ratio",
@@ -56,8 +61,8 @@ def general_tab(conf_window: ConfigWindow) -> None:
     )
     tab.text_input(
         "shortcuts.image-resize",
-        "Shortcut for image resize mode:",
-        tooltip="Pressing this shortcut toggles the image resize mode",
+        "Shortcut to toggle image resize handles:",
+        tooltip="Press this shortcut to toggle image resize handles",
     )
     tab.stretch()
 

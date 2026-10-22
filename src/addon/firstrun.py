@@ -66,6 +66,15 @@ distinguish_initial_install()
 # Make config compatible when upgrading from older version
 
 
+def change_show_resize_on_click() -> None:
+    if version != "-1.-1" and version < "6.24":
+        conf["show_resize_on_click"] = False
+    conf.save()
+
+
+change_show_resize_on_click()
+
+
 def change_resize_image_preserve_ratio() -> None:
     resize_conf = conf["resize_image_preserve_ratio"]
     if not isinstance(resize_conf, bool):

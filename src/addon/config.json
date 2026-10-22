@@ -5,6 +5,7 @@
   "remove_span": false,
   "tag": "div",
   "resize_image_default_state": true,
+  "show_resize_on_click": true,
   "resize_image_preserve_ratio": 2,
   "disable_autoplay_after_edit": false,
   "shortcuts" : {
