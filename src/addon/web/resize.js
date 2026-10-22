@@ -47,8 +47,9 @@
       // wait for image to load
       await new Promise(resolve => setTimeout(resolve, 20))
     }
-    // Handles may have been hidden while the image was loading.
-    if (!handledImgs.has(img)) { return }
+    // Handles may have been hidden while the image was loading,
+    // or set up by an earlier call that was waiting on the same image.
+    if (!handledImgs.has(img) || $(img).resizable('instance') !== undefined) { return }
 
     const $img = $(img)
     const aspRatio = (EFDRC.CONF.resize_image_preserve_ratio === 2)
